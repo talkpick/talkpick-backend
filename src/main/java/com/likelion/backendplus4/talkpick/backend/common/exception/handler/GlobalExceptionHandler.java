@@ -4,6 +4,7 @@ import com.likelion.backendplus4.talkpick.backend.common.exception.CustomExcepti
 import com.likelion.backendplus4.talkpick.backend.common.exception.error.ErrorCode;
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  * @modified 2025-05-03
  * @since 2025-04-16
  */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -149,7 +151,7 @@ public class GlobalExceptionHandler {
             String message,
             Throwable ex
     ) {
-        //TODO log(LogLevel.ERROR, ex.getClass().getSimpleName() + ": " + ex.getMessage(), ex);
+        log.error("{}: {}", ex.getClass().getSimpleName(), ex.getMessage(), ex);
         return ApiResponse.error(status, String.valueOf(errorCode), message);
     }
 
