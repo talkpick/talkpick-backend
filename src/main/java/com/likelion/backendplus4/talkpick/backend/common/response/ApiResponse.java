@@ -29,9 +29,7 @@ public class ApiResponse<T> {
 
     public static ResponseEntity<ApiResponse<Void>> success() {
         ApiResponse<Void> body = ApiResponse.<Void>builder()
-                .errorCode(null)
                 .message(SUCCESS_MESSAGE)
-                .data(null)
                 .build();
         return ResponseEntity.ok(body);
     }
@@ -39,7 +37,6 @@ public class ApiResponse<T> {
 
     public static <T> ResponseEntity<ApiResponse<T>> success(T data) {
         ApiResponse<T> body = ApiResponse.<T>builder()
-                .errorCode(null)
                 .message(SUCCESS_MESSAGE)
                 .data(data)
                 .build();
@@ -52,7 +49,6 @@ public class ApiResponse<T> {
         ApiResponse<T> body = ApiResponse.<T>builder()
                 .errorCode(errorCode)
                 .message(message)
-                .data(null)
                 .build();
         return ResponseEntity.status(status).body(body);
     }
