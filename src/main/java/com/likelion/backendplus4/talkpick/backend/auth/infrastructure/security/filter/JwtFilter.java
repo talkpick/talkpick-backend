@@ -1,7 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.filter;
 
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.RedisAuthPort;
-import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.adapter.persistence.redis.RedisAuthAdapter;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.TokenProvider;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;

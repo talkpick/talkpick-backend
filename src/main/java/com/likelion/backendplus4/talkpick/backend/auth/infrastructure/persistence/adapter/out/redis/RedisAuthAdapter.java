@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.adapter.persistence.redis;
+package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.persistence.adapter.out.redis;
 
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.RedisAuthPort;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.dto.RefreshTokenInfoDto;
