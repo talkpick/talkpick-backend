@@ -30,18 +30,18 @@ public class UserEntity {
     @Column(name = "account", nullable = false, unique = true)
     private String account;
 
+    @Column(name = "password", nullable = false)
+    private String password;
+
     @Enumerated(STRING)
     @Column(name = "role", nullable = false)
     private Role role;
-
-    @Column(name = "password", nullable = false)
-    private String password;
 
     @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "nickname")
-    private String nikName;
+    private String nickName;
 
     @Column(name = "email")
     private String email;
