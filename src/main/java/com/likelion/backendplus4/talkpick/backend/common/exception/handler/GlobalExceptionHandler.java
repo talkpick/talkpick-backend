@@ -1,5 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.common.exception.handler;
 
+import static com.likelion.backendplus4.talkpick.backend.common.exception.error.GlobalErrorCode.*;
+
 import com.likelion.backendplus4.talkpick.backend.common.exception.CustomException;
 import com.likelion.backendplus4.talkpick.backend.common.exception.error.ErrorCode;
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
@@ -24,12 +26,6 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-    private static final int ILLEGAL_ARGUMENT_CODE = 14001;
-    private static final int NOT_FOUND_CODE = 140002;
-    private static final int METHOD_ARGUMENT_NOT_VALID_CODE = 300001;
-    private static final int BIND_EXCEPTION_CODE = 300002;
-    private static final int INTERNAL_SERVER_ERROR_CODE = 500000;
 
     /**
      * CustomException 처리
@@ -66,7 +62,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(IllegalArgumentException ex) {
         return buildErrorResponse(
                 HttpStatus.BAD_REQUEST,
-                ILLEGAL_ARGUMENT_CODE,
+                ILLEGAL_ARGUMENT_CODE.getCode(),
                 ex.getMessage(),
                 ex
         );
@@ -87,7 +83,7 @@ public class GlobalExceptionHandler {
         String errorMessage = getErrorMessage(ex);
         return buildErrorResponse(
                 HttpStatus.BAD_REQUEST,
-                METHOD_ARGUMENT_NOT_VALID_CODE,
+                METHOD_ARGUMENT_NOT_VALID_CODE.getCode(),
                 errorMessage,
                 ex
         );
@@ -95,7 +91,7 @@ public class GlobalExceptionHandler {
 
     /**
      * BindException 처리
-     * GET 요청 파라미터나 폼 바인딩 유효성 실패 시 처리
+     * 폼 바인딩 유효성 실패 시 처리
      *
      * @param ex BindException 오류
      * @return 에러 응답
@@ -108,7 +104,7 @@ public class GlobalExceptionHandler {
         String errorMessage = getErrorMessage(ex);
         return buildErrorResponse(
                 HttpStatus.BAD_REQUEST,
-                BIND_EXCEPTION_CODE,
+                BIND_EXCEPTION_CODE.getCode(),
                 errorMessage,
                 ex
         );
@@ -130,11 +126,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleNoHandler(NoHandlerFoundException ex) {
         return buildErrorResponse(
                 HttpStatus.NOT_FOUND,
-                NOT_FOUND_CODE,
+                NOT_FOUND_CODE.getCode(),
                 "요청하신 경로를 찾을 수 없습니다.",
                 ex
         );
     }
+
 
     /**
      * 기타 모든 예외 처리
@@ -150,13 +147,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleAllExceptions(Exception ex) {
         return buildErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR,
-                INTERNAL_SERVER_ERROR_CODE,
+                INTERNAL_SERVER_ERROR_CODE.getCode(),
                 "알 수 없는 오류가 발생했습니다.",
                 ex
         );
     }
-
-
 
     /**
      * 공통 에러 응답 생성 메서드
