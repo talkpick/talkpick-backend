@@ -35,6 +35,7 @@ public class P6spyConfig implements MessageFormattingStrategy {
 
     /**
      * 실제 로그 메시지를 생성하는 엔트리 포인트 메서드.
+     * 카테고리에 따라 SQL 을 포맷팅하고, 실행 시간과 함께 출력합니다.
      *
      * @param connectionId 커넥션 고유 ID
      * @param now          로그 출력 시각 (문자열)
@@ -58,7 +59,6 @@ public class P6spyConfig implements MessageFormattingStrategy {
             String sql,
             String url
     ) {
-        // 카테고리에 따라 SQL 을 포맷팅하고, 실행 시간과 함께 출력
         sql = formatSql(category, sql);
         return String.format("[%s] | %d ms | %s", category, elapsed, sql);
     }
@@ -72,7 +72,7 @@ public class P6spyConfig implements MessageFormattingStrategy {
      * @return 포맷팅된 SQL (또는 SQL 이 비어있으면 원본 반환)
      * @author 박찬병
      * @modified 2025-05-09
-     * @since 2025-05-09
+     * @since 2025-05-10
      */
     private String formatSql(String category, String sql) {
         if (sql == null || sql.isBlank()) {
@@ -81,20 +81,43 @@ public class P6spyConfig implements MessageFormattingStrategy {
         }
 
         // 오직 STATEMENT(실행 쿼리) 카테고리만 포맷팅 대상
-        if (Category.STATEMENT.getName().equals(category)) {
-            String trimmedSQL = sql.trim().toLowerCase(Locale.ROOT);
-
-            // DDL 계열 쿼리인 경우
-            if (trimmedSQL.startsWith("create")
-                    || trimmedSQL.startsWith("alter")
-                    || trimmedSQL.startsWith("comment")) {
+        if (isStatementCategory(category)) {
+            if (isDdlStatement(sql)) {
                 sql = FormatStyle.DDL.getFormatter().format(sql);
             } else {
-                // SELECT, INSERT, UPDATE, DELETE 등 일반 쿼리
                 sql = FormatStyle.BASIC.getFormatter().format(sql);
             }
         }
 
         return sql;
+    }
+
+    /**
+     * 주어진 카테고리가 STATEMENT 인지 여부를 판단합니다.
+     *
+     * @param category P6Spy 로깅 카테고리
+     * @return STATEMENT 카테고리이면 true, 아니면 false
+     * @author 박찬병
+     * @modified 2025-05-10
+     * @since 2025-05-10
+     */
+    private boolean isStatementCategory(String category) {
+        return Category.STATEMENT.getName().equals(category);
+    }
+
+    /**
+     * 주어진 SQL 문이 DDL(create/alter/comment) 문인지 여부를 판단합니다.
+     *
+     * @param sql 실행된 SQL 문자열
+     * @return DDL 문이면 true, 아니면 false
+     * @author 박찬병
+     * @modified 2025-05-09
+     * @since 2025-05-10
+     */
+    private boolean isDdlStatement(String sql) {
+        String trimmedSQL = sql.trim().toLowerCase(Locale.ROOT);
+        return trimmedSQL.startsWith("create")
+                || trimmedSQL.startsWith("alter")
+                || trimmedSQL.startsWith("comment");
     }
 }
