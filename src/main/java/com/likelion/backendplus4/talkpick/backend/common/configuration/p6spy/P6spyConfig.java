@@ -75,21 +75,29 @@ public class P6spyConfig implements MessageFormattingStrategy {
      * @since 2025-05-10
      */
     private String formatSql(String category, String sql) {
-        if (sql == null || sql.isBlank()) {
-            // 빈 쿼리인 경우 그대로 반환
+        if (isEmptySql(sql)) {
             return sql;
         }
 
-        // 오직 STATEMENT(실행 쿼리) 카테고리만 포맷팅 대상
         if (isStatementCategory(category)) {
-            if (isDdlStatement(sql)) {
-                sql = FormatStyle.DDL.getFormatter().format(sql);
-            } else {
-                sql = FormatStyle.BASIC.getFormatter().format(sql);
-            }
+            return formatStatementSql(sql);
         }
 
         return sql;
+    }
+
+
+    /**
+     * SQL이 비어있는지 확인합니다.
+     *
+     * @param sql 실행된 SQL 문자열
+     * @return 비어있으면 true, 아니면 false
+     * @author 박찬병
+     * @modified 2025-05-10
+     * @since 2025-05-10
+     */
+    private boolean isEmptySql(String sql) {
+        return sql == null || sql.isBlank();
     }
 
     /**
@@ -103,6 +111,20 @@ public class P6spyConfig implements MessageFormattingStrategy {
      */
     private boolean isStatementCategory(String category) {
         return Category.STATEMENT.getName().equals(category);
+    }
+
+    /**
+     * STATEMENT 카테고리의 SQL을 포맷팅합니다.
+     *
+     * @param sql 실행된 SQL 문자열
+     * @return 포맷팅된 SQL
+     */
+    private String formatStatementSql(String sql) {
+        if (isDdlStatement(sql)) {
+            return FormatStyle.DDL.getFormatter().format(sql);
+        } else {
+            return FormatStyle.BASIC.getFormatter().format(sql);
+        }
     }
 
     /**
