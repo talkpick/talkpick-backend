@@ -118,6 +118,9 @@ public class P6spyConfig implements MessageFormattingStrategy {
      *
      * @param sql 실행된 SQL 문자열
      * @return 포맷팅된 SQL
+     * @author 박찬병
+     * @modified 2025-05-09
+     * @since 2025-05-10
      */
     private String formatStatementSql(String sql) {
         if (isDdlStatement(sql)) {
