@@ -1,5 +1,8 @@
 server:
   port: ${WEB_PORT:8078}
+  error:
+    whitelabel:
+      enabled: false
 
 spring:
   application:
@@ -17,9 +20,9 @@ spring:
       hibernate:
         format_sql: true
     open-in-view: false
-  ai:
-    openai:
-      api-key: ${OPEN_API_KEY}
+  web:
+    resources:
+      add-mappings: false
 
 #p6spy
 decorator:
