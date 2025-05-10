@@ -24,6 +24,12 @@ spring:
     resources:
       add-mappings: false
 
+#p6spy
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
+
 logging:
   pattern:
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%level] [%thread] [%logger{36}] - %msg%n"
