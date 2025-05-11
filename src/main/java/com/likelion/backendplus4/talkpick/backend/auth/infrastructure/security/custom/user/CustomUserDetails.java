@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom;
+package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.user;
 
 import java.util.ArrayList;
 import java.util.Collection;

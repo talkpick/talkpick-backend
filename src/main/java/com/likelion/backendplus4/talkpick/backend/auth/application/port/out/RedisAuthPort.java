@@ -1,7 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.auth.application.port.out;
 
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.dto.RefreshTokenInfoDto;
-import java.util.HashMap;
 
 public interface RedisAuthPort {
 
@@ -12,5 +11,7 @@ public interface RedisAuthPort {
     void logoutTokens(String accessToken, long accessTokenExpiration, String userId);
 
     String getAuthorities(String userId);
+
+    boolean isTokenBlacklisted(String accessToken);
 
 }

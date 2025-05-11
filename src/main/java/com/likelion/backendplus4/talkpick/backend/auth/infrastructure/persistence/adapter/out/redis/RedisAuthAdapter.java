@@ -3,6 +3,7 @@ package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.persisten
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.RedisAuthPort;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.dto.RefreshTokenInfoDto;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,9 +45,20 @@ public class RedisAuthAdapter implements RedisAuthPort {
         try {
             String storedRefreshToken = (String) redisTemplate.opsForHash()
                     .get(userId, REFRESH_TOKEN_KEY);
-            return storedRefreshToken.equals(refreshToken);
+            return Objects.requireNonNull(storedRefreshToken).equals(refreshToken);
         } catch (Exception e) {
             log.warn("Redis에서 Refresh Token 검증 실패: {}", e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean isTokenBlacklisted(String accessToken) {
+        try {
+            // 액세스 토큰이 키로 존재하면 블랙리스트된 상태
+            return redisTemplate.hasKey(accessToken);
+        } catch (Exception e) {
+            log.warn("Redis에서 블랙리스트 토큰 조회 실패: {}", e.getMessage());
             return false;
         }
     }

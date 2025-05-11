@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom;
+package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.user;
 
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.UserAuthPort;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;

@@ -2,11 +2,10 @@ package com.likelion.backendplus4.talkpick.backend.common.configuration.security
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
-import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.RedisAuthPort;
-import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.TokenProvider;
+import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.JwtAuthentication;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.filter.JwtFilter;
-import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.handler.CustomAccessDeniedHandler;
-import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.handler.CustomAuthenticationEntryPoint;
+import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.handler.CustomAccessDeniedHandler;
+import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.handler.CustomAuthenticationEntryPoint;
 import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +24,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final TokenProvider tokenProvider;
-    private final RedisAuthPort redisAuthPort;
+    private final JwtAuthentication jwtAuthentication;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
@@ -47,7 +45,7 @@ public class SecurityConfig {
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
                         .accessDeniedHandler(customAccessDeniedHandler))
-                .addFilterBefore(new JwtFilter(tokenProvider, redisAuthPort),
+                .addFilterBefore(new JwtFilter(jwtAuthentication),
                         UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
