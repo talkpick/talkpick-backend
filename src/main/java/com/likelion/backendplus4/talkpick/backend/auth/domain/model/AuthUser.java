@@ -21,5 +21,7 @@ public class AuthUser {
 
     private String role;
 
-
+    public void updateEncodedPassword(String encodePassword) {
+        this.password = encodePassword;
+    }
 }

@@ -72,6 +72,10 @@ public class JwtProvider {
         return JwtToken.of(newAccessToken, refreshToken);
     }
 
+    // 토큰에서 사용자 이름을 추출하는 메서드
+    public String getUserIdFromToken(String token) {
+        return jwtVerifier.verifyToken(token).getSubject();
+    }
 
     /**
      * 토큰에서 만료 시간 가져오기
@@ -98,10 +102,6 @@ public class JwtProvider {
             .compact();
     }
 
-    // 토큰에서 사용자 이름을 추출하는 메서드
-    private String getUserIdFromToken(String token) {
-        return jwtVerifier.verifyToken(token).getSubject();
-    }
 
     private Claims buildClaims(String userId, String roles) {
         Claims claims = Jwts.claims().setSubject(userId);

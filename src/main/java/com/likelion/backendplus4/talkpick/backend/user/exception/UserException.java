@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.exception;
+package com.likelion.backendplus4.talkpick.backend.user.exception;
 
 import com.likelion.backendplus4.talkpick.backend.common.exception.CustomException;
 import com.likelion.backendplus4.talkpick.backend.common.exception.error.ErrorCode;

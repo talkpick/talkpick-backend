@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.exception.error;
+package com.likelion.backendplus4.talkpick.backend.user.exception.error;
 
 import org.springframework.http.HttpStatus;
 
@@ -8,7 +8,8 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum UserErrorCode implements ErrorCode {
-	USER_NOT_FOUND(HttpStatus.NOT_FOUND, 110001, "사용자를 찾을 수 없습니다.");
+	USER_NOT_FOUND(HttpStatus.NOT_FOUND, 110001, "사용자를 찾을 수 없습니다."),
+	ACCOUNT_DUPLICATE (HttpStatus.CONFLICT,    110002, "이미 사용 중인 계정입니다.");
 
 	private final HttpStatus status;
 	private final int code;

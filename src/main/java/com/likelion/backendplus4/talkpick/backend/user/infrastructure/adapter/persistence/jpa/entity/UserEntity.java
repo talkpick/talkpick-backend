@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.entity;
+package com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.jpa.entity;
 
 import static jakarta.persistence.EnumType.STRING;
 
