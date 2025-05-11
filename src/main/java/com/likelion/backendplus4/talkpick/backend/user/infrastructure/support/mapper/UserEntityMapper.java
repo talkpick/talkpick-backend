@@ -8,7 +8,7 @@ public class UserEntityMapper {
 
 	public static UserEntity toEntityByDomain(AuthUser authUser) {
 		return UserEntity.builder()
-			.name(authUser.getName())
+			.account(authUser.getAccount())
 			.password(authUser.getPassword())
 			.email(authUser.getEmail())
 			.name(authUser.getName())

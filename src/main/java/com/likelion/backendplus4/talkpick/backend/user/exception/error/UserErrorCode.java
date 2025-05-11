@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public enum UserErrorCode implements ErrorCode {
 	USER_NOT_FOUND(HttpStatus.NOT_FOUND, 110001, "사용자를 찾을 수 없습니다."),
-	ACCOUNT_DUPLICATE (HttpStatus.CONFLICT,    110002, "이미 사용 중인 계정입니다.");
+	ACCOUNT_DUPLICATE (HttpStatus.BAD_REQUEST,    110002, "이미 사용 중인 계정입니다.");
 
 	private final HttpStatus status;
 	private final int code;

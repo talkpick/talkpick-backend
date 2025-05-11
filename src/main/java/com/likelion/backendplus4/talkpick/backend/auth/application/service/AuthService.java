@@ -47,7 +47,8 @@ public class AuthService implements AuthServiceUseCase {
 	@Override
 	public JwtToken signIn(SignInDto signInDto) {
 		Authentication authentication = authenticationManager.authenticate(
-			new UsernamePasswordAuthenticationToken(signInDto.email(),
+			new UsernamePasswordAuthenticationToken(signInDto.account()
+				,
 				signInDto.password()
 			)
 		);

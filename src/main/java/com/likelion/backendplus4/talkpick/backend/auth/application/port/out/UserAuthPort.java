@@ -6,7 +6,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 
 public interface UserAuthPort {
 
-    Optional<AuthUser> findUserById(Long id);
+    Optional<AuthUser> findUserByAccount(String account);
 
     void existsByAccountAndEmail(String account);
 

@@ -17,8 +17,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserAuthPort userAuthPort;
 
     @Override
-    public UserDetails loadUserByUsername(String id) {
-        AuthUser authUser = userAuthPort.findUserById(Long.valueOf(id))
+    public UserDetails loadUserByUsername(String account) {
+        AuthUser authUser = userAuthPort.findUserByAccount(account)
             .orElseThrow(() -> new AuthException(AuthErrorCode.AUTHENTICATION_FAILED));
         return CustomUserDetailsMapper.toCustomUserDetails(authUser);
     }

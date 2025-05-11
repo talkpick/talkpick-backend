@@ -21,8 +21,8 @@ public class UserAuthJpaAdapter implements UserAuthPort {
     private final UserRepository userRepository;
 
     @Override
-    public Optional<AuthUser> findUserById(Long id) {
-        return userRepository.findById(id)
+    public Optional<AuthUser> findUserByAccount(String account) {
+        return userRepository.findUserByAccount(account)
             .map(AuthUserMapper::toDomainByUserEntity);
     }
 
