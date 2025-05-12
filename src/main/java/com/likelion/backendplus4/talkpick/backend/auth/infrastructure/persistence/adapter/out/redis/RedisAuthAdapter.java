@@ -1,11 +1,16 @@
 package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.persistence.adapter.out.redis;
 
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.RedisAuthPort;
+import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
+import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
+
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -32,8 +37,8 @@ public class RedisAuthAdapter implements RedisAuthPort {
             HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
             hashOperations.putAll(userId, createTokenDataMap(refreshToken, roles));
             redisTemplate.expire(userId, 7, TimeUnit.DAYS);
-        } catch (Exception e) {
-            log.warn("Redis에 Refresh Token 저장 실패: {}", e.getMessage());
+        } catch (DataAccessException dae) {
+            throw new AuthException(AuthErrorCode.REDIS_STORE_FAILURE, dae);
         }
     }
 
@@ -43,12 +48,11 @@ public class RedisAuthAdapter implements RedisAuthPort {
     @Override
     public boolean isValidRefreshToken(String userId, String refreshToken) {
         try {
-            String storedRefreshToken = (String) redisTemplate.opsForHash()
-                    .get(userId, REFRESH_TOKEN_KEY);
+            String storedRefreshToken = (String)redisTemplate.opsForHash()
+                .get(userId, REFRESH_TOKEN_KEY);
             return Objects.requireNonNull(storedRefreshToken).equals(refreshToken);
-        } catch (Exception e) {
-            log.warn("Redis에서 Refresh Token 검증 실패: {}", e.getMessage());
-            return false;
+        } catch (DataAccessException dae) {
+            throw new AuthException(AuthErrorCode.REDIS_RETRIEVE_FAILURE, dae);
         }
     }
 
@@ -57,9 +61,8 @@ public class RedisAuthAdapter implements RedisAuthPort {
         try {
             // 액세스 토큰이 키로 존재하면 블랙리스트된 상태
             return redisTemplate.hasKey(accessToken);
-        } catch (Exception e) {
-            log.warn("Redis에서 블랙리스트 토큰 조회 실패: {}", e.getMessage());
-            return false;
+        } catch (DataAccessException dae) {
+            throw new AuthException(AuthErrorCode.REDIS_BLACKLIST_CHECK_FAIL, dae);
         }
     }
 
@@ -70,13 +73,13 @@ public class RedisAuthAdapter implements RedisAuthPort {
     public void logoutTokens(String accessToken, long accessTokenExpiration, String userId) {
         try {
             redisTemplate.opsForValue().set(
-                    accessToken,
-                    "blacklisted",
-                    accessTokenExpiration,
-                    TimeUnit.MILLISECONDS);
+                accessToken,
+                "blacklisted",
+                accessTokenExpiration,
+                TimeUnit.MILLISECONDS);
             redisTemplate.delete(userId);
-        } catch (Exception e) {
-            log.warn("Redis에서 로그아웃 처리 실패: {}", e.getMessage());
+        } catch (DataAccessException dae) {
+            throw new AuthException(AuthErrorCode.REDIS_LOGOUT_PROCESS_FAIL, dae);
         }
     }
 
@@ -86,10 +89,9 @@ public class RedisAuthAdapter implements RedisAuthPort {
     @Override
     public String getAuthorities(String userId) {
         try {
-            return (String) redisTemplate.opsForHash().get(userId, AUTHORITIES_KEY);
-        } catch (Exception e) {
-            log.warn("Redis에서 권한 정보 조회 실패: {}", e.getMessage());
-            return null;
+            return (String)redisTemplate.opsForHash().get(userId, AUTHORITIES_KEY);
+        } catch (DataAccessException dae) {
+            throw new AuthException(AuthErrorCode.REDIS_AUTHORITIES_RETRIEVE_FAIL, dae);
         }
     }
 
