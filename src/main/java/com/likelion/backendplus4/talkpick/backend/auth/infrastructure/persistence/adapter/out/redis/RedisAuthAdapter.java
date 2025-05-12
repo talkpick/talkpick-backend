@@ -22,6 +22,7 @@ public class RedisAuthAdapter implements RedisAuthPort {
 
     private static final String REFRESH_TOKEN_KEY = "refreshToken";
     private static final String AUTHORITIES_KEY = "authorities";
+    private static final String BLACKLIST = "blacklisted";
 
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -74,7 +75,7 @@ public class RedisAuthAdapter implements RedisAuthPort {
         try {
             redisTemplate.opsForValue().set(
                 accessToken,
-                "blacklisted",
+                BLACKLIST,
                 accessTokenExpiration,
                 TimeUnit.MILLISECONDS);
             redisTemplate.delete(userId);

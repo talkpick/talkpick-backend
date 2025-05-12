@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 
-public interface UserAuthPort {
+public interface UserJpaRepoPort {
 
     Optional<AuthUser> findUserByAccount(String account);
 

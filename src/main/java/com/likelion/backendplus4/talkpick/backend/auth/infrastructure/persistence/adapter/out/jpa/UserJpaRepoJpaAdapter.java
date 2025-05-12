@@ -2,7 +2,7 @@ package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.persisten
 
 import java.util.Optional;
 
-import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.UserAuthPort;
+import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.UserJpaRepoPort;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.AuthUserMapper;
 import com.likelion.backendplus4.talkpick.backend.user.exception.UserException;
@@ -13,10 +13,12 @@ import com.likelion.backendplus4.talkpick.backend.user.infrastructure.support.ma
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class UserAuthJpaAdapter implements UserAuthPort {
+public class UserJpaRepoJpaAdapter implements UserJpaRepoPort {
 
     private final UserRepository userRepository;
 
@@ -34,12 +36,14 @@ public class UserAuthJpaAdapter implements UserAuthPort {
     }
 
     @Override
+    @Transactional
     public void saveUser(AuthUser authUser) {
         UserEntity userEntity = UserEntityMapper.toEntityByDomain(authUser);
         userRepository.save(userEntity);
     }
 
     @Override
+    @Transactional
     public void deleteUser(Long id) {
         UserEntity userEntity = userRepository.findById(id).orElseThrow(
             () -> new UserException(UserErrorCode.USER_NOT_FOUND)
