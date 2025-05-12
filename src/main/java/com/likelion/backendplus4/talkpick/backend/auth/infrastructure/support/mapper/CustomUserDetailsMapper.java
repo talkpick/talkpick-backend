@@ -13,25 +13,50 @@ import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.c
 
 import io.jsonwebtoken.Claims;
 
+/**
+ * AuthUser 및 JWT Claims → CustomUserDetails 매핑.
+ *
+ * @since 2025-05-12
+ * @modified 2025-05-12
+ */
 public class CustomUserDetailsMapper {
 
     private static final String ROLE_PREFIX = "ROLE_";
 
+    /**
+     * AuthUser 에서 CustomUserDetails 로 변환합니다.
+     *
+     * @param user AuthUser 도메인 객체
+     * @return CustomUserDetails
+     * @author 박찬병
+     * @since 2025-05-12
+     * @modified 2025-05-12
+     */
     public static CustomUserDetails toCustomUserDetails(AuthUser user) {
         return CustomUserDetails.builder()
-                .username(String.valueOf(user.getUserId()))
-                .password(user.getPassword())
-                .authority(ROLE_PREFIX + user.getRole())
-                .build();
+            .username(String.valueOf(user.getUserId()))
+            .password(user.getPassword())
+            .authority(ROLE_PREFIX + user.getRole())
+            .build();
     }
 
+    /**
+     * Claims 에서 CustomUserDetails 로 변환합니다.
+     *
+     * @param claims JWT Claims
+     * @return CustomUserDetails
+     * @author 박찬병
+     * @since 2025-05-12
+     * @modified 2025-05-12
+     */
     public static CustomUserDetails fromClaims(Claims claims) {
         String subject = claims.getSubject();
-        String roles = claims.get("roles", String.class);
+        String roles   = claims.get("roles", String.class);
         List<GrantedAuthority> auths = Stream.of(Optional.ofNullable(roles).orElse("")
                 .split(","))
             .filter(s -> !s.isBlank())
-            .map(r -> new SimpleGrantedAuthority(r.startsWith(ROLE_PREFIX) ? r : ROLE_PREFIX + r))
+            .map(r -> new SimpleGrantedAuthority(
+                r.startsWith(ROLE_PREFIX) ? r : ROLE_PREFIX + r))
             .collect(Collectors.toList());
 
         return CustomUserDetails.builder()
@@ -39,5 +64,4 @@ public class CustomUserDetailsMapper {
             .authority(auths.isEmpty() ? ROLE_PREFIX + "USER" : auths.get(0).getAuthority())
             .build();
     }
-
 }

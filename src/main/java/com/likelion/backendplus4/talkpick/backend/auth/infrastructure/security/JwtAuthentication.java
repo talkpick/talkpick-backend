@@ -3,7 +3,6 @@ package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security;
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.RedisAuthPort;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.user.CustomUserDetails;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.CustomUserDetailsMapper;
-
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
@@ -11,6 +10,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+/**
+ * JWT 토큰을 검증하고, 유효한 경우 Spring Security Authentication 객체로 변환하는 컴포넌트.
+ *
+ * @since 2025-05-12
+ * @modified 2025-05-12
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthentication {
@@ -19,21 +24,29 @@ public class JwtAuthentication {
 	private final RedisAuthPort redisAuthPort;
 
 	/**
-	 * 토큰 검증 후 Authentication 반환
+	 * JWT 토큰을 검증하고 Authentication 객체로 반환합니다.
+	 *
+	 * 1. JWT 파싱 및 Claims 추출
+	 * 2. Redis 블랙리스트 체크
+	 * 3. Claims 기반으로 CustomUserDetails 생성
+	 * 4. UsernamePasswordAuthenticationToken 생성 및 반환
+	 *
+	 * @param token 검증할 JWT 토큰 문자열
+	 * @return 인증된 Authentication 객체
+	 * @throws InsufficientAuthenticationException 블랙리스트된 토큰인 경우 발생
+	 * @author 박찬병
+	 * @since 2025-05-12
+	 * @modified 2025-05-12
 	 */
 	public Authentication validateAndGetAuthentication(String token) {
-		// 1) 토큰 검증 및 Claims 추출
 		Claims claims = jwtParser.verifyToken(token);
 
-		// 2) 블랙리스트 체크
 		if (redisAuthPort.isTokenBlacklisted(token)) {
 			throw new InsufficientAuthenticationException("블랙리스트된 토큰입니다.");
 		}
 
-		// 3) 매퍼로 CustomUserDetails 생성 (roles 파싱 포함)
 		CustomUserDetails userDetails = CustomUserDetailsMapper.fromClaims(claims);
 
-		// 4) Authentication 리턴
 		return new UsernamePasswordAuthenticationToken(
 			userDetails,
 			token,
