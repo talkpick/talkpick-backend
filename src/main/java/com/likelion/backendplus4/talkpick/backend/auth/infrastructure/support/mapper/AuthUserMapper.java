@@ -1,7 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper;
 
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
-import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.SignUpDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignUpDto;
 import com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.jpa.entity.Role;
 import com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.jpa.entity.UserEntity;
 

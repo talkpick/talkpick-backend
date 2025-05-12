@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.auth.presentation.dto;
+package com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req;
 
 /**
  * 회원 가입 요청 정보를 담는 DTO.

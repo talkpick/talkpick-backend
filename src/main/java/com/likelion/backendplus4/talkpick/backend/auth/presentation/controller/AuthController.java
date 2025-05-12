@@ -10,12 +10,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.in.AuthServiceUseCase;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.AuthUserMapper;
-import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.SignInDto;
-import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.SignUpDto;
-import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.TokenDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.LogoutReqDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.RefreshReqDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignInDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignUpDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.security.LoginUser;
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -42,7 +45,7 @@ public class AuthController {
 	 * @modified 2025-05-12
 	 */
 	@PostMapping("/signUp")
-	public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody SignUpDto signUpDto) {
+	public ResponseEntity<ApiResponse<Void>> signUp(@Valid @RequestBody SignUpDto signUpDto) {
 		AuthUser user = AuthUserMapper.toDomainByDto(signUpDto);
 		authServiceUseCase.signUp(user);
 		return ApiResponse.success();
@@ -58,9 +61,9 @@ public class AuthController {
 	 * @modified 2025-05-12
 	 */
 	@PostMapping("/signIn")
-	public ResponseEntity<ApiResponse<TokenDto>> signIn(@RequestBody SignInDto signInDto) {
-		TokenDto tokenDto = authServiceUseCase.signIn(signInDto.account(), signInDto.password());
-		return ApiResponse.success(tokenDto);
+	public ResponseEntity<ApiResponse<TokenResDto>> signIn(@Valid @RequestBody SignInDto signInDto) {
+		TokenResDto tokenResDto = authServiceUseCase.signIn(signInDto.account(), signInDto.password());
+		return ApiResponse.success(tokenResDto);
 	}
 
 	/**
@@ -73,7 +76,7 @@ public class AuthController {
 	 * @modified 2025-05-12
 	 */
 	@PostMapping("/logout")
-	public ResponseEntity<ApiResponse<Void>> logout(@RequestBody TokenDto tokenDto) {
+	public ResponseEntity<ApiResponse<Void>> logout(@Valid @RequestBody LogoutReqDto tokenDto) {
 		authServiceUseCase.logout(tokenDto.accessToken());
 		return ApiResponse.success();
 	}
@@ -103,11 +106,11 @@ public class AuthController {
 	 * @modified 2025-05-12
 	 */
 	@PostMapping("/refresh")
-	public ResponseEntity<ApiResponse<TokenDto>> refreshAccessToken(
-		@RequestBody TokenDto requestToken
+	public ResponseEntity<ApiResponse<TokenResDto>> refreshAccessToken(
+		@Valid @RequestBody RefreshReqDto requestToken
 	) {
-		TokenDto tokenDto = authServiceUseCase.refreshToken(requestToken.refreshToken());
-		return ApiResponse.success(tokenDto);
+		TokenResDto tokenResDto = authServiceUseCase.refreshToken(requestToken.refreshToken());
+		return ApiResponse.success(tokenResDto);
 	}
 
 }

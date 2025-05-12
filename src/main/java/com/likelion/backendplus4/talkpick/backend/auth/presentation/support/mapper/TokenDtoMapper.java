@@ -1,7 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.auth.presentation.support.mapper;
 
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.TokenPair;
-import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.TokenDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
 
 /**
  * TokenDto로 변환하는 매퍼 클래스.
@@ -20,7 +20,7 @@ public class TokenDtoMapper {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
-	public static TokenDto toDto(TokenPair tokenPair) {
-		return new TokenDto(tokenPair.getAccessToken(), tokenPair.getRefreshToken());
+	public static TokenResDto toDto(TokenPair tokenPair) {
+		return new TokenResDto(tokenPair.getAccessToken(), tokenPair.getRefreshToken());
 	}
 }

@@ -10,7 +10,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.User
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.TokenPair;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.vo.TokenInfo;
-import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.TokenDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.support.mapper.TokenDtoMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -63,7 +63,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @modified 2025-05-12
 	 */
 	@Override
-	public TokenDto signIn(String account, String password) {
+	public TokenResDto signIn(String account, String password) {
 		Authentication auth = securityPort.authenticate(account, password);
 		TokenPair pair = securityPort.issueToken(auth);
 		return TokenDtoMapper.toDto(pair);
@@ -79,7 +79,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @modified 2025-05-12
 	 */
 	@Override
-	public TokenDto refreshToken(String refreshToken) {
+	public TokenResDto refreshToken(String refreshToken) {
 		TokenPair tokenPair = securityPort.refreshToken(refreshToken);
 		return TokenDtoMapper.toDto(tokenPair);
 	}

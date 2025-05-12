@@ -1,7 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.auth.application.port.in;
 
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
-import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.TokenDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
 
 /**
  * 인증 관련(회원가입, 로그인, 토큰 갱신, 로그아웃, 회원 삭제) 비즈니스 로직을 수행하는 서비스 구현체.
@@ -39,7 +39,7 @@ public interface AuthServiceUseCase {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
-	TokenDto signIn(String account, String password);
+	TokenResDto signIn(String account, String password);
 
 	/**
 	 * 리프레시 토큰을 검증하고 새로운 액세스·리프레시 토큰을 발급합니다.
@@ -50,7 +50,7 @@ public interface AuthServiceUseCase {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
-	TokenDto refreshToken(String refreshToken);
+	TokenResDto refreshToken(String refreshToken);
 
 	/**
 	 * 액세스 토큰을 파싱하여 TokenInfo VO를 생성하고,

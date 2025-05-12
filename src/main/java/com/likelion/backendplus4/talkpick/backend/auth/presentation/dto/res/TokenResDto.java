@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.auth.presentation.dto;
+package com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res;
 
 
 /**
@@ -7,7 +7,7 @@ package com.likelion.backendplus4.talkpick.backend.auth.presentation.dto;
  * @since 2025-05-12
  * @modified 2025-05-12
  */
-public record TokenDto(
+public record TokenResDto(
 	String accessToken,
 	String refreshToken
 ) {
