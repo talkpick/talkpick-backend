@@ -8,10 +8,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.in.AuthServiceUseCase;
-import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.dto.JwtToken;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.SignInDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.SignUpDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.TokenDto;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.security.LoginUser;
+import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,35 +24,35 @@ public class AuthController {
 	private final AuthServiceUseCase authServiceUseCase;
 
 	@PostMapping("/signUp")
-	public ResponseEntity<Void> signUp(@RequestBody SignUpDto signUpDto) {
+	public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody SignUpDto signUpDto) {
 		authServiceUseCase.signUp(signUpDto);
-		return ResponseEntity.ok().build();
+		return ApiResponse.success();
 	}
 
 	@PostMapping("/signIn")
-	public ResponseEntity<JwtToken> signIn(@RequestBody SignInDto signInDto) {
-		JwtToken jwtToken = authServiceUseCase.signIn(signInDto);
-		return ResponseEntity.ok(jwtToken);
+	public ResponseEntity<ApiResponse<TokenDto>> signIn(@RequestBody SignInDto signInDto) {
+		TokenDto tokenDto = authServiceUseCase.signIn(signInDto);
+		return ApiResponse.success(tokenDto);
 	}
 
 	@PostMapping("/logout")
-	public ResponseEntity<Void> logout(@RequestBody JwtToken jwtToken) {
-		authServiceUseCase.logout(jwtToken.accessToken());
-		return ResponseEntity.ok().build();
+	public ResponseEntity<ApiResponse<Void>> logout(@RequestBody TokenDto tokenDto) {
+		authServiceUseCase.logout(tokenDto.accessToken());
+		return ApiResponse.success();
 	}
 
 	@DeleteMapping("/delete")
-	public ResponseEntity<Void> deleteAccount(@LoginUser Long memberId) {
+	public ResponseEntity<ApiResponse<Void>> deleteAccount(@LoginUser Long memberId) {
 		authServiceUseCase.deleteUser(memberId);
-		return ResponseEntity.ok().build();
+		return ApiResponse.success();
 	}
 
 	@PostMapping("/refresh")
-	public ResponseEntity<JwtToken> refreshAccessToken(
-		@RequestBody JwtToken jwtToken
+	public ResponseEntity<ApiResponse<TokenDto>> refreshAccessToken(
+		@RequestBody TokenDto requestToken
 	) {
-		JwtToken newAccessToken = authServiceUseCase.refreshToken(jwtToken.refreshToken());
-		return ResponseEntity.ok(newAccessToken);
+		TokenDto tokenDto = authServiceUseCase.refreshToken(requestToken.refreshToken());
+		return ApiResponse.success(tokenDto);
 	}
 
 }

@@ -11,11 +11,13 @@ import com.likelion.backendplus4.talkpick.backend.auth.application.port.in.AuthS
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.RedisAuthPort;
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.UserAuthPort;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
-import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.dto.JwtToken;
+import com.likelion.backendplus4.talkpick.backend.auth.domain.model.TokenPair;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.SignInDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.SignUpDto;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.JwtProvider;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.AuthUserMapper;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.TokenDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.mapper.TokenDtoMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -45,20 +47,23 @@ public class AuthService implements AuthServiceUseCase {
 	}
 
 	@Override
-	public JwtToken signIn(SignInDto signInDto) {
+	public TokenDto signIn(SignInDto signInDto) {
 		Authentication authentication = authenticationManager.authenticate(
 			new UsernamePasswordAuthenticationToken(signInDto.account()
-				,
-				signInDto.password()
+				, signInDto.password()
 			)
 		);
 		// access, refresh 토큰 생성 후 반환
-		return jwtProvider.generateToken(authentication);
+		TokenPair tokenPair = jwtProvider.generateToken(authentication);
+
+		return TokenDtoMapper.toDto(tokenPair);
 	}
 
 	@Override
-	public JwtToken refreshToken(String refreshToken) {
-		return jwtProvider.refreshAccessToken(refreshToken);
+	public TokenDto refreshToken(String refreshToken) {
+		TokenPair tokenPair = jwtProvider.refreshAccessToken(refreshToken);
+
+		return TokenDtoMapper.toDto(tokenPair);
 	}
 
 	@Override

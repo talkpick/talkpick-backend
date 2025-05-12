@@ -1,7 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.persistence.adapter.out.redis;
 
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.RedisAuthPort;
-import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.dto.RefreshTokenInfoDto;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -17,21 +16,22 @@ import org.springframework.stereotype.Component;
 public class RedisAuthAdapter implements RedisAuthPort {
 
     private static final String REFRESH_TOKEN_KEY = "refreshToken";
+    private static final String AUTHORITIES_KEY = "authorities";
+
     private final RedisTemplate<String, Object> redisTemplate;
 
     /**
      * RefreshToken 과 사용자 정보를 Redis에 저장
-     * @param tokenData 리프래시 토큰 및 사용자 정보
      */
     @Override
-    public void storeRefreshToken(RefreshTokenInfoDto tokenData) {
+    public void storeRefreshToken(String userId, String refreshToken, String roles) {
         try {
             // 기존 데이터 삭제
-            redisTemplate.delete(tokenData.id());
+            redisTemplate.delete(userId);
 
             HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
-            hashOperations.putAll(tokenData.id(), createTokenDataMap(tokenData));
-            redisTemplate.expire(tokenData.id(), 7, TimeUnit.DAYS);
+            hashOperations.putAll(userId, createTokenDataMap(refreshToken, roles));
+            redisTemplate.expire(userId, 7, TimeUnit.DAYS);
         } catch (Exception e) {
             log.warn("Redis에 Refresh Token 저장 실패: {}", e.getMessage());
         }
@@ -86,17 +86,17 @@ public class RedisAuthAdapter implements RedisAuthPort {
     @Override
     public String getAuthorities(String userId) {
         try {
-            return (String) redisTemplate.opsForHash().get(userId, "authorities");
+            return (String) redisTemplate.opsForHash().get(userId, AUTHORITIES_KEY);
         } catch (Exception e) {
             log.warn("Redis에서 권한 정보 조회 실패: {}", e.getMessage());
             return null;
         }
     }
 
-    private HashMap<String, Object> createTokenDataMap(RefreshTokenInfoDto tokenData) {
+    private HashMap<String, Object> createTokenDataMap(String refreshToken, String authorities) {
         HashMap<String, Object> tokenDataMap = new HashMap<>();
-        tokenDataMap.put(REFRESH_TOKEN_KEY, tokenData.refreshToken());
-        tokenDataMap.put("authorities", tokenData.authorities());
+        tokenDataMap.put(REFRESH_TOKEN_KEY, refreshToken);
+        tokenDataMap.put(AUTHORITIES_KEY, authorities);
         return tokenDataMap;
     }
 

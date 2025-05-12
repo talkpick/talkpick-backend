@@ -7,7 +7,9 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum AuthErrorCode implements ErrorCode {
 
-    AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, 220001, "인증에 실패하였습니다.");
+    AUTHENTICATION_FAILED(HttpStatus.UNAUTHORIZED, 220001, "인증에 실패하였습니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, 220002, "유효하지 않은 리프레시 토큰입니다.");
+
 
     private final HttpStatus status;
     private final int code;

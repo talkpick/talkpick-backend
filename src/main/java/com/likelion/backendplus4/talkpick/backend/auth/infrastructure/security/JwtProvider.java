@@ -1,8 +1,10 @@
 package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security;
 
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.RedisAuthPort;
-import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.dto.JwtToken;
-import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.dto.RefreshTokenInfoDto;
+import com.likelion.backendplus4.talkpick.backend.auth.domain.model.TokenPair;
+import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
+import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
+import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.TokenMapper;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -30,7 +32,7 @@ public class JwtProvider {
     private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 30; // 30분
     private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7일
 
-    public JwtToken generateToken(Authentication authentication) {
+    public TokenPair generateToken(Authentication authentication) {
         String userId = authentication.getName();
         String roles = authentication.getAuthorities().stream()
             .map(GrantedAuthority::getAuthority)
@@ -40,17 +42,15 @@ public class JwtProvider {
         String refreshToken = createToken(userId, null, REFRESH_TOKEN_EXPIRATION);
 
         // Redis에 refreshToken 저장
-        redisAuthPort.storeRefreshToken(
-            RefreshTokenInfoDto.of(userId, refreshToken, roles)
-        );
+        redisAuthPort.storeRefreshToken(userId, refreshToken, roles);
 
-        return JwtToken.of(accessToken, refreshToken);
+        return TokenMapper.toDomain(accessToken, refreshToken);
     }
 
     /**
      * Refresh 토큰을 이용한 Access 토큰 갱신
      */
-    public JwtToken refreshAccessToken(String refreshToken) {
+    public TokenPair refreshAccessToken(String refreshToken) {
         // 1. 토큰 유효성 검사
         jwtVerifier.verifyToken(refreshToken);
 
@@ -59,7 +59,7 @@ public class JwtProvider {
 
         // 3. Redis에서 Refresh 토큰 유효성 검사
         if (!redisAuthPort.isValidRefreshToken(userId, refreshToken)) {
-            //            throw new BusinessException(refreshToken, "refreshToken", ErrorCode.INVALID_REFRESH_TOKEN);
+            throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         // 4. Redis에서 사용자 권한 정보 추출
@@ -69,7 +69,7 @@ public class JwtProvider {
         String newAccessToken = createToken(userId, authorities, ACCESS_TOKEN_EXPIRATION);
 
         // 7. 새로운 AuthResponseDto 반환 (기존 Refresh 토큰 유지)
-        return JwtToken.of(newAccessToken, refreshToken);
+        return TokenMapper.toDomain(newAccessToken, refreshToken);
     }
 
     // 토큰에서 사용자 이름을 추출하는 메서드

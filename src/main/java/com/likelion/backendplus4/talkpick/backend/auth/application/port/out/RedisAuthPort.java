@@ -1,10 +1,9 @@
 package com.likelion.backendplus4.talkpick.backend.auth.application.port.out;
 
-import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.dto.RefreshTokenInfoDto;
 
 public interface RedisAuthPort {
 
-    void storeRefreshToken(RefreshTokenInfoDto tokenData);
+    void storeRefreshToken(String userId, String refreshToken, String roles);
 
     boolean isValidRefreshToken(String userId, String refreshToken);
 
