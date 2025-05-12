@@ -28,6 +28,10 @@ public interface AuthServiceUseCase {
 	/**
 	 * 사용자를 인증하고 액세스·리프레시 토큰을 발급합니다.
 	 *
+	 * 1. 계정과 비밀번호로 Authentication 객체 생성
+	 * 2. Authentication 기반으로 토큰 쌍(TokenPair) 생성
+	 * 3. TokenPair를 TokenDto로 변환하여 반환
+	 * *
 	 * @param account  로그인 계정
 	 * @param password 로그인 비밀번호
 	 * @return 발급된 토큰 정보를 담은 TokenDto
