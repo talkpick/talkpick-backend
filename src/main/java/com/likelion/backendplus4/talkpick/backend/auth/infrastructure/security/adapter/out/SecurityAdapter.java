@@ -5,9 +5,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.security.core.AuthenticationException;
 
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.SecurityPort;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.vo.TokenInfo;
+import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
+import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.JwtProvider;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.TokenPair;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.TokenVoMapper;
@@ -39,10 +42,9 @@ public class SecurityAdapter implements SecurityPort {
 	 */
 	@Override
 	public Authentication authenticate(String account, String rawPassword) {
-		return authManager.authenticate(
-			new UsernamePasswordAuthenticationToken(account, rawPassword)
-		);
+		return performAuthentication(account, rawPassword);
 	}
+
 
 	/**
 	 * 평문 비밀번호를 인코더로 암호화합니다.
@@ -101,6 +103,27 @@ public class SecurityAdapter implements SecurityPort {
 		String userId = jwtProvider.getUserIdFromToken(accessToken);
 
 		return TokenVoMapper.toVo(expiration, userId);
+	}
+
+	/**
+	 * 내부적으로 AuthenticationManager를 호출하여 인증을 수행합니다.
+	 * 실패 시 AuthException으로 변환하여 던집니다.
+	 *
+	 * @param account     로그인 계정
+	 * @param rawPassword 로그인 비밀번호
+	 * @return 인증된 Authentication 객체
+	 * @author 박찬병
+	 * @since 2025-05-12
+	 * @modified 2025-05-12
+	 */
+	private Authentication performAuthentication(String account, String rawPassword) {
+		try {
+			return authManager.authenticate(
+				new UsernamePasswordAuthenticationToken(account, rawPassword)
+			);
+		} catch (AuthenticationException ex) {
+			throw new AuthException(AuthErrorCode.AUTHENTICATION_FAILED, ex);
+		}
 	}
 
 }
