@@ -11,7 +11,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.TokenPair;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.vo.TokenInfo;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.TokenDto;
-import com.likelion.backendplus4.talkpick.backend.auth.presentation.mapper.TokenDtoMapper;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.support.mapper.TokenDtoMapper;
 
 import lombok.RequiredArgsConstructor;
 

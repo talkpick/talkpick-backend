@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.auth.presentation.mapper;
+package com.likelion.backendplus4.talkpick.backend.auth.presentation.support.mapper;
 
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.TokenPair;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.TokenDto;
