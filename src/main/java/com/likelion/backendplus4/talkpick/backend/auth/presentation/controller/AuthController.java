@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.in.AuthServiceUseCase;
+import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
+import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.AuthUserMapper;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.SignInDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.SignUpDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.TokenDto;
@@ -25,13 +27,14 @@ public class AuthController {
 
 	@PostMapping("/signUp")
 	public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody SignUpDto signUpDto) {
-		authServiceUseCase.signUp(signUpDto);
+		AuthUser user = AuthUserMapper.toDomainByDto(signUpDto);
+		authServiceUseCase.signUp(user);
 		return ApiResponse.success();
 	}
 
 	@PostMapping("/signIn")
 	public ResponseEntity<ApiResponse<TokenDto>> signIn(@RequestBody SignInDto signInDto) {
-		TokenDto tokenDto = authServiceUseCase.signIn(signInDto);
+		TokenDto tokenDto = authServiceUseCase.signIn(signInDto.account(), signInDto.password());
 		return ApiResponse.success(tokenDto);
 	}
 

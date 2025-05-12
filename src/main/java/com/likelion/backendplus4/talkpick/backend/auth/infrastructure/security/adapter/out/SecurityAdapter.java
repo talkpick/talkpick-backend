@@ -7,8 +7,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.SecurityPort;
+import com.likelion.backendplus4.talkpick.backend.auth.domain.model.vo.TokenInfo;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.JwtProvider;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.TokenPair;
+import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.TokenVoMapper;
+
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -41,12 +44,11 @@ public class SecurityAdapter implements SecurityPort {
 	}
 
 	@Override
-	public long getExpiration(String token) {
-		return jwtProvider.getExpiration(token);
+	public TokenInfo parseTokenInfo(String accessToken) {
+		long expiration = jwtProvider.getExpiration(accessToken);
+		String userId = jwtProvider.getUserIdFromToken(accessToken);
+
+		return TokenVoMapper.toVo(expiration, userId);
 	}
 
-	@Override
-	public String getUserId(String token) {
-		return jwtProvider.getUserIdFromToken(token);
-	}
 }
