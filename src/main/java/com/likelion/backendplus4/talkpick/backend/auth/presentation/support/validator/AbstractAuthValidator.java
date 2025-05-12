@@ -1,6 +1,10 @@
 package com.likelion.backendplus4.talkpick.backend.auth.presentation.support.validator;
 
+import static org.springframework.util.StringUtils.*;
+
 import java.util.regex.Pattern;
+
+import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
@@ -46,7 +50,8 @@ public abstract class AbstractAuthValidator<T> implements Validator {
 	protected abstract String extractPassword(T dto);
 
 	/** 서브클래스가 추가 필드를 검증할 때 오버라이드 */
-	protected void validateAdditional(T dto, Errors errors) { }
+	protected void validateAdditional(T dto, Errors errors) {
+	}
 
 	/**
 	 * account 필드를 검증합니다.
@@ -61,15 +66,11 @@ public abstract class AbstractAuthValidator<T> implements Validator {
 	 * @modified 2025-05-12
 	 */
 	private void validateAccount(String account, Errors errors) {
-		if (account == null || account.isBlank()) {
+		if (!hasText(account)) {
 			AuthValidationError.ACCOUNT_EMPTY.reject(errors);
-			return;
-		}
-		if (account.contains(" ")) {
+		} else if (containsWhitespace(account)) {
 			AuthValidationError.ACCOUNT_WHITESPACE.reject(errors);
-			return;
-		}
-		if (account.length() < 4 || account.length() > 20) {
+		} else if (account.length() < 4 || account.length() > 20) {
 			AuthValidationError.ACCOUNT_SIZE.reject(errors);
 		}
 	}
@@ -88,19 +89,13 @@ public abstract class AbstractAuthValidator<T> implements Validator {
 	 * @modified 2025-05-12
 	 */
 	private void validatePasswordWithPattern(String password, Errors errors) {
-		if (password == null || password.isBlank()) {
+		if (!hasText(password)) {
 			AuthValidationError.PASSWORD_EMPTY.reject(errors);
-			return;
-		}
-		if (password.contains(" ")) {
+		} else if (containsWhitespace(password)) {
 			AuthValidationError.PASSWORD_WHITESPACE.reject(errors);
-			return;
-		}
-		if (password.length() < 8 || password.length() > 16) {
+		} else if (password.length() < 8 || password.length() > 16) {
 			AuthValidationError.PASSWORD_SIZE.reject(errors);
-			return;
-		}
-		if (!PASSWORD_PATTERN.matcher(password).matches()) {
+		} else if (!PASSWORD_PATTERN.matcher(password).matches()) {
 			AuthValidationError.PASSWORD_PATTERN.reject(errors);
 		}
 	}

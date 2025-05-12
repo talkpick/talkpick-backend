@@ -1,7 +1,9 @@
 package com.likelion.backendplus4.talkpick.backend.auth.presentation.support.validator;
 
 import java.util.regex.Pattern;
+
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignUpDto;
@@ -44,73 +46,35 @@ public class SignUpDtoValidator extends AbstractAuthValidator<SignUpDto> {
 		validateEmail(dto.email(), errors);
 	}
 
-	/**
-	 * name 필드를 검증합니다.
-	 *  - null/blank
-	 *  - 공백 포함 금지
-	 *  - 최대 30자
-	 *
-	 * @param name   이름 문자열
-	 * @param errors Errors
-	 */
 	private void validateName(String name, Errors errors) {
-		if (name == null || name.isBlank()) {
+		if (!StringUtils.hasText(name)) {
 			AuthValidationError.NAME_EMPTY.reject(errors);
-			return;
-		}
-		if (name.contains(" ")) {
+		} else if (StringUtils.containsWhitespace(name)) {
 			AuthValidationError.NAME_WHITESPACE.reject(errors);
-			return;
-		}
-		if (name.length() > 30) {
+		} else if (name.length() > 30) {
 			AuthValidationError.NAME_SIZE.reject(errors);
 		}
 	}
 
-	/**
-	 * nickName 필드를 검증합니다.
-	 *  - 빈 문자열 검증
-	 *  - 공백 포함 금지
-	 *  - 최대 20자
-	 *
-	 * @param nick   닉네임 문자열
-	 * @param errors Errors
-	 */
 	private void validateNickName(String nick, Errors errors) {
+		// 닉네임은 null 허용 → 입력이 있으면 검증
 		if (nick != null) {
-			if (nick.isBlank()) {
+			if (!StringUtils.hasText(nick)) {
 				AuthValidationError.NICKNAME_EMPTY.reject(errors);
-				return;
-			}
-			if (nick.contains(" ")) {
+			} else if (StringUtils.containsWhitespace(nick)) {
 				AuthValidationError.NICKNAME_WHITESPACE.reject(errors);
-				return;
-			}
-			if (nick.length() > 20) {
+			} else if (nick.length() > 20) {
 				AuthValidationError.NICKNAME_SIZE.reject(errors);
 			}
 		}
 	}
 
-	/**
-	 * email 필드를 검증합니다.
-	 *  - null/blank
-	 *  - 공백 포함 금지
-	 *  - 형식 검증
-	 *
-	 * @param email  이메일 문자열
-	 * @param errors Errors
-	 */
 	private void validateEmail(String email, Errors errors) {
-		if (email == null || email.isBlank()) {
+		if (!StringUtils.hasText(email)) {
 			AuthValidationError.EMAIL_EMPTY.reject(errors);
-			return;
-		}
-		if (email.contains(" ")) {
+		} else if (StringUtils.containsWhitespace(email)) {
 			AuthValidationError.EMAIL_WHITESPACE.reject(errors);
-			return;
-		}
-		if (!EMAIL_PATTERN.matcher(email).matches()) {
+		} else if (!EMAIL_PATTERN.matcher(email).matches()) {
 			AuthValidationError.EMAIL_PATTERN.reject(errors);
 		}
 	}
