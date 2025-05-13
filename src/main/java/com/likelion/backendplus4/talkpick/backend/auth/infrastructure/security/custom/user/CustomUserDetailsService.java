@@ -38,7 +38,7 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String account) {
-        AuthUser authUser = getAuthUserByAccount(account)
+        AuthUser authUser = getAuthUserByAccount(account);
         return CustomUserDetailsMapper.toCustomUserDetails(authUser);
     }
 
