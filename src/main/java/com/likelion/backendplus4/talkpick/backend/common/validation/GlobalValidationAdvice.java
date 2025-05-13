@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.common.configuration.valid;
+package com.likelion.backendplus4.talkpick.backend.common.validation;
 
 import java.util.List;
 

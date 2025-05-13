@@ -29,10 +29,10 @@ public class UserEntity {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(name = "account", nullable = false, unique = true)
+    @Column(name = "account", nullable = false, unique = true, length = 20)
     private String account;
 
-    @Column(name = "password", nullable = false)
+    @Column(name = "password", nullable = false, length = 20)
     private String password;
 
     @Enumerated(STRING)
@@ -43,16 +43,16 @@ public class UserEntity {
     @Column(name = "gender", nullable = false, length = 10)
     private Gender gender;
 
-    @Column(name = "birth_day")
+    @Column(name = "birth_day", nullable = false)
     private LocalDate birthday;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, length = 30)
     private String name;
 
-    @Column(name = "nickname")
+    @Column(name = "nickname", length = 20)
     private String nickName;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, length = 254)
     private String email;
 
 }
