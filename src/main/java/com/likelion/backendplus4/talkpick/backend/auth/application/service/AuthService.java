@@ -44,7 +44,7 @@ public class AuthService implements AuthServiceUseCase {
 	@Override
 	public void signUp(AuthUser authUser) {
 		validateAccountNotExists(authUser.getAccount());
-		encodePassword(authUser);
+		applyPasswordEncording(authUser);
 		userRepositoryPort.saveUser(authUser);
 	}
 
@@ -132,7 +132,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
-	private void encodePassword(AuthUser authUser) {
+	private void applyPasswordEncording(AuthUser authUser) {
 		String encoded = securityPort.encodePassword(authUser.getPassword());
 		authUser.updateEncodedPassword(encoded);
 	}

@@ -41,9 +41,7 @@ public class JwtAuthentication {
 	public Authentication validateAndGetAuthentication(String token) {
 		Claims claims = jwtParser.verifyToken(token);
 
-		if (authTokenStorePort.isTokenBlacklisted(token)) {
-			throw new InsufficientAuthenticationException("블랙리스트된 토큰입니다.");
-		}
+		ensureNotBlacklisted(token);
 
 		CustomUserDetails userDetails = CustomUserDetailsMapper.fromClaims(claims);
 
@@ -53,4 +51,19 @@ public class JwtAuthentication {
 			userDetails.getAuthorities()
 		);
 	}
+
+    /**
+     * 토큰 블랙리스트 여부를 확인하고, 블랙리스트된 경우 예외를 던집니다.
+     *
+     * @param token 검증할 JWT 토큰 문자열
+     * @throws InsufficientAuthenticationException 블랙리스트된 토큰인 경우 발생
+     * @since 2025-05-14
+     * @modified 2025-05-14
+     * @author 박찬병
+     */
+    private void ensureNotBlacklisted(String token) {
+        if (authTokenStorePort.isTokenBlacklisted(token)) {
+            throw new InsufficientAuthenticationException("블랙리스트된 토큰입니다.");
+        }
+    }
 }

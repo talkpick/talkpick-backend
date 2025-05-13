@@ -42,7 +42,6 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         HttpServletRequest request,
         HttpServletResponse response,
         AccessDeniedException accessDeniedException)  {
-
         log.warn("Access Denied: URI = {}, Method = {}, Message = {}",
             request.getRequestURI(),
             request.getMethod(),

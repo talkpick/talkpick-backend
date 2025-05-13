@@ -51,17 +51,38 @@ public class CustomUserDetailsMapper {
      */
     public static CustomUserDetails fromClaims(Claims claims) {
         String subject = claims.getSubject();
-        String roles   = claims.get("roles", String.class);
+        List<GrantedAuthority> auths = extractAuthorities(claims);
+
+        return CustomUserDetails.builder()
+            .username(subject)
+            .authority(auths.get(0).getAuthority())
+            .build();
+    }
+
+    /**
+     * Claims에서 역할 문자열을 추출하고 GrantedAuthority 리스트로 변환합니다.
+     *
+     * 1. Claims에서 'roles' 속성 조회
+     * 2. 쉼표 구분자로 분리
+     * 3. ROLE_ 접두사 보장 후 SimpleGrantedAuthority 객체 생성
+     * 4. 빈 리스트일 경우 기본 ROLE_USER 권한 설정
+     *
+     * @param claims JWT Claims
+     * @return 변환된 권한 리스트
+     * @since 2025-05-12
+     * @modified 2025-05-12
+     * @author 박찬병
+     */
+    private static List<GrantedAuthority> extractAuthorities(Claims claims) {
+        String roles = claims.get("roles", String.class);
         List<GrantedAuthority> auths = Stream.of(Optional.ofNullable(roles).orElse("")
                 .split(","))
             .filter(s -> !s.isBlank())
             .map(r -> new SimpleGrantedAuthority(
                 r.startsWith(ROLE_PREFIX) ? r : ROLE_PREFIX + r))
             .collect(Collectors.toList());
-
-        return CustomUserDetails.builder()
-            .username(subject)
-            .authority(auths.isEmpty() ? ROLE_PREFIX + "USER" : auths.get(0).getAuthority())
-            .build();
+        return auths.isEmpty()
+            ? List.of(new SimpleGrantedAuthority(ROLE_PREFIX + "USER"))
+            : auths;
     }
 }

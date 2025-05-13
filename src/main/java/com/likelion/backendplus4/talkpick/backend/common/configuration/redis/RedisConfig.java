@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
@@ -39,27 +38,25 @@ public class RedisConfig {
     }
 
     /**
-     * RedisTemplate<String, Object>를 구성합니다.
-     * 키와 해시 키는 StringRedisSerializer로, 값과 해시 값은 GenericJackson2JsonRedisSerializer로 직렬화하도록 설정합니다.
+     * RedisTemplate<String, String>를 구성합니다. 키와 값, 해시 키와 해시 값을 모두 StringRedisSerializer로 직렬화하도록 설정합니다.
      *
      * @param redisConnectionFactory RedisConnectionFactory 객체
-     * @return RedisTemplate<String, Object> 객체
+     * @return RedisTemplate<String, String> 객체
      * @author 박찬병
      * @since 2025-05-12
      * @modified 2025-05-12
      */
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public RedisTemplate<String, String> stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
 
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
 
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-        redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+        redisTemplate.setHashValueSerializer(new StringRedisSerializer());
 
         return redisTemplate;
     }
-    }
-
+}

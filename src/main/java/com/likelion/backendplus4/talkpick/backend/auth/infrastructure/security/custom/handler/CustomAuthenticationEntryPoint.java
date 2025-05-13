@@ -38,7 +38,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
         AuthenticationException authException) {
-
         log.warn("Authentication Failed: URI = {}, Method = {}, Message = {}",
             request.getRequestURI(),
             request.getMethod(),

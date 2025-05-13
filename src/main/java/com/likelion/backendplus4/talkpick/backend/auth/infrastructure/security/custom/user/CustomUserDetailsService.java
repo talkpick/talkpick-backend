@@ -38,9 +38,26 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String account) {
-        AuthUser authUser = userRepositoryPort.findUserByAccount(account)
-            .orElseThrow(() -> new AuthException(AuthErrorCode.AUTHENTICATION_FAILED));
+        AuthUser authUser = getAuthUserByAccount(account)
         return CustomUserDetailsMapper.toCustomUserDetails(authUser);
+    }
+
+    /**
+     * 계정으로 사용자 정보를 조회하여 AuthUser 객체를 반환합니다.
+     *
+     * 1. UserRepositoryPort를 통해 AuthUser를 조회
+     * 2. 조회된 AuthUser가 없으면 AuthException 발생
+     *
+     * @param account 조회할 사용자 계정
+     * @return 조회된 AuthUser 객체
+     * @throws AuthException 계정이 존재하지 않거나 조회 실패 시 발생
+     * @since 2025-05-14
+     * @modified 2025-05-14
+     * @author 박찬병
+     */
+    private AuthUser getAuthUserByAccount(String account) {
+        return userRepositoryPort.findUserByAccount(account)
+            .orElseThrow(() -> new AuthException(AuthErrorCode.AUTHENTICATION_FAILED));
     }
 
 }

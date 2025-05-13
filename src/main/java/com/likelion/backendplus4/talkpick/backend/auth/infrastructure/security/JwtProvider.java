@@ -90,9 +90,7 @@ public class JwtProvider {
 
         String userId = getUserIdFromToken(refreshToken);
 
-        if (!authTokenStorePort.isValidRefreshToken(userId, refreshToken)) {
-            throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
-        }
+        validateRefreshToken(userId, refreshToken);
 
         String authorities = authTokenStorePort.getAuthorities(userId);
 
@@ -173,5 +171,24 @@ public class JwtProvider {
             claims.put("roles", roles);
         }
         return claims;
+    }
+
+    /**
+     * Redis에 저장된 리프레시 토큰 일치 여부를 확인하고, 유효하지 않으면 예외를 던집니다.
+     *
+     * 1. Redis에 저장된 토큰 조회
+     * 2. 제출된 리프레시 토큰과 비교
+     *
+     * @param userId       사용자 식별자
+     * @param refreshToken 클라이언트가 제출한 리프레시 토큰
+     * @throws AuthException 리프레시 토큰이 유효하지 않을 경우 발생
+     * @since 2025-05-14
+     * @modified 2025-05-14
+     * @author 박찬병
+     */
+    private void validateRefreshToken(String userId, String refreshToken) {
+        if (!authTokenStorePort.isValidRefreshToken(userId, refreshToken)) {
+            throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
+        }
     }
 }
