@@ -47,6 +47,6 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
             request.getMethod(),
             accessDeniedException.getMessage());
 
-        throw new AuthException(AuthErrorCode.AUTHENTICATION_FAILED, accessDeniedException);
+        throw new AuthException(AuthErrorCode.AUTHORIZATION_FAILED, accessDeniedException);
     }
 }
