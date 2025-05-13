@@ -64,10 +64,8 @@ public class JwtVerifier {
 				.parseClaimsJws(token)
 				.getBody();
 		} catch (ExpiredJwtException ex) {
-			log.error("JWT 토큰 만료: token={}", token, ex);
 			throw ex;
 		} catch (JwtException | IllegalArgumentException ex) {
-			log.error("JWT 토큰 파싱 오류: token={}", token, ex);
 			throw new BadCredentialsException("유효하지 않은 JWT 토큰입니다.", ex);
 		}
 	}

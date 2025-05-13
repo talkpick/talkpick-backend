@@ -1,7 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.handler;
 
 import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
-import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,6 +44,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
             request.getMethod(),
             authException.getMessage());
 
-        throw new AuthException(AuthErrorCode.AUTHENTICATION_FAILED, authException);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     }
 }

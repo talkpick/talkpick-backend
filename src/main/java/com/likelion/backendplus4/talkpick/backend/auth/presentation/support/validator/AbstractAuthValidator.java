@@ -12,8 +12,6 @@ import com.likelion.backendplus4.talkpick.backend.auth.presentation.support.vali
 /**
  * 공통 계정·비밀번호 검증 로직을 제공하는 추상 Validator.
  *
- * @param <T> 검증 대상 DTO 타입
- * @author 박찬병
  * @since 2025-05-12
  * @modified 2025-05-12
  */

@@ -1,7 +1,8 @@
 package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.handler;
 
+import java.io.IOException;
+
 import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
-import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,13 +41,13 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(
         HttpServletRequest request,
         HttpServletResponse response,
-        AccessDeniedException accessDeniedException) {
+        AccessDeniedException accessDeniedException)  {
 
         log.warn("Access Denied: URI = {}, Method = {}, Message = {}",
             request.getRequestURI(),
             request.getMethod(),
             accessDeniedException.getMessage());
 
-        throw new AuthException(AuthErrorCode.AUTHORIZATION_FAILED, accessDeniedException);
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
     }
 }

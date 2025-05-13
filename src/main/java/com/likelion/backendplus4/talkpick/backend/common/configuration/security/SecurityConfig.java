@@ -2,7 +2,6 @@ package com.likelion.backendplus4.talkpick.backend.common.configuration.security
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
-import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.JwtAuthentication;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.filter.JwtFilter;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.handler.CustomAccessDeniedHandler;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.handler.CustomAuthenticationEntryPoint;
@@ -34,9 +33,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthentication jwtAuthentication;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    private final JwtFilter jwtFilter;
 
     @Value("${host.name}")
     private String HOST_NAME;
@@ -98,11 +97,11 @@ public class SecurityConfig {
                 STATELESS))
             .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                 authorizationManagerRequestMatcherRegistry
-                    .anyRequest().permitAll())
+                    .anyRequest().authenticated())
             .exceptionHandling(e -> e
                 .authenticationEntryPoint(customAuthenticationEntryPoint)
                 .accessDeniedHandler(customAccessDeniedHandler))
-            .addFilterBefore(new JwtFilter(jwtAuthentication),
+            .addFilterBefore(jwtFilter,
                 UsernamePasswordAuthenticationFilter.class)
             .build();
     }
