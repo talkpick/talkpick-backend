@@ -1,6 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.user;
 
-import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.UserJpaRepoPort;
+import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.UserRepositoryPort;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserJpaRepoPort userJpaRepoPort;
+    private final UserRepositoryPort userRepositoryPort;
 
     /**
      * 계정으로 회원 정보를 조회하고 UserDetails로 변환합니다.
@@ -38,7 +38,7 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String account) {
-        AuthUser authUser = userJpaRepoPort.findUserByAccount(account)
+        AuthUser authUser = userRepositoryPort.findUserByAccount(account)
             .orElseThrow(() -> new AuthException(AuthErrorCode.AUTHENTICATION_FAILED));
         return CustomUserDetailsMapper.toCustomUserDetails(authUser);
     }

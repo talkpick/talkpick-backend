@@ -7,7 +7,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.domain.model.TokenPair;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.vo.TokenInfo;
 
 /**
- * Spring Security와 JWT provider를 이용해 인증 및 토큰 발급·파싱 기능을 제공하는 어댑터 구현체.
+ * 인증 및 토큰 발급·파싱 기능을 제공하는 포트
  *
  * @since 2025-05-12
  * @modified 2025-05-12

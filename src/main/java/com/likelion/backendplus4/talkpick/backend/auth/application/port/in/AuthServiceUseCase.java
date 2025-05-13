@@ -4,8 +4,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
 
 /**
- * 인증 관련(회원가입, 로그인, 토큰 갱신, 로그아웃, 회원 삭제) 비즈니스 로직을 수행하는 서비스 구현체.
- *
+ * 인증 관련 비즈니스 로직을 수행하는 유스케이스
  * @since 2025-05-12
  * @modified 2025-05-12
  */

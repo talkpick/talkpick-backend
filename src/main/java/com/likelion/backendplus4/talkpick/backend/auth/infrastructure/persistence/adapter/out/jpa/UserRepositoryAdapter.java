@@ -2,7 +2,7 @@ package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.persisten
 
 import java.util.Optional;
 
-import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.UserJpaRepoPort;
+import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.UserRepositoryPort;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.AuthUserMapper;
 import com.likelion.backendplus4.talkpick.backend.user.exception.UserException;
@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class UserJpaRepoAdapter implements UserJpaRepoPort {
+public class UserRepositoryAdapter implements UserRepositoryPort {
 
     private final UserRepository userRepository;
 

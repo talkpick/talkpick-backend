@@ -1,6 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security;
 
-import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.RedisAuthPort;
+import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.AuthTokenStorePort;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.user.CustomUserDetails;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.CustomUserDetailsMapper;
 import io.jsonwebtoken.Claims;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 public class JwtAuthentication {
 
 	private final JwtVerifier jwtParser;
-	private final RedisAuthPort redisAuthPort;
+	private final AuthTokenStorePort authTokenStorePort;
 
 	/**
 	 * JWT 토큰을 검증하고 Authentication 객체로 반환합니다.
@@ -41,7 +41,7 @@ public class JwtAuthentication {
 	public Authentication validateAndGetAuthentication(String token) {
 		Claims claims = jwtParser.verifyToken(token);
 
-		if (redisAuthPort.isTokenBlacklisted(token)) {
+		if (authTokenStorePort.isTokenBlacklisted(token)) {
 			throw new InsufficientAuthenticationException("블랙리스트된 토큰입니다.");
 		}
 

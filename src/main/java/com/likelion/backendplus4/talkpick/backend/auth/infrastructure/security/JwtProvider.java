@@ -1,6 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security;
 
-import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.RedisAuthPort;
+import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.AuthTokenStorePort;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.TokenPair;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
@@ -33,7 +33,7 @@ public class JwtProvider {
 
     private final JwtVerifier jwtVerifier;
     private final Key jwtSigningKey;
-    private final RedisAuthPort redisAuthPort;
+    private final AuthTokenStorePort authTokenStorePort;
 
     private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 30;         // 30분
     private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7일
@@ -64,7 +64,7 @@ public class JwtProvider {
 
         String refreshToken = createToken(userId, null, REFRESH_TOKEN_EXPIRATION);
 
-        redisAuthPort.storeRefreshToken(userId, refreshToken, roles);
+        authTokenStorePort.storeRefreshToken(userId, refreshToken, roles);
 
         return TokenMapper.toDomain(accessToken, refreshToken);
     }
@@ -90,11 +90,11 @@ public class JwtProvider {
 
         String userId = getUserIdFromToken(refreshToken);
 
-        if (!redisAuthPort.isValidRefreshToken(userId, refreshToken)) {
+        if (!authTokenStorePort.isValidRefreshToken(userId, refreshToken)) {
             throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        String authorities = redisAuthPort.getAuthorities(userId);
+        String authorities = authTokenStorePort.getAuthorities(userId);
 
         String newAccessToken = createToken(userId, authorities, ACCESS_TOKEN_EXPIRATION);
         return TokenMapper.toDomain(newAccessToken, refreshToken);

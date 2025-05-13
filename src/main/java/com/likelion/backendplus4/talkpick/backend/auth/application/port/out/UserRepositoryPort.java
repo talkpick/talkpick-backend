@@ -6,12 +6,12 @@ import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.user.exception.UserException;
 
 /**
- * JPA를 통해 AuthUser 관련 CRUD 작업을 처리하는 어댑터 구현체.
+ * AuthUser 관련 CRUD 작업을 처리하는 포트.
  *
  * @since 2025-05-12
  * @modified 2025-05-12
  */
-public interface UserJpaRepoPort {
+public interface UserRepositoryPort {
 
     /**
      * 계정으로 사용자 정보를 조회합니다.

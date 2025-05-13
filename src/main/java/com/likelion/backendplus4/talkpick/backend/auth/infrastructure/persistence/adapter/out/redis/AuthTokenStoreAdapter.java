@@ -1,6 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.persistence.adapter.out.redis;
 
-import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.RedisAuthPort;
+import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.AuthTokenStorePort;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
 
@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RedisAuthAdapter implements RedisAuthPort {
+public class AuthTokenStoreAdapter implements AuthTokenStorePort {
 
     private static final String REFRESH_TOKEN_KEY = "refreshToken";
     private static final String AUTHORITIES_KEY = "authorities";

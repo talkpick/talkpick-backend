@@ -4,9 +4,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.in.AuthServiceUseCase;
-import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.RedisAuthPort;
+import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.AuthTokenStorePort;
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.SecurityPort;
-import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.UserJpaRepoPort;
+import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.UserRepositoryPort;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.TokenPair;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.vo.TokenInfo;
@@ -25,8 +25,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService implements AuthServiceUseCase {
 
-	private final RedisAuthPort redisAuthPort;
-	private final UserJpaRepoPort userJpaRepoPort;
+	private final AuthTokenStorePort authTokenStorePort;
+	private final UserRepositoryPort userRepositoryPort;
 	private final SecurityPort securityPort;
 
 	/**
@@ -45,7 +45,7 @@ public class AuthService implements AuthServiceUseCase {
 	public void signUp(AuthUser authUser) {
 		validateAccountNotExists(authUser.getAccount());
 		encodePassword(authUser);
-		userJpaRepoPort.saveUser(authUser);
+		userRepositoryPort.saveUser(authUser);
 	}
 
 	/**
@@ -109,7 +109,7 @@ public class AuthService implements AuthServiceUseCase {
 	 */
 	@Override
 	public void deleteUser(Long id) {
-		userJpaRepoPort.deleteUser(id);
+		userRepositoryPort.deleteUser(id);
 	}
 
 	/**
@@ -121,7 +121,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @modified 2025-05-12
 	 */
 	private void validateAccountNotExists(String account) {
-		userJpaRepoPort.existsByAccountAndEmail(account);
+		userRepositoryPort.existsByAccountAndEmail(account);
 	}
 
 	/**
@@ -148,7 +148,7 @@ public class AuthService implements AuthServiceUseCase {
 	 */
 	private void performLogoutIfValid(String rawToken, TokenInfo tokenInfo) {
 		if (!tokenInfo.isExpired()) {
-			redisAuthPort.logoutTokens(
+			authTokenStorePort.logoutTokens(
 				rawToken,
 				tokenInfo.getExpirationMillis(),
 				tokenInfo.getUserId()

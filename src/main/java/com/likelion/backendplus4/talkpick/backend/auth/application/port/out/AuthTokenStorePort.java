@@ -8,10 +8,10 @@ import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
  * @since 2025-05-12
  * @modified 2025-05-12
  */
-public interface RedisAuthPort {
+public interface AuthTokenStorePort {
 
     /**
-     * RefreshToken 과 사용자 권한 정보를 Redis에 저장합니다.
+     * RefreshToken 과 사용자 권한 정보를 저장합니다.
      *
      * 1. 기존 데이터 삭제
      * 2. 해시맵에 토큰 및 권한 정보 저장
@@ -30,7 +30,7 @@ public interface RedisAuthPort {
     /**
      * 저장된 리프레시 토큰이 유효한지 확인합니다.
      *
-     * 1. Redis에서 토큰 조회
+     * 1. 토큰 조회
      * 2. null 검사
      * 3. 토큰 일치 여부 반환
      *
@@ -47,7 +47,7 @@ public interface RedisAuthPort {
     /**
      * 액세스 토큰이 블랙리스트에 등록되었는지 여부를 확인합니다.
      *
-     * 1. Redis 키 존재 여부 조회
+     * 1. 키 존재 여부 조회
      * 2. 결과 반환
      *
      * @param accessToken 검사할 액세스 토큰
@@ -76,7 +76,7 @@ public interface RedisAuthPort {
     void logoutTokens(String accessToken, long accessTokenExpiration, String userId);
 
     /**
-     * Redis에서 사용자 권한 정보를 조회합니다.
+     * 사용자 권한 정보를 조회합니다.
      *
      * 1. 해시맵에서 AUTHORITIES_KEY 조회
      * 2. 결과 반환
