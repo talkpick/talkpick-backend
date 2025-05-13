@@ -23,6 +23,13 @@ spring:
   web:
     resources:
       add-mappings: false
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+host:
+  name: ${HOST_NAME:http://localhost:3000}
 
 #p6spy
 decorator:
@@ -34,3 +41,7 @@ logging:
   pattern:
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%level] [%thread] [%logger{36}] - %msg%n"
     console: "%cyan(%d{yyyy-MM-dd HH:mm:ss.SSS}) %highlight(%-5level) %yellow([%thread]) %green(%logger{36}) - %msg%n"
+
+
+jwt:
+  secret: ${JWT_SECRET}
