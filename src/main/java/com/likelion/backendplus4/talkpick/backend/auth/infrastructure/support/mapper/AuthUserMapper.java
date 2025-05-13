@@ -28,6 +28,8 @@ public class AuthUserMapper {
             .account(userEntity.getAccount())
             .password(userEntity.getPassword())
             .role(userEntity.getRole().getRoleName())
+            .gender(userEntity.getGender())
+            .birthDay(userEntity.getBirthday())
             .name(userEntity.getName())
             .nickName(userEntity.getNickName())
             .build();
@@ -49,6 +51,8 @@ public class AuthUserMapper {
             .name(signUpDto.name())
             .nickName(signUpDto.nickName())
             .email(signUpDto.email())
+            .gender(signUpDto.gender())
+            .birthDay(signUpDto.birthDay())
             .role(Role.USER.getRoleName())
             .build();
     }

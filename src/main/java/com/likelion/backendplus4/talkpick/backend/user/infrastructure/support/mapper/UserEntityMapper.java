@@ -29,6 +29,8 @@ public class UserEntityMapper {
 			.name(authUser.getName())
 			.nickName(authUser.getNickName())
 			.role(Role.USER)
+			.gender(authUser.getGender())
+			.birthday(authUser.getBirthDay())
 			.build();
 	}
 }

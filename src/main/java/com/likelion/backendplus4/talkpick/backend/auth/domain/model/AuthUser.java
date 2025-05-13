@@ -1,5 +1,9 @@
 package com.likelion.backendplus4.talkpick.backend.auth.domain.model;
 
+import java.time.LocalDate;
+
+import com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.jpa.entity.Gender;
+
 import lombok.Builder;
 import lombok.Getter;
 
@@ -20,6 +24,8 @@ public class AuthUser {
     private String nickName;
     private String email;
     private String role;
+    private Gender gender;
+    private LocalDate birthDay;
 
     /**
      * 비밀번호를 인코딩된 값으로 업데이트합니다.

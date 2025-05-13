@@ -2,6 +2,8 @@ package com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.p
 
 import static jakarta.persistence.EnumType.STRING;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -36,6 +38,13 @@ public class UserEntity {
     @Enumerated(STRING)
     @Column(name = "role", nullable = false)
     private Role role;
+
+    @Enumerated(STRING)
+    @Column(name = "gender", nullable = false, length = 10)
+    private Gender gender;
+
+    @Column(name = "birth_day")
+    private LocalDate birthday;
 
     @Column(name = "name", nullable = false)
     private String name;
