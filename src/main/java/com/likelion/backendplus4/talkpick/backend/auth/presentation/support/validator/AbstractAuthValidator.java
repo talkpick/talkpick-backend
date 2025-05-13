@@ -4,7 +4,6 @@ import static org.springframework.util.StringUtils.*;
 
 import java.util.regex.Pattern;
 
-import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
@@ -93,7 +92,7 @@ public abstract class AbstractAuthValidator<T> implements Validator {
 			AuthValidationError.PASSWORD_EMPTY.reject(errors);
 		} else if (containsWhitespace(password)) {
 			AuthValidationError.PASSWORD_WHITESPACE.reject(errors);
-		} else if (password.length() < 8 || password.length() > 16) {
+		} else if (password.length() < 8 || password.length() > 20) {
 			AuthValidationError.PASSWORD_SIZE.reject(errors);
 		} else if (!PASSWORD_PATTERN.matcher(password).matches()) {
 			AuthValidationError.PASSWORD_PATTERN.reject(errors);
