@@ -57,9 +57,7 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
      */
     @Override
     public void existsByAccountAndEmail(String account) {
-        if (userRepository.existsByAccount(account)) {
-            throw new UserException(UserErrorCode.ACCOUNT_DUPLICATE);
-        }
+        checkAccountDuplicate(account);
     }
 
     /**
@@ -96,10 +94,45 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
     @Override
     @Transactional
     public void deleteUser(Long id) {
-        UserEntity userEntity = userRepository.findById(id)
-            .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+        UserEntity userEntity = fetchUserOrThrow(id);
 
         // TODO 논리 삭제 처리
         userRepository.delete(userEntity);
+    }
+
+    /**
+     * 계정 중복을 확인하고, 중복 시 예외를 던집니다.
+     *
+     * 1. 계정 존재 여부 조회
+     * 2. 중복 시 UserException 발생
+     *
+     * @param account 검사할 계정
+     * @throws UserException 중복된 계정인 경우 발생
+     * @since 2025-05-12
+     * @modified 2025-05-12
+     * @author 박찬병
+     */
+    private void checkAccountDuplicate(String account) {
+        if (userRepository.existsByAccount(account)) {
+            throw new UserException(UserErrorCode.ACCOUNT_DUPLICATE);
+        }
+    }
+
+    /**
+     * ID로 사용자 엔티티를 조회하고, 존재하지 않으면 예외를 던집니다.
+     *
+     * 1. ID로 Entity 조회
+     * 2. 없으면 UserException 발생
+     *
+     * @param id 조회할 사용자 ID
+     * @return 존재하는 UserEntity
+     * @throws UserException 사용자가 존재하지 않을 경우
+     * @since 2025-05-12
+     * @modified 2025-05-12
+     * @author 박찬병
+     */
+    private UserEntity fetchUserOrThrow(Long id) {
+        return userRepository.findById(id)
+            .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
     }
 }
