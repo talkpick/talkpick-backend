@@ -19,14 +19,12 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * RSS 피드를 수집 객체
+ * RSS 피드에서 수집한 뉴스 기사를 저장하는 JPA 엔티티 클래스입니다.
+ * 각 기사 데이터는 데이터베이스의 "article" 테이블에 매핑됩니다.
  *
  * @author 양병학
  * @since 2025-05-10 최초 작성
- * @modify 2025-05-10 17:47 PR 수정
- * @ToString exclude로 대량의 텍스트필드 로그에서 제외
- * @Data -> @Getter후 Setter는 개별 지정해서 식별자 보호
- * @EqualsAndHashCode 지정으로 갹채 비교 최적화
+ * @modified 2025-05-10
  */
 @Entity
 @Table(name = "article", uniqueConstraints = @UniqueConstraint(columnNames = {"link"}))

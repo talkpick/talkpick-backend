@@ -15,17 +15,25 @@ import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.r
 import lombok.RequiredArgsConstructor;
 
 /**
- * TODO: 이벤트 기반으로 색인 안된 뉴스만 제공하도록 수정 필요
- *  NewsDetailProviderPort 인터페이스의 구현체로,
- *  JPA 리포지토리를 통해 뉴스 정보를 조회하는 어댑터 클래스입니다.
- *  현재는 최근 100개 뉴스를 반환합니다.
+ * NewsDetailProviderPort 인터페이스의 구현체로,
+ * JPA를 통해 뉴스 상세 정보를 조회하는 어댑터 클래스입니다.
+ *
  * @since 2025-05-14
  */
 @Component
 @RequiredArgsConstructor
-public class NewsInfoProviderAdapter implements NewsDetailProviderPort {
+public class NewsInfoDetailProviderAdapter implements NewsDetailProviderPort {
 	private final NewsInfoJpaRepository newsInfoJpaRepository;
-
+	
+	/**
+	 * 주어진 guid(뉴스 ID)를 기준으로 뉴스 상세 정보를 조회합니다.
+	 * 조회된 뉴스가 정확히 하나인 경우에만 도메인 객체로 변환하여 반환합니다.
+	 *
+	 * @param guid 뉴스의 고유 식별자
+	 * @return 뉴스 상세 도메인 객체
+	 * @author 함예정
+	 * @since 2025-05-14
+	 */
 	@Override
 	public NewsInfoDetail getNewsInfoDetailsByArticleId(String guid) {
 		List<ArticleEntity> savedNewsInfo = newsInfoJpaRepository.findByGuid(guid);
@@ -33,6 +41,15 @@ public class NewsInfoProviderAdapter implements NewsDetailProviderPort {
 		return ArticleEntityMapper.toDetailFromEntity(entity);
 	}
 
+	/**
+	 * 조회된 뉴스가 정확히 하나인지 검증하고, 단일 엔티티를 반환합니다.
+	 *
+	 * @param savedNewsInfo guid 기준으로 조회된 뉴스 리스트
+	 * @return 단일 뉴스 엔티티
+	 * @throws NewsInfoException 조회된 뉴스가 1건이 아닌 경우
+	 * @author 함예정
+	 * @since 2025-05-14
+	 */
 	private ArticleEntity getOnlyArticleOrThrow(List<ArticleEntity> savedNewsInfo) {
 		if(savedNewsInfo.size() == 1) {
 			return savedNewsInfo.getFirst();
