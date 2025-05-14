@@ -32,7 +32,7 @@ public class UserEntity {
     @Column(name = "account", nullable = false, unique = true, length = 20)
     private String account;
 
-    @Column(name = "password", nullable = false, length = 20)
+    @Column(name = "password", nullable = false, length = 256)
     private String password;
 
     @Enumerated(STRING)
