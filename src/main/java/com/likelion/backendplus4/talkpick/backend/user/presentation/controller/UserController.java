@@ -9,7 +9,7 @@ import com.likelion.backendplus4.talkpick.backend.common.annotation.security.Log
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/user")
 public class UserController {
 
 	/**
