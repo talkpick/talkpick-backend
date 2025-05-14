@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.NewsInfoDetailResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoDetailProviderUseCase;
-import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
 
 import lombok.RequiredArgsConstructor;
 
