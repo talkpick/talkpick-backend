@@ -31,7 +31,7 @@ public class TokenInfo {
 	}
 
 	/**
-	 * 토큰이 현재 시각 기준으로 만료되었는지 여부를 반환합니다.
+	 * 토큰이 만료되었는지 여부를 반환합니다.
 	 *
 	 * @return 만료되었으면 true, 아니면 false
 	 * @author 박찬병
@@ -39,6 +39,6 @@ public class TokenInfo {
 	 * @modified 2025-05-12
 	 */
 	public boolean isExpired() {
-		return System.currentTimeMillis() > expirationMillis;
+		return 0 >= expirationMillis;
 	}
 }
