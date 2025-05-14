@@ -10,6 +10,8 @@ import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.User
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.TokenPair;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.vo.TokenInfo;
+import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
+import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.support.mapper.TokenDtoMapper;
 
@@ -44,7 +46,7 @@ public class AuthService implements AuthServiceUseCase {
 	@Override
 	public void signUp(AuthUser authUser) {
 		validateAccountNotExists(authUser.getAccount());
-		applyPasswordEncording(authUser);
+		applyPasswordEncoding(authUser);
 		userRepositoryPort.saveUser(authUser);
 	}
 
@@ -91,10 +93,11 @@ public class AuthService implements AuthServiceUseCase {
 	 * @param accessToken 클라이언트로부터 전달받은 액세스 토큰
 	 * @author 박찬병
 	 * @since 2025-05-12
-	 * @modified 2025-05-12
+	 * @modified 2025-05-14
 	 */
 	@Override
 	public void logout(String accessToken) {
+		validateAccessToken(accessToken);
 		TokenInfo tokenInfo = securityPort.parseTokenInfo(accessToken);
 		performLogoutIfValid(accessToken, tokenInfo);
 	}
@@ -132,7 +135,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
-	private void applyPasswordEncording(AuthUser authUser) {
+	private void applyPasswordEncoding(AuthUser authUser) {
 		String encoded = securityPort.encodePassword(authUser.getPassword());
 		authUser.updateEncodedPassword(encoded);
 	}
@@ -153,6 +156,21 @@ public class AuthService implements AuthServiceUseCase {
 				tokenInfo.getExpirationMillis(),
 				tokenInfo.getUserId()
 			);
+		}
+	}
+
+	/**
+	 * 액세스 토큰이 null인지 검증하고, null인 경우 예외를 던집니다.
+	 *
+	 * @param accessToken 클라이언트로부터 전달받은 액세스 토큰
+	 * @throws AuthException 액세스 토큰이 제공되지 않은 경우 발생
+	 * @since 2025-05-14
+	 * @modified 2025-05-14
+	 * @author 박찬병
+	 */
+	private void validateAccessToken(String accessToken) {
+		if (accessToken == null) {
+			throw new AuthException(AuthErrorCode.INVALID_ACCESS_TOKEN);
 		}
 	}
 }

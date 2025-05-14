@@ -1,6 +1,8 @@
 package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.filter;
 
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.JwtAuthentication;
+import com.likelion.backendplus4.talkpick.backend.common.util.security.TokenExtractUtil;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
@@ -23,9 +24,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
-
-    private static final String AUTHORIZATION_HEADER = "Authorization";
-    private static final String BEARER_PREFIX = "Bearer ";
 
     private final JwtAuthentication jwtAuthentication;
 
@@ -50,7 +48,7 @@ public class JwtFilter extends OncePerRequestFilter {
         HttpServletResponse response,
         FilterChain filterChain)
         throws ServletException, IOException {
-        String token = extractToken(request);
+        String token = TokenExtractUtil.extractToken(request);
         if (token != null) {
             Authentication auth = jwtAuthentication.validateAndGetAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(auth);
@@ -58,24 +56,4 @@ public class JwtFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    /**
-     * Authorization 헤더에서 "Bearer " 접두사를 제거한 뒤 JWT 토큰을 반환합니다.
-     *
-     * 1. Authorization 헤더 조회
-     * 2. Bearer 접두사 검사
-     * 3. 접두사 제거 후 토큰 반환
-     *
-     * @param request HTTP 요청 객체
-     * @return 추출된 JWT 토큰, 없으면 null
-     * @author 박찬병
-     * @since 2025-05-12
-     * @modified 2025-05-12
-     */
-    private String extractToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-            return bearerToken.substring(BEARER_PREFIX.length());
-        }
-        return null;
-    }
 }

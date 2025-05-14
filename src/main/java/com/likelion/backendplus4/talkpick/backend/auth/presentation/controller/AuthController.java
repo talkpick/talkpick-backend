@@ -10,14 +10,15 @@ import org.springframework.web.bind.annotation.RestController;
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.in.AuthServiceUseCase;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.AuthUserMapper;
-import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.LogoutReqDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.RefreshReqDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignInDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignUpDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.security.LoginUser;
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
+import com.likelion.backendplus4.talkpick.backend.common.util.security.TokenExtractUtil;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -69,15 +70,15 @@ public class AuthController {
 	/**
 	 * 로그아웃 요청을 처리합니다.
 	 *
-	 * @param tokenDto 로그아웃할 토큰 정보 DTO
 	 * @return 빈 응답(ApiResponse<Void>)
 	 * @author 박찬병
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
 	@PostMapping("/logout")
-	public ResponseEntity<ApiResponse<Void>> logout(@Valid @RequestBody LogoutReqDto tokenDto) {
-		authServiceUseCase.logout(tokenDto.accessToken());
+	public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
+		String token = TokenExtractUtil.extractToken(request);
+		authServiceUseCase.logout(token);
 		return ApiResponse.success();
 	}
 
