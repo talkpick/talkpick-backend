@@ -17,7 +17,7 @@ import com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.pe
  *
  * @author 박찬병
  * @since 2025-05-12
- * @modified 2025-05-12
+ * @modified 2025-05-14
  */
 @Component
 public class SignUpDtoValidator extends AbstractAuthValidator<SignUpDto> {
@@ -26,6 +26,9 @@ public class SignUpDtoValidator extends AbstractAuthValidator<SignUpDto> {
 	private static final Pattern EMAIL_PATTERN = Pattern.compile(
 		"^\\S+@(?:[A-Za-z0-9-]+\\.)+[A-Za-z]{2,6}$"
 	);
+	/** 이름/닉네임에 허용할 문자 패턴: 영문 대소문자, 한글만 허용 */
+	private static final Pattern NAME_PATTERN = Pattern.compile("^[A-Za-z가-힣]+$");
+	private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[A-Za-z가-힣]+$");
 
 	public SignUpDtoValidator() {
 		super(SignUpDto.class);
@@ -55,6 +58,7 @@ public class SignUpDtoValidator extends AbstractAuthValidator<SignUpDto> {
 	 *  - null 또는 빈 문자열 불가
 	 *  - 공백 문자 불가
 	 *  - 최대 30자
+	 *  - 영문 또는 한글만 가능
 	 *
 	 * @param name 사용자의 이름
 	 * @param errors Errors 객체
@@ -68,6 +72,7 @@ public class SignUpDtoValidator extends AbstractAuthValidator<SignUpDto> {
 		if (hasNameWhitespace(name, errors))
 			return;
 		checkNameSize(name, errors);
+		checkNamePattern(name, errors);
 	}
 
 	/**
@@ -91,6 +96,7 @@ public class SignUpDtoValidator extends AbstractAuthValidator<SignUpDto> {
 		if (hasNickWhitespace(nick, errors))
 			return;
 		checkNickSize(nick, errors);
+		checkNickNamePattern(nick, errors);
 	}
 
 	/**
@@ -196,6 +202,21 @@ public class SignUpDtoValidator extends AbstractAuthValidator<SignUpDto> {
 	}
 
 	/**
+	 * 이름에 영문·한글 이외의 문자가 포함되었는지 검사하고, 포함 시 오류를 등록합니다.
+	 *
+	 * @param name   검증할 이름 문자열
+	 * @param errors Errors 객체
+	 * @author 박찬병
+	 * @since 2025-05-14
+	 * @modified 2025-05-14
+	 */
+	private void checkNamePattern(String name, Errors errors) {
+		if (!NAME_PATTERN.matcher(name).matches()) {
+			AuthValidationError.NAME_INVALID_CHAR.reject(errors);
+		}
+	}
+
+	/**
 	 * 닉네임이 null 또는 blank인지 확인하고, 빈 값일 경우 오류를 등록합니다.
 	 *
 	 * @param nick   검증할 닉네임 문자열
@@ -243,6 +264,21 @@ public class SignUpDtoValidator extends AbstractAuthValidator<SignUpDto> {
 	private void checkNickSize(String nick, Errors errors) {
 		if (20 < nick.length()) {
 			AuthValidationError.NICKNAME_SIZE.reject(errors);
+		}
+	}
+
+	/**
+	 * 닉네임에 영문·한글 이외의 문자가 포함되었는지 검사하고, 포함 시 오류를 등록합니다.
+	 *
+	 * @param nick   검증할 이름 문자열
+	 * @param errors Errors 객체
+	 * @author 박찬병
+	 * @since 2025-05-14
+	 * @modified 2025-05-14
+	 */
+	private void checkNickNamePattern(String nick, Errors errors) {
+		if (!NICKNAME_PATTERN.matcher(nick).matches()) {
+			AuthValidationError.NAME_INVALID_CHAR.reject(errors);
 		}
 	}
 

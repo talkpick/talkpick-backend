@@ -18,10 +18,12 @@ public enum AuthValidationError {
 	NAME_EMPTY("name", "name.empty", "이름은 필수입니다."),
 	NAME_WHITESPACE("name", "name.whitespace", "이름에 공백은 허용되지 않습니다."),
 	NAME_SIZE("name", "name.size", "이름은 최대 30자까지 입력할 수 있습니다."),
+	NAME_INVALID_CHAR("name", "name.invalid.char", "이름은 영문과 한글만 허용됩니다."),
 
 	NICKNAME_EMPTY("nickName", "nickName.empty", "닉네임이 비어 있습니다."),
 	NICKNAME_WHITESPACE("nickName", "nickName.whitespace", "닉네임에 공백은 허용되지 않습니다."),
 	NICKNAME_SIZE("nickName", "nickName.size", "닉네임은 최대 20자까지 입력할 수 있습니다."),
+	NICKNAME_INVALID_CHAR("nickName", "nickName.invalid.char", "닉네임은 영문과 한글만 허용됩니다."),
 
 	EMAIL_EMPTY("email", "email.empty", "이메일은 필수입니다."),
 	EMAIL_WHITESPACE("email", "email.whitespace", "이메일에 공백은 허용되지 않습니다."),
