@@ -278,7 +278,7 @@ public class SignUpDtoValidator extends AbstractAuthValidator<SignUpDto> {
 	 */
 	private void checkNickNamePattern(String nick, Errors errors) {
 		if (!NICKNAME_PATTERN.matcher(nick).matches()) {
-			AuthValidationError.NAME_INVALID_CHAR.reject(errors);
+			AuthValidationError.NICKNAME_INVALID_CHAR.reject(errors);
 		}
 	}
 
