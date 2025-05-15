@@ -9,6 +9,7 @@ import lombok.Builder;
  *
  * @since 2025-05-14
  */
+
 @Builder
 public record NewsInfoDetail(
 	String newsId,

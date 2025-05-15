@@ -44,6 +44,7 @@ public class NewsInfoException extends CustomException {
 	 * @author 함예정
 	 * @since 2025-05-14
 	 */
+  
 	@Override
 	public ErrorCode getErrorCode() {
 		return errorCode;
