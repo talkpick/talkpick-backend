@@ -20,7 +20,7 @@ public class AuthUserMapper {
      * @return AuthUser 도메인 모델
      * @author 박찬병
      * @since 2025-05-12
-     * @modified 2025-05-12
+     * @modified 2025-05-15
      */
     public static AuthUser toDomainByUserEntity(UserEntity userEntity) {
         return AuthUser.builder()
@@ -31,6 +31,7 @@ public class AuthUserMapper {
             .gender(userEntity.getGender())
             .birthDay(userEntity.getBirthday())
             .name(userEntity.getName())
+            .email(userEntity.getEmail())
             .nickName(userEntity.getNickName())
             .build();
     }

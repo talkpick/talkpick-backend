@@ -1,6 +1,8 @@
 package com.likelion.backendplus4.talkpick.backend.auth.domain.model.vo;
 
 import java.util.Objects;
+
+import lombok.Builder;
 import lombok.Getter;
 
 /**
@@ -14,6 +16,7 @@ public class TokenInfo {
 
 	private final long expirationMillis;
 	private final String userId;
+	private final String nickname;
 
 	/**
 	 * TokenInfo 인스턴스를 생성합니다.
@@ -23,11 +26,12 @@ public class TokenInfo {
 	 * @throws NullPointerException userId가 null일 경우
 	 * @author 박찬병
 	 * @since 2025-05-12
-	 * @modified 2025-05-12
+	 * @modified 2025-05-15
 	 */
-	public TokenInfo(long expirationMillis, String userId) {
+	public TokenInfo(long expirationMillis, String userId, String nickname) {
 		this.expirationMillis = expirationMillis;
 		this.userId = Objects.requireNonNull(userId, "userId는 null일 수 없습니다.");
+		this.nickname = Objects.requireNonNull(nickname, "nickname은 null일 수 없습니다.");
 	}
 
 	/**

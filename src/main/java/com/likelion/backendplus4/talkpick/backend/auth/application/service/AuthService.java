@@ -68,7 +68,8 @@ public class AuthService implements AuthServiceUseCase {
 	public TokenResDto signIn(String account, String password) {
 		Authentication auth = securityPort.authenticate(account, password);
 		TokenPair pair = securityPort.issueToken(auth);
-		return TokenDtoMapper.toDto(pair);
+		TokenInfo tokenInfo = securityPort.parseTokenInfo(pair.getAccessToken());
+		return TokenDtoMapper.toDto(pair, tokenInfo.getNickname());
 	}
 
 	/**
@@ -83,7 +84,7 @@ public class AuthService implements AuthServiceUseCase {
 	@Override
 	public TokenResDto refreshToken(String refreshToken) {
 		TokenPair tokenPair = securityPort.refreshToken(refreshToken);
-		return TokenDtoMapper.toDto(tokenPair);
+		return TokenDtoMapper.toDto(tokenPair, null);
 	}
 
 	/**

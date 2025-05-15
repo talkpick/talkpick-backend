@@ -4,6 +4,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.Auth
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.TokenPair;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
+import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.user.CustomUserDetails;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.TokenMapper;
 
 import io.jsonwebtoken.Claims;
@@ -12,12 +13,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
 /**
@@ -37,6 +36,8 @@ public class JwtProvider {
 
     private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 30;         // 30분
     private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7일
+    private static final String CLAIMS_NICKNAME = "nickname";
+    private static final String CLAIMS_ROLES = "roles";
 
     /**
      * 인증 정보를 바탕으로 액세스·리프레시 토큰을 생성하고,
@@ -55,14 +56,14 @@ public class JwtProvider {
      * @modified 2025-05-12
      */
     public TokenPair generateToken(Authentication authentication) {
-        String userId = authentication.getName();
-        String roles = authentication.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.joining(","));
+        CustomUserDetails user = (CustomUserDetails)authentication.getPrincipal();
 
-        String accessToken = createToken(userId, roles, ACCESS_TOKEN_EXPIRATION);
+        String userId = user.getUsername();
+        String roles = user.getAuthority();
+        String nickname = user.getNickname();
 
-        String refreshToken = createToken(userId, null, REFRESH_TOKEN_EXPIRATION);
+        String accessToken = createToken(userId, roles, ACCESS_TOKEN_EXPIRATION, nickname);
+        String refreshToken = createToken(userId, null, REFRESH_TOKEN_EXPIRATION, nickname);
 
         authTokenStorePort.storeRefreshToken(userId, refreshToken, roles);
 
@@ -73,7 +74,7 @@ public class JwtProvider {
      * 리프레시 토큰을 검증하고 새로운 액세스 토큰을 발급합니다.
      *
      * 1. 리프레시 토큰 유효성 검증
-     * 2. 토큰에서 사용자 ID 추출
+     * 2. 토큰에서 사용자 ID, nickname 추출
      * 3. Redis에 저장된 리프레시 토큰 일치 여부 확인
      * 4. Redis에서 권한 정보 조회
      * 5. 새로운 액세스 토큰 생성 및 반환 (리프레시 토큰은 유지)
@@ -86,29 +87,30 @@ public class JwtProvider {
      * @modified 2025-05-12
      */
     public TokenPair refreshAccessToken(String refreshToken) {
-        jwtVerifier.verifyToken(refreshToken);
+        Claims claims = jwtVerifier.verifyToken(refreshToken);
 
-        String userId = getUserIdFromToken(refreshToken);
+        String userId = getUserIdFromToken(claims);
+        String nickname = getNickNameFromToken(claims);
 
         validateRefreshToken(userId, refreshToken);
 
         String authorities = authTokenStorePort.getAuthorities(userId);
 
-        String newAccessToken = createToken(userId, authorities, ACCESS_TOKEN_EXPIRATION);
+        String newAccessToken = createToken(userId, authorities, ACCESS_TOKEN_EXPIRATION, nickname);
         return TokenMapper.toDomain(newAccessToken, refreshToken);
     }
 
     /**
      * 토큰에서 사용자 ID(Subject)를 추출합니다.
      *
-     * @param token JWT 토큰
+     * @param claims 파싱된 claims
      * @return 토큰에 설정된 Subject (사용자 ID)
      * @author 박찬병
      * @since 2025-05-12
      * @modified 2025-05-12
      */
-    public String getUserIdFromToken(String token) {
-        return jwtVerifier.verifyToken(token).getSubject();
+    public String getUserIdFromToken(Claims claims) {
+        return claims.getSubject();
     }
 
     /**
@@ -117,15 +119,27 @@ public class JwtProvider {
      * 1. Claims에서 만료 날짜 조회
      * 2. 현재 시각과의 차이 계산
      *
-     * @param token JWT 토큰
+     * @param claims 파싱된 claims
      * @return 남은 만료 시간 (밀리초)
      * @author 박찬병
      * @since 2025-05-12
      * @modified 2025-05-12
      */
-    public long getExpiration(String token) {
-        Claims claims = jwtVerifier.verifyToken(token);
+    public long getExpiration(Claims claims) {
         return claims.getExpiration().getTime() - System.currentTimeMillis();
+    }
+
+    /**
+     * 토큰의 닉네임을 반환합니다.
+     *
+     * @param claims 파싱된 claims
+     * @return 사용자의 닉네임
+     * @author 박찬병
+     * @since 2025-05-15
+     * @modified 2025-05-15
+     */
+    public String getNickNameFromToken(Claims claims) {
+        return claims.get(CLAIMS_NICKNAME, String.class);
     }
 
     /**
@@ -139,8 +153,8 @@ public class JwtProvider {
      * @since 2025-05-12
      * @modified 2025-05-12
      */
-    private String createToken(String userId, String roles, long validityMillis) {
-        Claims claims = buildClaims(userId, roles);
+    private String createToken(String userId, String roles, long validityMillis, String nickname) {
+        Claims claims = buildClaims(userId, roles, nickname);
         Date now = new Date();
         Date expiresAt = new Date(now.getTime() + validityMillis);
 
@@ -165,10 +179,13 @@ public class JwtProvider {
      * @since 2025-05-12
      * @modified 2025-05-12
      */
-    private Claims buildClaims(String userId, String roles) {
+    private Claims buildClaims(String userId, String roles, String nickname) {
         Claims claims = Jwts.claims().setSubject(userId);
         if (roles != null && !roles.isBlank()) {
-            claims.put("roles", roles);
+            claims.put(CLAIMS_ROLES, roles);
+        }
+        if (nickname != null && !nickname.isBlank()) {
+            claims.put(CLAIMS_NICKNAME, nickname);
         }
         return claims;
     }
@@ -191,4 +208,5 @@ public class JwtProvider {
             throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
         }
     }
+
 }

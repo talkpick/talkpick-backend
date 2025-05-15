@@ -30,12 +30,13 @@ public class CustomUserDetailsMapper {
      * @return CustomUserDetails
      * @author 박찬병
      * @since 2025-05-12
-     * @modified 2025-05-12
+     * @modified 2025-05-15
      */
     public static CustomUserDetails toCustomUserDetails(AuthUser user) {
         return CustomUserDetails.builder()
             .username(String.valueOf(user.getUserId()))
             .password(user.getPassword())
+            .nickname(user.getNickName())
             .authority(ROLE_PREFIX + user.getRole())
             .build();
     }
@@ -47,15 +48,17 @@ public class CustomUserDetailsMapper {
      * @return CustomUserDetails
      * @author 박찬병
      * @since 2025-05-12
-     * @modified 2025-05-12
+     * @modified 2025-05-15
      */
     public static CustomUserDetails fromClaims(Claims claims) {
         String subject = claims.getSubject();
         List<GrantedAuthority> auths = extractAuthorities(claims);
+        String nickName = claims.get("nickName", String.class);
 
         return CustomUserDetails.builder()
             .username(subject)
-            .authority(auths.get(0).getAuthority())
+            .nickname(nickName)
+            .authority(auths.getFirst().getAuthority())
             .build();
     }
 

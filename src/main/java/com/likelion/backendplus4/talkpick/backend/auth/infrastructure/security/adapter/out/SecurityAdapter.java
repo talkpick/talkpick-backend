@@ -13,8 +13,10 @@ import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.JwtProvider;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.TokenPair;
+import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.JwtVerifier;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.TokenVoMapper;
 
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -29,6 +31,7 @@ public class SecurityAdapter implements SecurityPort {
 	private final AuthenticationManager authManager;
 	private final PasswordEncoder encoder;
 	private final JwtProvider jwtProvider;
+	private final JwtVerifier jwtVerifier;
 
 	/**
 	 * 사용자 계정과 비밀번호를 이용해 인증을 수행합니다.
@@ -95,14 +98,18 @@ public class SecurityAdapter implements SecurityPort {
 	 * @return 파싱된 토큰 정보(TokenInfo)
 	 * @author 박찬병
 	 * @since 2025-05-12
-	 * @modified 2025-05-12
+	 * @modified 2025-05-15
+	 * 2025-05-15 닉네임 값 추가
 	 */
 	@Override
 	public TokenInfo parseTokenInfo(String accessToken) {
-		long expiration = jwtProvider.getExpiration(accessToken);
-		String userId = jwtProvider.getUserIdFromToken(accessToken);
+		Claims claims = jwtVerifier.verifyToken(accessToken);
 
-		return TokenVoMapper.toVo(expiration, userId);
+		long expiration = jwtProvider.getExpiration(claims);
+		String userId = jwtProvider.getUserIdFromToken(claims);
+		String nickName = jwtProvider.getNickNameFromToken(claims);
+
+		return TokenVoMapper.toVo(expiration, userId, nickName);
 	}
 
 	/**

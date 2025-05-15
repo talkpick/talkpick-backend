@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class CustomUserDetails implements UserDetails {
 
     private String username;
+    private String nickname;
     private String password;
     private String authority;
 

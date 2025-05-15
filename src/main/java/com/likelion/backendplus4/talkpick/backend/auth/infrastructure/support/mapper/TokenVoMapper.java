@@ -6,7 +6,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.domain.model.vo.TokenInfo
  * TokenInfo VO 매핑 클래스입니다.
  *
  * @since 2025-05-12
- * @modified 2025-05-12
+ * @modified 2025-05-15
  */
 public class TokenVoMapper {
 
@@ -18,9 +18,10 @@ public class TokenVoMapper {
 	 * @return TokenInfo VO 객체
 	 * @author 박찬병
 	 * @since 2025-05-12
-	 * @modified 2025-05-12
+	 * @modified 2025-05-15
+	 * 2025-05-15 닉네임 추가
 	 */
-	public static TokenInfo toVo(long expirationMillis, String userId) {
-		return new TokenInfo(expirationMillis, userId);
+	public static TokenInfo toVo(long expirationMillis, String userId, String nickname) {
+		return new TokenInfo(expirationMillis, userId, nickname);
 	}
 }
