@@ -36,7 +36,35 @@ public interface UserRepositoryPort {
      * @since 2025-05-12
      * @modified 2025-05-12
      */
-    void existsByAccountAndEmail(String account);
+    void existsByAccount(String account);
+
+    /**
+     * 이메일 중복 여부를 검사하고, 중복인 경우 예외를 발생시킵니다.
+     *
+     * 1. 이메일 존재 여부 조회
+     * 2. 중복 시 UserException 발생
+     *
+     * @param email 검사할 계정
+     * @throws UserException 중복된 계정인 경우
+     * @author 박찬병
+     * @since 2025-05-15
+     * @modified 2025-05-15
+     */
+    void existsByEmail(String email);
+
+    /**
+     * 닉네임 중복 여부를 검사하고, 중복인 경우 예외를 발생시킵니다.
+     *
+     * 1. 닉네임 존재 여부 조회
+     * 2. 중복 시 UserException 발생
+     *
+     * @param nickname 검사할 닉네임
+     * @throws UserException 중복된 닉네임 경우
+     * @author 박찬병
+     * @since 2025-05-15
+     * @modified 2025-05-15
+     */
+    void existsByNickname(String nickname);
 
     /**
      * 새로운 AuthUser 도메인 객체를 저장합니다.

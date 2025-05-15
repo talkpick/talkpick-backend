@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.in.AuthServiceUseCase;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.AuthUserMapper;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.DuplicateCheckReqDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.RefreshReqDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignInDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignUpDto;
@@ -49,6 +50,24 @@ public class AuthController {
 	public ResponseEntity<ApiResponse<Void>> signUp(@Valid @RequestBody SignUpDto signUpDto) {
 		AuthUser user = AuthUserMapper.toDomainByDto(signUpDto);
 		authServiceUseCase.signUp(user);
+		return ApiResponse.success();
+	}
+
+	/**
+	 * 클라이언트로부터 중복 검사 요청을 받아 처리합니다.
+	 *
+	 * 1. 요청 DTO 유효성 검사(@Valid)
+	 * 2. 중복 검사 서비스 호출
+	 *
+	 * @param duplicateCheckReqDto 중복 검사 요청 정보를 담은 DTO
+	 * @return 빈 성공 응답(ApiResponse<Void>)
+	 * @author 박찬병
+	 * @since 2025-05-12
+	 * @modified 2025-05-15
+	 */
+	@PostMapping("/checkDuplicate")
+	public ResponseEntity<ApiResponse<Void>> checkDuplicate(@Valid @RequestBody DuplicateCheckReqDto duplicateCheckReqDto) {
+		authServiceUseCase.checkDuplicate(duplicateCheckReqDto.field(), duplicateCheckReqDto.value());
 		return ApiResponse.success();
 	}
 

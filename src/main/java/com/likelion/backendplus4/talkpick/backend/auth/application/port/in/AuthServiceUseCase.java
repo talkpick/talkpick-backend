@@ -2,6 +2,7 @@ package com.likelion.backendplus4.talkpick.backend.auth.application.port.in;
 
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.enums.DuplicateField;
 
 /**
  * 인증 관련 비즈니스 로직을 수행하는 유스케이스
@@ -23,6 +24,19 @@ public interface AuthServiceUseCase {
 	 * @modified 2025-05-12
 	 */
 	void signUp(AuthUser authUser);
+
+	/**
+	 * 중복 검사를 수행합니다.
+	 *
+	 * 필드 유형에 따라 계정, 이메일 또는 닉네임의 중복 여부를 조회합니다.
+	 *
+	 * @param field 중복 검사 대상 필드 (ACCOUNT, EMAIL, NICKNAME)
+	 * @param value 검사할 값
+	 * @author 박찬병
+	 * @since 2025-05-15
+	 * @modified 2025-05-15
+	 */
+	void checkDuplicate(DuplicateField field, String value);
 
 	/**
 	 * 사용자를 인증하고 액세스·리프레시 토큰을 발급합니다.
@@ -71,5 +85,6 @@ public interface AuthServiceUseCase {
 	 * @modified 2025-05-12
 	 */
 	void deleteUser(Long id);
+
 
 }

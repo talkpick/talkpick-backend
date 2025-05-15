@@ -56,8 +56,42 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
      * @modified 2025-05-12
      */
     @Override
-    public void existsByAccountAndEmail(String account) {
+    public void existsByAccount(String account) {
         checkAccountDuplicate(account);
+    }
+
+    /**
+     * 이메일 중복 여부를 검사하고, 중복인 경우 예외를 발생시킵니다.
+     *
+     * 1. 이메일 존재 여부 조회
+     * 2. 중복 시 UserException 발생
+     *
+     * @param email 검사할 계정
+     * @throws UserException 중복된 계정인 경우
+     * @author 박찬병
+     * @since 2025-05-15
+     * @modified 2025-05-15
+     */
+    @Override
+    public void existsByEmail(String email) {
+        checkEmailDuplicate(email);
+    }
+
+    /**
+     * 닉네임 중복 여부를 검사하고, 중복인 경우 예외를 발생시킵니다.
+     *
+     * 1. 닉네임 존재 여부 조회
+     * 2. 중복 시 UserException 발생
+     *
+     * @param nickname 검사할 닉네임
+     * @throws UserException 중복된 닉네임 경우
+     * @author 박찬병
+     * @since 2025-05-15
+     * @modified 2025-05-15
+     */
+    @Override
+    public void existsByNickname(String nickname) {
+        checkNicknameDuplicate(nickname);
     }
 
     /**
@@ -115,6 +149,43 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
     private void checkAccountDuplicate(String account) {
         if (userRepository.existsByAccount(account)) {
             throw new UserException(UserErrorCode.ACCOUNT_DUPLICATE);
+        }
+    }
+
+    /**
+     * 이메일 중복을 확인하고, 중복 시 예외를 던집니다.
+     *
+     * 1. 이메일 존재 여부 조회
+     * 2. 중복 시 UserException 발생
+     *
+     * @param email 검사할 이메일
+     * @throws UserException 중복된 이메일인 경우 발생
+     * @since 2025-05-15
+     * @modified 2025-05-15
+     * @author 박찬병
+     */
+    private void checkEmailDuplicate(String email) {
+        if (userRepository.existsByEmail(email)) {
+            throw new UserException(UserErrorCode.EMAIL_DUPLICATE);
+        }
+    }
+
+
+    /**
+     * 닉네임 중복을 확인하고, 중복 시 예외를 던집니다.
+     *
+     * 1. 닉네임 존재 여부 조회
+     * 2. 중복 시 UserException 발생
+     *
+     * @param nickname 검사할 닉네임
+     * @throws UserException 중복된 이메일인 경우 발생
+     * @since 2025-05-15
+     * @modified 2025-05-15
+     * @author 박찬병
+     */
+    private void checkNicknameDuplicate(String nickname) {
+        if (userRepository.existsByNickName(nickname)) {
+            throw new UserException(UserErrorCode.NICKNAME_DUPLICATE);
         }
     }
 

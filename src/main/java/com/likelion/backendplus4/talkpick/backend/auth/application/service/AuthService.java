@@ -13,6 +13,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.domain.model.vo.TokenInfo
 import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.enums.DuplicateField;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.support.mapper.TokenDtoMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -34,9 +35,8 @@ public class AuthService implements AuthServiceUseCase {
 	/**
 	 * 신규 회원을 등록합니다.
 	 *
-	 * 1. 계정 중복 여부 검증
-	 * 2. 비밀번호 인코딩
-	 * 3. 회원 정보 저장
+	 * 1. 비밀번호 인코딩
+	 * 2. 회원 정보 저장
 	 *
 	 * @param authUser 회원 도메인 객체
 	 * @author 박찬병
@@ -45,9 +45,28 @@ public class AuthService implements AuthServiceUseCase {
 	 */
 	@Override
 	public void signUp(AuthUser authUser) {
-		validateAccountNotExists(authUser.getAccount());
 		applyPasswordEncoding(authUser);
 		userRepositoryPort.saveUser(authUser);
+	}
+
+	/**
+	 * 중복 검사를 수행합니다.
+	 *
+	 * 필드 유형에 따라 계정, 이메일 또는 닉네임의 중복 여부를 조회합니다.
+	 *
+	 * @param field 중복 검사 대상 필드 (ACCOUNT, EMAIL, NICKNAME)
+	 * @param value 검사할 값
+	 * @author 박찬병
+	 * @since 2025-05-15
+	 * @modified 2025-05-15
+	 */
+	@Override
+	public void checkDuplicate(DuplicateField field, String value) {
+		switch (field) {
+			case ACCOUNT -> userRepositoryPort.existsByAccount(value);
+			case EMAIL -> userRepositoryPort.existsByEmail(value);
+			case NICKNAME -> userRepositoryPort.existsByNickname(value);
+		}
 	}
 
 	/**
@@ -116,17 +135,6 @@ public class AuthService implements AuthServiceUseCase {
 		userRepositoryPort.deleteUser(id);
 	}
 
-	/**
-	 * 계정 중복 여부를 확인합니다.
-	 *
-	 * @param account 검사할 계정
-	 * @author 박찬병
-	 * @since 2025-05-12
-	 * @modified 2025-05-12
-	 */
-	private void validateAccountNotExists(String account) {
-		userRepositoryPort.existsByAccountAndEmail(account);
-	}
 
 	/**
 	 * AuthUser의 비밀번호를 인코딩하여 설정합니다.
