@@ -8,13 +8,10 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * 뉴스 기사 수집 관련 오류 코드를 정의하는 열거형
+ * 뉴스 정보 처리 과정에서 발생할 수 있는 예외 상황을 정의한 열거형 클래스입니다.
+ * 각 예외는 HTTP 상태 코드, 고유 코드 번호, 메시지를 포함합니다.
  *
- * @since 2025-05-10
- * @modified 2025-05-11
- *   - 클래스 주석에서 저자 삭제
- *   - 예외 전역 처리를 위해 상속 구조로 변경
- *   - 예외 전역 처리로 알 수 없는 오류 코드 삭제
+ * @since 2025-05-14
  */
 @Getter
 @RequiredArgsConstructor
@@ -25,16 +22,36 @@ public enum NewsInfoErrorCode implements ErrorCode {
 	private final int code;
 	private final String message;
 
+	/**
+	 * 예외에 대응하는 HTTP 상태 코드를 반환합니다.
+	 *
+	 * @author 함예정
+	 * @since 2025-05-14
+	 */
 	@Override
 	public HttpStatus httpStatus() {
 		return status;
 	}
 
+	/**
+	 * 예외에 대한 고유 코드 번호를 반환합니다.
+	 *
+	 * @return 예외 코드 번호
+	 * @author 함예정
+	 * @since 2025-05-14
+	 */
 	@Override
 	public int codeNumber() {
 		return code;
 	}
 
+	/**
+	 * 예외 메시지를 반환합니다.
+	 *
+	 * @return 예외 메시지
+	 * @author 함예정
+	 * @since 2025-05-14
+	 */
 	@Override
 	public String message() {
 		return message;
