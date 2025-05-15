@@ -1,0 +1,20 @@
+package com.likelion.backendplus4.talkpick.backend.user.application.port.in;
+
+import com.likelion.backendplus4.talkpick.backend.user.presentation.controller.dto.res.UserInfoDto;
+
+/**
+ * 사용자 관련 비즈니스 로직을 처리하는 서비스 유스케이스 입니다.
+ * @since 2025-05-16
+ */
+public interface UserServiceUseCase {
+
+	/**
+	 * 사용자 ID를 기반으로 프로필 정보를 조회합니다.
+	 *
+	 * @param userId 사용자 ID
+	 * @return 사용자 정보를 담은 UserInfoDto
+	 * @author 박찬병
+	 * @since 2025-05-16
+	 */
+	UserInfoDto getMyInfo(Long userId);
+}

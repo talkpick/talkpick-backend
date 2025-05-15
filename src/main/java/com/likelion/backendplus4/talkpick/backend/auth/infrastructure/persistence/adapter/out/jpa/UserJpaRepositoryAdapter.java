@@ -7,7 +7,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.AuthUserMapper;
 import com.likelion.backendplus4.talkpick.backend.user.exception.UserException;
 import com.likelion.backendplus4.talkpick.backend.user.exception.error.UserErrorCode;
-import com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.jpa.UserRepository;
+import com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.jpa.repository.UserRepository;
 import com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.jpa.entity.UserEntity;
 import com.likelion.backendplus4.talkpick.backend.user.infrastructure.support.mapper.UserEntityMapper;
 

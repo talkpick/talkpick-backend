@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.jpa;
+package com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.jpa.repository;
 
 import java.util.Optional;
 
