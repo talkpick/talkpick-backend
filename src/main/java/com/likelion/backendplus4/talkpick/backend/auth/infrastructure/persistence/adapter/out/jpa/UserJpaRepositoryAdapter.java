@@ -117,7 +117,7 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
      *
      * 1. ID로 Entity 조회
      * 2. 존재하지 않으면 예외 발생
-     * 3. Repository를 통해 삭제
+     * 3. Repository를 통해 논리 삭제
      *
      * @param id 삭제할 사용자 고유 식별자
      * @throws UserException 사용자가 존재하지 않을 경우

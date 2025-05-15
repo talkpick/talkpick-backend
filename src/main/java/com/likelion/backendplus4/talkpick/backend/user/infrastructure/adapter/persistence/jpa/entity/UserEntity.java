@@ -4,6 +4,8 @@ import static jakarta.persistence.EnumType.STRING;
 
 import java.time.LocalDate;
 
+import org.hibernate.annotations.SQLRestriction;
+
 import com.likelion.backendplus4.talkpick.backend.common.entity.BaseSoftDeleteEntity;
 
 import jakarta.persistence.Column;
@@ -24,6 +26,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Getter
 @Table(name = "users")
+@SQLRestriction("is_delete = false")
 public class UserEntity extends BaseSoftDeleteEntity {
 
     @Id
