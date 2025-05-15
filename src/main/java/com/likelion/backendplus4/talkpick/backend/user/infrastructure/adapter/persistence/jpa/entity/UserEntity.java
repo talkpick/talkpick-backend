@@ -4,6 +4,8 @@ import static jakarta.persistence.EnumType.STRING;
 
 import java.time.LocalDate;
 
+import com.likelion.backendplus4.talkpick.backend.common.entity.BaseSoftDeleteEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -22,7 +24,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Getter
 @Table(name = "users")
-public class UserEntity {
+public class UserEntity extends BaseSoftDeleteEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -130,8 +130,7 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
     public void deleteUser(Long id) {
         UserEntity userEntity = fetchUserOrThrow(id);
 
-        // TODO 논리 삭제 처리
-        userRepository.delete(userEntity);
+        userEntity.markAsDeleted();
     }
 
     /**
