@@ -66,70 +66,70 @@ public class DuplicateCheckReqDtoValidator implements Validator {
 	/**
 	 * ACCOUNT 필드 값의 공통 검증(비어있는지, 공백 포함, 길이)을 수행합니다.
 	 *
-	 * @param account 검증할 계정 문자열
+	 * @param value 검증할 계정 문자열
 	 * @param errors  오류 정보를 담는 객체
 	 * @author 박찬병
 	 * @since 2025-05-15
 	 */
-	private void validateAccount(String account, Errors errors) {
-		if (rejectIfAccountEmpty(account, errors)) {
+	private void validateAccount(String value, Errors errors) {
+		if (rejectIfAccountEmpty(value, errors)) {
 			return;
 		}
-		if (rejectIfAccountWhitespace(account, errors)) {
+		if (rejectIfAccountWhitespace(value, errors)) {
 			return;
 		}
-		rejectIfAccountSize(account, errors);
+		rejectIfAccountSize(value, errors);
 	}
 
 	/**
 	 * EMAIL 필드 값의 공통 검증(비어있는지, 공백 포함, 패턴)을 수행합니다.
 	 *
-	 * @param email  검증할 이메일 문자열
+	 * @param value  검증할 이메일 문자열
 	 * @param errors 오류 정보를 담는 객체
 	 * @author 박찬병
 	 * @since 2025-05-15
 	 */
-	private void validateEmail(String email, Errors errors) {
-		if (rejectIfEmailEmpty(email, errors)) {
+	private void validateEmail(String value, Errors errors) {
+		if (rejectIfEmailEmpty(value, errors)) {
 			return;
 		}
-		if (rejectIfEmailWhitespace(email, errors)) {
+		if (rejectIfEmailWhitespace(value, errors)) {
 			return;
 		}
-		rejectIfEmailPattern(email, errors);
+		rejectIfEmailPattern(value, errors);
 	}
 
 	/**
 	 * NICKNAME 필드 값의 공통 검증(비어있는지, 공백 포함, 길이, 패턴)을 수행합니다.
 	 *
-	 * @param nick   검증할 닉네임 문자열
+	 * @param value   검증할 닉네임 문자열
 	 * @param errors 오류 정보를 담는 객체
 	 * @author 박찬병
 	 * @since 2025-05-15
 	 */
-	private void validateNickname(String nick, Errors errors) {
-		if (rejectIfNickEmpty(nick, errors)) {
+	private void validateNickname(String value, Errors errors) {
+		if (rejectIfNickEmpty(value, errors)) {
 			return;
 		}
-		if (rejectIfNickWhitespace(nick, errors)) {
+		if (rejectIfNickWhitespace(value, errors)) {
 			return;
 		}
-		rejectIfNickSize(nick, errors);
-		rejectIfNickPattern(nick, errors);
+		rejectIfNickSize(value, errors);
+		rejectIfNickPattern(value, errors);
 	}
 
 	/**
 	 * ACCOUNT 값이 비어있는지 확인하고, 비어있으면 오류 등록 후 true를 반환합니다.
 	 *
-	 * @param account 검증할 계정 문자열
+	 * @param value 검증할 계정 문자열
 	 * @param errors  오류 정보를 담는 객체
 	 * @return 오류 발생 시 true
 	 * @author 박찬병
 	 * @since 2025-05-15
 	 */
-	private boolean rejectIfAccountEmpty(String account, Errors errors) {
-		if (!StringUtils.hasText(account)) {
-			AuthValidationError.ACCOUNT_EMPTY.reject(errors);
+	private boolean rejectIfAccountEmpty(String value, Errors errors) {
+		if (!StringUtils.hasText(value)) {
+			AuthValidationError.VALUE_EMPTY.reject(errors);
 			return true;
 		}
 		return false;
@@ -138,15 +138,15 @@ public class DuplicateCheckReqDtoValidator implements Validator {
 	/**
 	 * ACCOUNT 값에 공백이 포함되어 있는지 확인하고, 포함 시 오류 등록 후 true를 반환합니다.
 	 *
-	 * @param account 검증할 계정 문자열
+	 * @param value 검증할 계정 문자열
 	 * @param errors  오류 정보를 담는 객체
 	 * @return 오류 발생 시 true
 	 * @author 박찬병
 	 * @since 2025-05-15
 	 */
-	private boolean rejectIfAccountWhitespace(String account, Errors errors) {
-		if (StringUtils.containsWhitespace(account)) {
-			AuthValidationError.ACCOUNT_WHITESPACE.reject(errors);
+	private boolean rejectIfAccountWhitespace(String value, Errors errors) {
+		if (StringUtils.containsWhitespace(value)) {
+			AuthValidationError.VALUE_WHITESPACE.reject(errors);
 			return true;
 		}
 		return false;
@@ -156,30 +156,30 @@ public class DuplicateCheckReqDtoValidator implements Validator {
 	 * ACCOUNT 값의 길이가 4미만 또는 20초과인지 확인하여
 	 * 조건을 만족하지 않으면 오류를 등록합니다.
 	 *
-	 * @param account 검증할 계정 문자열
+	 * @param value 검증할 계정 문자열
 	 * @param errors  오류 정보를 담는 객체
 	 * @author 박찬병
 	 * @since 2025-05-15
 	 */
-	private void rejectIfAccountSize(String account, Errors errors) {
-		int len = account.length();
+	private void rejectIfAccountSize(String value, Errors errors) {
+		int len = value.length();
 		if (len < 4 || len > 20) {
-			AuthValidationError.ACCOUNT_SIZE.reject(errors);
+			AuthValidationError.VALUE_SIZE.reject(errors);
 		}
 	}
 
 	/**
 	 * EMAIL 값이 비어있는지 확인하고, 비어있으면 오류 등록 후 true를 반환합니다.
 	 *
-	 * @param email  검증할 이메일 문자열
+	 * @param value  검증할 이메일 문자열
 	 * @param errors 오류 정보를 담는 객체
 	 * @return 오류 발생 시 true
 	 * @author 박찬병
 	 * @since 2025-05-15
 	 */
-	private boolean rejectIfEmailEmpty(String email, Errors errors) {
-		if (!StringUtils.hasText(email)) {
-			AuthValidationError.EMAIL_EMPTY.reject(errors);
+	private boolean rejectIfEmailEmpty(String value, Errors errors) {
+		if (!StringUtils.hasText(value)) {
+			AuthValidationError.VALUE_EMPTY.reject(errors);
 			return true;
 		}
 		return false;
@@ -188,15 +188,15 @@ public class DuplicateCheckReqDtoValidator implements Validator {
 	/**
 	 * EMAIL 값에 공백이 포함되어 있는지 확인하고, 포함 시 오류 등록 후 true를 반환합니다.
 	 *
-	 * @param email  검증할 이메일 문자열
+	 * @param value  검증할 이메일 문자열
 	 * @param errors 오류 정보를 담는 객체
 	 * @return 오류 발생 시 true
 	 * @author 박찬병
 	 * @since 2025-05-15
 	 */
-	private boolean rejectIfEmailWhitespace(String email, Errors errors) {
-		if (StringUtils.containsWhitespace(email)) {
-			AuthValidationError.EMAIL_WHITESPACE.reject(errors);
+	private boolean rejectIfEmailWhitespace(String value, Errors errors) {
+		if (StringUtils.containsWhitespace(value)) {
+			AuthValidationError.VALUE_WHITESPACE.reject(errors);
 			return true;
 		}
 		return false;
@@ -205,29 +205,29 @@ public class DuplicateCheckReqDtoValidator implements Validator {
 	/**
 	 * EMAIL 패턴이 올바른지 확인하고, 올바르지 않으면 오류를 등록합니다.
 	 *
-	 * @param email  검증할 이메일 문자열
+	 * @param value  검증할 이메일 문자열
 	 * @param errors 오류 정보를 담는 객체
 	 * @author 박찬병
 	 * @since 2025-05-15
 	 */
-	private void rejectIfEmailPattern(String email, Errors errors) {
-		if (!EMAIL_PATTERN.matcher(email).matches()) {
-			AuthValidationError.EMAIL_PATTERN.reject(errors);
+	private void rejectIfEmailPattern(String value, Errors errors) {
+		if (!EMAIL_PATTERN.matcher(value).matches()) {
+			AuthValidationError.VALUE_PATTERN.reject(errors);
 		}
 	}
 
 	/**
 	 * NICKNAME 값이 비어있는지 확인하고, 비어있으면 오류 등록 후 true를 반환합니다.
 	 *
-	 * @param nick   검증할 닉네임 문자열
+	 * @param value   검증할 닉네임 문자열
 	 * @param errors 오류 정보를 담는 객체
 	 * @return 오류 발생 시 true
 	 * @author 박찬병
 	 * @since 2025-05-15
 	 */
-	private boolean rejectIfNickEmpty(String nick, Errors errors) {
-		if (!StringUtils.hasText(nick)) {
-			AuthValidationError.NICKNAME_EMPTY.reject(errors);
+	private boolean rejectIfNickEmpty(String value, Errors errors) {
+		if (!StringUtils.hasText(value)) {
+			AuthValidationError.VALUE_EMPTY.reject(errors);
 			return true;
 		}
 		return false;
@@ -236,15 +236,15 @@ public class DuplicateCheckReqDtoValidator implements Validator {
 	/**
 	 * NICKNAME 값에 공백이 포함되어 있는지 확인하고, 포함 시 오류 등록 후 true를 반환합니다.
 	 *
-	 * @param nick   검증할 닉네임 문자열
+	 * @param value   검증할 닉네임 문자열
 	 * @param errors 오류 정보를 담는 객체
 	 * @return 오류 발생 시 true
 	 * @author 박찬병
 	 * @since 2025-05-15
 	 */
-	private boolean rejectIfNickWhitespace(String nick, Errors errors) {
-		if (StringUtils.containsWhitespace(nick)) {
-			AuthValidationError.NICKNAME_WHITESPACE.reject(errors);
+	private boolean rejectIfNickWhitespace(String value, Errors errors) {
+		if (StringUtils.containsWhitespace(value)) {
+			AuthValidationError.VALUE_WHITESPACE.reject(errors);
 			return true;
 		}
 		return false;
@@ -254,28 +254,28 @@ public class DuplicateCheckReqDtoValidator implements Validator {
 	 * NICKNAME 값의 길이가 20초과인지 확인하여
 	 * 조건을 만족하지 않으면 오류를 등록합니다.
 	 *
-	 * @param nick   검증할 닉네임 문자열
+	 * @param value   검증할 닉네임 문자열
 	 * @param errors 오류 정보를 담는 객체
 	 * @author 박찬병
 	 * @since 2025-05-15
 	 */
-	private void rejectIfNickSize(String nick, Errors errors) {
-		if (nick.length() > 20) {
-			AuthValidationError.NICKNAME_SIZE.reject(errors);
+	private void rejectIfNickSize(String value, Errors errors) {
+		if (value.length() > 20) {
+			AuthValidationError.VALUE_SIZE.reject(errors);
 		}
 	}
 
 	/**
 	 * NICKNAME 패턴이 올바른지 확인하고, 올바르지 않으면 오류를 등록합니다.
 	 *
-	 * @param nick   검증할 닉네임 문자열
+	 * @param value   검증할 닉네임 문자열
 	 * @param errors 오류 정보를 담는 객체
 	 * @author 박찬병
 	 * @since 2025-05-15
 	 */
-	private void rejectIfNickPattern(String nick, Errors errors) {
-		if (!NICKNAME_PATTERN.matcher(nick).matches()) {
-			AuthValidationError.NICKNAME_INVALID_CHAR.reject(errors);
+	private void rejectIfNickPattern(String value, Errors errors) {
+		if (!NICKNAME_PATTERN.matcher(value).matches()) {
+			AuthValidationError.VALUE_INVALID_CHAR.reject(errors);
 		}
 	}
 }
