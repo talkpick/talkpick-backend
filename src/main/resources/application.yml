@@ -54,3 +54,7 @@ log:
 
 jwt:
   secret: ${JWT_SECRET}
+
+news:
+  index:
+    name: news_index
