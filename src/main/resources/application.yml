@@ -10,6 +10,7 @@ spring:
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
+      embedding-model: text-embedding-3-small
   application:
     name: talkpick-backend
   datasource:
