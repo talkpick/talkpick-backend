@@ -15,6 +15,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.Refr
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignInDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignUpDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.security.LoginUser;
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 import com.likelion.backendplus4.talkpick.backend.common.util.security.TokenExtractUtil;
@@ -46,6 +47,7 @@ public class AuthController {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@EntryExitLog
 	@PostMapping("/signUp")
 	public ResponseEntity<ApiResponse<Void>> signUp(@Valid @RequestBody SignUpDto signUpDto) {
 		AuthUser user = AuthUserMapper.toDomainByDto(signUpDto);
@@ -65,6 +67,7 @@ public class AuthController {
 	 * @since 2025-05-12
 	 * @modified 2025-05-15
 	 */
+	@EntryExitLog
 	@PostMapping("/checkDuplicate")
 	public ResponseEntity<ApiResponse<Void>> checkDuplicate(@Valid @RequestBody DuplicateCheckReqDto duplicateCheckReqDto) {
 		authServiceUseCase.checkDuplicate(duplicateCheckReqDto.field(), duplicateCheckReqDto.value());
@@ -80,6 +83,7 @@ public class AuthController {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@EntryExitLog
 	@PostMapping("/signIn")
 	public ResponseEntity<ApiResponse<TokenResDto>> signIn(@Valid @RequestBody SignInDto signInDto) {
 		TokenResDto tokenResDto = authServiceUseCase.signIn(signInDto.account(), signInDto.password());
@@ -94,6 +98,7 @@ public class AuthController {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@EntryExitLog
 	@PostMapping("/logout")
 	public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
 		String token = TokenExtractUtil.extractToken(request);
@@ -110,6 +115,7 @@ public class AuthController {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@EntryExitLog
 	@DeleteMapping("/delete")
 	public ResponseEntity<ApiResponse<Void>> deleteAccount(@LoginUser Long memberId) {
 		authServiceUseCase.deleteUser(memberId);
@@ -125,6 +131,7 @@ public class AuthController {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@EntryExitLog
 	@PostMapping("/refresh")
 	public ResponseEntity<ApiResponse<TokenResDto>> refreshAccessToken(
 		@Valid @RequestBody RefreshReqDto requestToken

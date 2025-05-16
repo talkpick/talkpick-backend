@@ -2,6 +2,7 @@ package com.likelion.backendplus4.talkpick.backend.user.application.service;
 
 import org.springframework.stereotype.Service;
 
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 import com.likelion.backendplus4.talkpick.backend.user.application.port.in.UserServiceUseCase;
 import com.likelion.backendplus4.talkpick.backend.user.application.port.out.UserManagementPort;
 import com.likelion.backendplus4.talkpick.backend.user.domain.model.User;
@@ -29,6 +30,7 @@ public class UserService implements UserServiceUseCase {
 	 * @since 2025-05-16
 	 */
 	@Override
+	@EntryExitLog
 	public UserInfoResDto getMyInfo(Long userId) {
 		User user = userManagementPort.getUser(userId);
 		return UserInfoDtoMapper.toDtoFromUser(user);
@@ -42,6 +44,7 @@ public class UserService implements UserServiceUseCase {
 	 * @since 2025-05-16
 	 */
 	@Override
+	@EntryExitLog
 	public void updateMyInfo(User user) {
 		userManagementPort.updateUser(user);
 	}

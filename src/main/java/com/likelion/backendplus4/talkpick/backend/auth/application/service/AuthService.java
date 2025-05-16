@@ -15,6 +15,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthError
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.enums.DuplicateField;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.support.mapper.TokenDtoMapper;
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 
 import lombok.RequiredArgsConstructor;
 
@@ -44,6 +45,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @modified 2025-05-12
 	 */
 	@Override
+	@EntryExitLog
 	public void signUp(AuthUser authUser) {
 		applyPasswordEncoding(authUser);
 		userRepositoryPort.saveUser(authUser);
@@ -61,6 +63,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @modified 2025-05-15
 	 */
 	@Override
+	@EntryExitLog
 	public void checkDuplicate(DuplicateField field, String value) {
 		switch (field) {
 			case ACCOUNT -> userRepositoryPort.existsByAccount(value);
@@ -84,6 +87,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @modified 2025-05-12
 	 */
 	@Override
+	@EntryExitLog
 	public TokenResDto signIn(String account, String password) {
 		Authentication auth = securityPort.authenticate(account, password);
 		TokenPair pair = securityPort.issueToken(auth);
@@ -101,6 +105,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @modified 2025-05-12
 	 */
 	@Override
+	@EntryExitLog
 	public TokenResDto refreshToken(String refreshToken) {
 		TokenPair tokenPair = securityPort.refreshToken(refreshToken);
 		return TokenDtoMapper.toDto(tokenPair, null);
@@ -116,6 +121,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @modified 2025-05-14
 	 */
 	@Override
+	@EntryExitLog
 	public void logout(String accessToken) {
 		validateAccessToken(accessToken);
 		TokenInfo tokenInfo = securityPort.parseTokenInfo(accessToken);
@@ -131,6 +137,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @modified 2025-05-12
 	 */
 	@Override
+	@EntryExitLog
 	public void deleteUser(Long id) {
 		userRepositoryPort.deleteUser(id);
 	}
@@ -144,6 +151,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@EntryExitLog
 	private void applyPasswordEncoding(AuthUser authUser) {
 		String encoded = securityPort.encodePassword(authUser.getPassword());
 		authUser.updateEncodedPassword(encoded);
@@ -158,6 +166,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@EntryExitLog
 	private void performLogoutIfValid(String rawToken, TokenInfo tokenInfo) {
 		if (!tokenInfo.isExpired()) {
 			authTokenStorePort.logoutTokens(
@@ -177,6 +186,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @modified 2025-05-14
 	 * @author 박찬병
 	 */
+	@EntryExitLog
 	private void validateAccessToken(String accessToken) {
 		if (accessToken == null) {
 			throw new AuthException(AuthErrorCode.INVALID_ACCESS_TOKEN);

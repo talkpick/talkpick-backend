@@ -3,6 +3,7 @@ package com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.p
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 import com.likelion.backendplus4.talkpick.backend.user.application.port.out.UserManagementPort;
 import com.likelion.backendplus4.talkpick.backend.user.domain.model.User;
 import com.likelion.backendplus4.talkpick.backend.user.exception.UserException;
@@ -35,6 +36,7 @@ public class UserManagementJpaAdapter implements UserManagementPort {
 	 * @since 2025-05-16
 	 */
 	@Override
+	@EntryExitLog
 	public User getUser(Long userId) {
 		UserEntity userEntity = fetchUserOrThrow(userId);
 		return UserMapper.toDomainFromEntity(userEntity);
@@ -49,6 +51,7 @@ public class UserManagementJpaAdapter implements UserManagementPort {
 	 */
 	@Override
 	@Transactional
+	@EntryExitLog
 	public void updateUser(User user) {
 		UserEntity userEntity = fetchUserOrThrow(user.getUserId());
 		userEntity.updateUser(user);

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.security.LoginUser;
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 import com.likelion.backendplus4.talkpick.backend.user.application.port.in.UserServiceUseCase;
@@ -38,6 +39,7 @@ public class UserController {
 	 * @author 박찬병
 	 * @since 2025-05-16
 	 */
+	@EntryExitLog
 	@GetMapping("/profile")
 	public ResponseEntity<ApiResponse<UserInfoResDto>> getProfile(@LoginUser Long userId) {
 		UserInfoResDto myInfo = userServiceUseCase.getMyInfo(userId);
@@ -53,6 +55,7 @@ public class UserController {
 	 * @author 박찬병
 	 * @since 2025-05-16
 	 */
+	@EntryExitLog
 	@PatchMapping("/profile")
 	public ResponseEntity<ApiResponse<Void>> updateProfile(@LoginUser Long userId,
 		@RequestBody UserUpdateReqDto updateReqDto) {

@@ -6,6 +6,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.user.CustomUserDetails;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.TokenMapper;
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -55,6 +56,7 @@ public class JwtProvider {
      * @since 2025-05-12
      * @modified 2025-05-12
      */
+    @EntryExitLog
     public TokenPair generateToken(Authentication authentication) {
         CustomUserDetails user = (CustomUserDetails)authentication.getPrincipal();
 
@@ -86,6 +88,7 @@ public class JwtProvider {
      * @since 2025-05-12
      * @modified 2025-05-12
      */
+    @EntryExitLog
     public TokenPair refreshAccessToken(String refreshToken) {
         Claims claims = jwtVerifier.verifyToken(refreshToken);
 
@@ -109,6 +112,7 @@ public class JwtProvider {
      * @since 2025-05-12
      * @modified 2025-05-12
      */
+    @EntryExitLog
     public String getUserIdFromToken(Claims claims) {
         return claims.getSubject();
     }
@@ -125,6 +129,7 @@ public class JwtProvider {
      * @since 2025-05-12
      * @modified 2025-05-12
      */
+    @EntryExitLog
     public long getExpiration(Claims claims) {
         return claims.getExpiration().getTime() - System.currentTimeMillis();
     }
@@ -138,6 +143,7 @@ public class JwtProvider {
      * @since 2025-05-15
      * @modified 2025-05-15
      */
+    @EntryExitLog
     public String getNickNameFromToken(Claims claims) {
         return claims.get(CLAIMS_NICKNAME, String.class);
     }
@@ -153,6 +159,7 @@ public class JwtProvider {
      * @since 2025-05-12
      * @modified 2025-05-12
      */
+    @EntryExitLog
     private String createToken(String userId, String roles, long validityMillis, String nickname) {
         Claims claims = buildClaims(userId, roles, nickname);
         Date now = new Date();
@@ -179,6 +186,7 @@ public class JwtProvider {
      * @since 2025-05-12
      * @modified 2025-05-12
      */
+    @EntryExitLog
     private Claims buildClaims(String userId, String roles, String nickname) {
         Claims claims = Jwts.claims().setSubject(userId);
         if (roles != null && !roles.isBlank()) {
@@ -203,6 +211,7 @@ public class JwtProvider {
      * @modified 2025-05-14
      * @author 박찬병
      */
+    @EntryExitLog
     private void validateRefreshToken(String userId, String refreshToken) {
         if (!authTokenStorePort.isValidRefreshToken(userId, refreshToken)) {
             throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);

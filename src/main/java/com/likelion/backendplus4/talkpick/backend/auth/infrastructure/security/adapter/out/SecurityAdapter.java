@@ -15,6 +15,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.J
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.TokenPair;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.JwtVerifier;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.TokenVoMapper;
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +45,7 @@ public class SecurityAdapter implements SecurityPort {
 	 * @modified 2025-05-12
 	 */
 	@Override
+	@EntryExitLog
 	public Authentication authenticate(String account, String rawPassword) {
 		return performAuthentication(account, rawPassword);
 	}
@@ -59,6 +61,7 @@ public class SecurityAdapter implements SecurityPort {
 	 * @modified 2025-05-12
 	 */
 	@Override
+	@EntryExitLog
 	public String encodePassword(String rawPassword) {
 		return encoder.encode(rawPassword);
 	}
@@ -73,6 +76,7 @@ public class SecurityAdapter implements SecurityPort {
 	 * @modified 2025-05-12
 	 */
 	@Override
+	@EntryExitLog
 	public TokenPair issueToken(Authentication authentication) {
 		return jwtProvider.generateToken(authentication);
 	}
@@ -87,6 +91,7 @@ public class SecurityAdapter implements SecurityPort {
 	 * @modified 2025-05-12
 	 */
 	@Override
+	@EntryExitLog
 	public TokenPair refreshToken(String refreshToken) {
 		return jwtProvider.refreshAccessToken(refreshToken);
 	}
@@ -102,6 +107,7 @@ public class SecurityAdapter implements SecurityPort {
 	 * 2025-05-15 닉네임 값 추가
 	 */
 	@Override
+	@EntryExitLog
 	public TokenInfo parseTokenInfo(String accessToken) {
 		Claims claims = jwtVerifier.verifyToken(accessToken);
 
@@ -123,6 +129,7 @@ public class SecurityAdapter implements SecurityPort {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@EntryExitLog
 	private Authentication performAuthentication(String account, String rawPassword) {
 		try {
 			return authManager.authenticate(

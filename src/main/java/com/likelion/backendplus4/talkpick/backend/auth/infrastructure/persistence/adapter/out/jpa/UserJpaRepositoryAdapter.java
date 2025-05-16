@@ -5,6 +5,7 @@ import java.util.Optional;
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.UserRepositoryPort;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.AuthUserMapper;
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 import com.likelion.backendplus4.talkpick.backend.user.exception.UserException;
 import com.likelion.backendplus4.talkpick.backend.user.exception.error.UserErrorCode;
 import com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.jpa.repository.UserRepository;
@@ -38,6 +39,7 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
      * @modified 2025-05-12
      */
     @Override
+    @EntryExitLog
     public Optional<AuthUser> findUserByAccount(String account) {
         return userRepository.findUserByAccount(account)
             .map(AuthUserMapper::toDomainByUserEntity);
@@ -56,6 +58,7 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
      * @modified 2025-05-12
      */
     @Override
+    @EntryExitLog
     public void existsByAccount(String account) {
         checkAccountDuplicate(account);
     }
@@ -73,6 +76,7 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
      * @modified 2025-05-15
      */
     @Override
+    @EntryExitLog
     public void existsByEmail(String email) {
         checkEmailDuplicate(email);
     }
@@ -90,6 +94,7 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
      * @modified 2025-05-15
      */
     @Override
+    @EntryExitLog
     public void existsByNickname(String nickname) {
         checkNicknameDuplicate(nickname);
     }
@@ -107,6 +112,7 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
      */
     @Override
     @Transactional
+    @EntryExitLog
     public void saveUser(AuthUser authUser) {
         UserEntity userEntity = UserEntityMapper.toEntityByDomain(authUser);
         userRepository.save(userEntity);
@@ -127,6 +133,7 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
      */
     @Override
     @Transactional
+    @EntryExitLog
     public void deleteUser(Long id) {
         UserEntity userEntity = fetchUserOrThrow(id);
 
@@ -145,6 +152,7 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
      * @modified 2025-05-12
      * @author 박찬병
      */
+    @EntryExitLog
     private void checkAccountDuplicate(String account) {
         if (userRepository.existsByAccount(account)) {
             throw new UserException(UserErrorCode.ACCOUNT_DUPLICATE);
@@ -163,6 +171,7 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
      * @modified 2025-05-15
      * @author 박찬병
      */
+    @EntryExitLog
     private void checkEmailDuplicate(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new UserException(UserErrorCode.EMAIL_DUPLICATE);
@@ -182,6 +191,7 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
      * @modified 2025-05-15
      * @author 박찬병
      */
+    @EntryExitLog
     private void checkNicknameDuplicate(String nickname) {
         if (userRepository.existsByNickName(nickname)) {
             throw new UserException(UserErrorCode.NICKNAME_DUPLICATE);
@@ -201,6 +211,7 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
      * @modified 2025-05-12
      * @author 박찬병
      */
+    @EntryExitLog
     private UserEntity fetchUserOrThrow(Long id) {
         return userRepository.findById(id)
             .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
