@@ -31,8 +31,8 @@ public enum AuthValidationError {
 
 	GENDER_EMPTY("gender", "gender.empty", "성별은 필수입니다."),
 
-	BIRTHDAY_EMPTY("birthday", "birthday.empty", "생년월일은 필수입니다."),
-	BIRTHDAY_FUTURE("birthday", "birthday.future", "생년월일은 현재 날짜 이전이어야 합니다."),
+	BIRTHDAY_EMPTY("birthDay", "birthDay.empty", "생년월일은 필수입니다."),
+	BIRTHDAY_FUTURE("birthDay", "birthDay.future", "생년월일은 현재 날짜 이전이어야 합니다."),
 
 	ACCESS_TOKEN_EMPTY("accessToken", "accessToken.empty", "accessToken은 필수입니다."),
 	REFRESH_TOKEN_EMPTY("refreshToken", "refreshToken.empty", "refreshToken은 필수합니다."),

@@ -1,7 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.user.presentation.controller.support.mapper;
 
 import com.likelion.backendplus4.talkpick.backend.user.domain.model.User;
-import com.likelion.backendplus4.talkpick.backend.user.presentation.controller.dto.res.UserInfoDto;
+import com.likelion.backendplus4.talkpick.backend.user.presentation.controller.dto.res.UserInfoResDto;
 
 /**
  * 사용자 도메인 모델을 UserInfoDto로 변환하는 매퍼 클래스입니다.
@@ -18,10 +18,10 @@ public class UserInfoDtoMapper {
 	 * @author 박찬병
 	 * @since 2025-05-16
 	 */
-	public static UserInfoDto toDtoFromUser(User user) {
-		return UserInfoDto.builder()
+	public static UserInfoResDto toDtoFromUser(User user) {
+		return UserInfoResDto.builder()
 			.userId(user.getUserId())
-			.gender(user.getGender())
+			.gender(user.getGender().getGenderName())
 			.birthday(user.getBirthday())
 			.name(user.getName())
 			.nickName(user.getNickName())

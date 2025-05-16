@@ -2,6 +2,8 @@ package com.likelion.backendplus4.talkpick.backend.user.domain.model;
 
 import java.time.LocalDate;
 
+import com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.jpa.entity.Gender;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +21,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class User {
 	private Long userId;
-	private String gender;
+	private Gender gender;
 	private LocalDate birthday;
 	private String name;
 	private String nickName;

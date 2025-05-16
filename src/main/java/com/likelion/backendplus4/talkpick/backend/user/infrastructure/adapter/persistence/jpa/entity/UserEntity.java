@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import org.hibernate.annotations.SQLRestriction;
 
 import com.likelion.backendplus4.talkpick.backend.common.entity.BaseSoftDeleteEntity;
+import com.likelion.backendplus4.talkpick.backend.user.domain.model.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,6 +21,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+
+/**
+ * 사용자 정보를 저장하는 JPA Entity.
+ *
+ * @since 2025-05-16
+ */
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
@@ -60,4 +67,18 @@ public class UserEntity extends BaseSoftDeleteEntity {
     @Column(name = "email", nullable = false, length = 254)
     private String email;
 
+    /**
+     * 전달받은 User 객체의 정보로 현재 UserEntity 객체를 업데이트한다.
+     *
+     * @param user 업데이트할 사용자 정보가 담긴 User 객체
+     * @author 박찬병
+     * @since 2025-05-16
+     */
+    public void updateUser(User user) {
+        this.gender = user.getGender();
+        this.birthday = user.getBirthday();
+        this.name = user.getName();
+        this.nickName = user.getNickName();
+        this.email = user.getEmail();
+    }
 }

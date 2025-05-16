@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import com.likelion.backendplus4.talkpick.backend.user.application.port.in.UserServiceUseCase;
 import com.likelion.backendplus4.talkpick.backend.user.application.port.out.UserManagementPort;
 import com.likelion.backendplus4.talkpick.backend.user.domain.model.User;
-import com.likelion.backendplus4.talkpick.backend.user.presentation.controller.dto.res.UserInfoDto;
+import com.likelion.backendplus4.talkpick.backend.user.presentation.controller.dto.res.UserInfoResDto;
 import com.likelion.backendplus4.talkpick.backend.user.presentation.controller.support.mapper.UserInfoDtoMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -29,8 +29,20 @@ public class UserService implements UserServiceUseCase {
 	 * @since 2025-05-16
 	 */
 	@Override
-	public UserInfoDto getMyInfo(Long userId) {
+	public UserInfoResDto getMyInfo(Long userId) {
 		User user = userManagementPort.getUser(userId);
 		return UserInfoDtoMapper.toDtoFromUser(user);
+	}
+
+	/**
+	 * 내 프로필 정보를 수정한다.
+	 *
+	 * @param user 수정할 사용자 도메인 객체
+	 * @author 박찬병
+	 * @since 2025-05-16
+	 */
+	@Override
+	public void updateMyInfo(User user) {
+		userManagementPort.updateUser(user);
 	}
 }

@@ -41,6 +41,20 @@ public class UserManagementJpaAdapter implements UserManagementPort {
 	}
 
 	/**
+	 * 전달받은 User 도메인 객체의 정보로 사용자 정보를 업데이트한다.
+	 *
+	 * @param user 업데이트할 사용자 도메인 객체
+	 * @author 박찬병
+	 * @since 2025-05-16
+	 */
+	@Override
+	@Transactional
+	public void updateUser(User user) {
+		UserEntity userEntity = fetchUserOrThrow(user.getUserId());
+		userEntity.updateUser(user);
+	}
+
+	/**
 	 * ID로 사용자 엔티티를 조회하고, 존재하지 않으면 예외를 던집니다.
 	 *
 	 * 1. ID로 Entity 조회

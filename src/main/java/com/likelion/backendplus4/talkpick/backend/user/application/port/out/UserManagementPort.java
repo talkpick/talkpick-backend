@@ -18,4 +18,13 @@ public interface UserManagementPort {
 	 * @since 2025-05-16
 	 */
 	User getUser(Long userId);
+
+	/**
+	 * 전달받은 사용자 정보를 기반으로 사용자 엔터티를 업데이트합니다.
+	 *
+	 * @param user 업데이트할 사용자 도메인 객체
+	 * @author 박찬병
+	 * @since 2025-05-16
+	 */
+	void updateUser(User user);
 }
