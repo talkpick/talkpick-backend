@@ -4,6 +4,7 @@ import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * RabbitMQ 기반 채팅 인프라를 설정하는 Configuration 클래스.
  * TopicExchange, Queue, Binding, 및 RabbitTemplate을 빈으로 등록합니다.
+ *
  * @since 2025-05-18
  */
 @Configuration
@@ -61,6 +63,7 @@ public class RabbitMQConfig {
      * 메시지 라우팅을 담당하는 exchange
      * Binding을 통해 Queue를 연결합니다.
      * <p>durable=true 로 설정하여 브로커 재시작 시에도 큐가 유지되도록 합니다.</p>
+     *
      * @return CHAT_EXCHANGE_NAME 라는 이름의 TopicExchange 인스턴스
      * @author 이해창
      * @since 2025-05-18
@@ -74,6 +77,7 @@ public class RabbitMQConfig {
 
     /**
      * 채팅 메시지 수신용 Durable 큐를 생성합니다.
+     *
      * @return CHAT_QUEUE_NAME 라는 이름의 Queue 인스턴스
      * @author 이해창
      * @since 2025-05-18
@@ -85,7 +89,8 @@ public class RabbitMQConfig {
 
     /**
      * exchange와 queue를 바인딩하며, 바인딩 조건으로 ROUTING_PATTERN을 사용합니다.
-     * @param chatQueue 메시지를 수신할 Queue
+     *
+     * @param chatQueue    메시지를 수신할 Queue
      * @param chatExchange 메시지를 발행할 TopicExchange
      * @return 구성된 Binding 인스턴스
      * @since 2025-05-18
@@ -100,13 +105,30 @@ public class RabbitMQConfig {
 
     /**
      * 메시지 발행을 위한 RabbitTemplate
+     * 기본 라우팅 키를 ROUTING_PATTERN으로 설정합니다.
+     * JSON 직렬화를 위해 MessageConverter를 사용합니다.
      * @param connectionFactory 브로커 연결을 위한 ConnectionFactory
-     * @return RabbitTemplate 인스턴스
+     * @param messageConverter JSON 직렬화를 위한 MessageConverter
+     * @return RabbitTemplate
      * @author 이해창
      * @since 2025-05-18
      */
     @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-        return new RabbitTemplate(connectionFactory);
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, Jackson2JsonMessageConverter messageConverter) {
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(jsonMessageConverter());
+        rabbitTemplate.setRoutingKey(ROUTING_PATTERN);
+        return rabbitTemplate;
+    }
+
+    /**
+     * JSON으로 직렬화/역직렬화하는 MessageConverter
+     * @return Jackson2JsonMessageConverter
+     * @author 이해창
+     * @since 2025-05-18
+     */
+    @Bean
+    public Jackson2JsonMessageConverter jsonMessageConverter() {
+        return new Jackson2JsonMessageConverter();
     }
 }
