@@ -34,6 +34,9 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
+  config:
+    import:
+      - configtree:classpath:/config
 
 host:
   name: ${HOST_NAME:http://localhost:3000}
