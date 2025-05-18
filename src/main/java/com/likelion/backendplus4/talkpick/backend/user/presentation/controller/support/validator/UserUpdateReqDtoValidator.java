@@ -113,7 +113,7 @@ public class UserUpdateReqDtoValidator implements Validator {
 	 * @since 2025-05-18
 	 */
 	private void validateGender(Gender gender, Errors errors) {
-		if (gender == null) {
+		if (null == gender) {
 			AuthValidationError.GENDER_EMPTY.reject(errors);
 		}
 	}
@@ -158,7 +158,7 @@ public class UserUpdateReqDtoValidator implements Validator {
      * @since 2025-05-18
      */
     private void checkNameSize(String name, Errors errors) {
-        if (name.length() > 30) {
+        if (30 < name.length()) {
             AuthValidationError.NAME_SIZE.reject(errors);
         }
     }
@@ -217,7 +217,7 @@ public class UserUpdateReqDtoValidator implements Validator {
      * @since 2025-05-18
      */
     private void checkNickSize(String nick, Errors errors) {
-        if (nick.length() > 20) {
+        if (20 < nick.length()) {
             AuthValidationError.NICKNAME_SIZE.reject(errors);
         }
     }
@@ -292,7 +292,7 @@ public class UserUpdateReqDtoValidator implements Validator {
      * @since 2025-05-18
      */
     private boolean isBirthdayEmpty(LocalDate birthday, Errors errors) {
-        if (birthday == null) {
+        if (null == birthday) {
             AuthValidationError.BIRTHDAY_EMPTY.reject(errors);
             return true;
         }
