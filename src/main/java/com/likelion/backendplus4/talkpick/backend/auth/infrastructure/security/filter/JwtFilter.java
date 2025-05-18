@@ -25,6 +25,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
+    private final String AUTH_URL = "/auth";
     private final JwtAuthentication jwtAuthentication;
 
     /**
@@ -54,6 +55,20 @@ public class JwtFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * 특정 URL 경로에서는 이 필터를 적용하지 않습니다.
+     *
+     * @param request HTTP 요청 객체
+     * @return 필터를 적용하지 않을 경우 true
+     * @author 박찬병
+     * @since 2025-05-16
+     */
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith(AUTH_URL);
     }
 
 }
