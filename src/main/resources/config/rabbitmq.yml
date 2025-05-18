@@ -1,6 +1,0 @@
-spring:
-  rabbitmq:
-    username: ${RABBIT_MQ_USERNAME:admin}
-    password: ${RABBIT_MQ_PASSWORD:abcde12#}
-    host: ${RABBIT_MQ_HOST:localhost}
-    port: ${RABBIT_MQ_PORT:5672}

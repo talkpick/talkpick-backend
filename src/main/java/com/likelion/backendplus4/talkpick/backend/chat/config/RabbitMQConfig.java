@@ -1,6 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.chat.config;
 
 import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -44,6 +45,19 @@ public class RabbitMQConfig {
         this.rabbitPassword = rabbitPassword;
         this.rabbitHost = rabbitHost;
         this.rabbitPort = rabbitPort;
+    }
+
+    /**
+     * ConnectionFactory를 생성하고 RabbitMQ 연결 정보를 설정합니다.
+     * @return CachingConnectionFactory 인스턴스
+     * @since 2025-05-18
+     */
+    @Bean
+    public ConnectionFactory connectionFactory() {
+        CachingConnectionFactory cf = new CachingConnectionFactory(rabbitHost, rabbitPort);
+        cf.setUsername(rabbitUser);
+        cf.setPassword(rabbitPassword);
+        return cf;
     }
 
     /**

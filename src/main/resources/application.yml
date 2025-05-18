@@ -34,9 +34,12 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
-  config:
-    import:
-      - configtree:classpath:/config
+  rabbitmq:
+    username: ${RABBIT_MQ_USERNAME:admin}
+    password: ${RABBIT_MQ_PASSWORD:abcde12#}
+    host: ${RABBIT_MQ_HOST:localhost}
+    port: ${RABBIT_MQ_PORT:5672}
+    stomp-port: ${RABBIT_MQ_STOMP_PORT:61613}
 
 host:
   name: ${HOST_NAME:http://localhost:3000}
