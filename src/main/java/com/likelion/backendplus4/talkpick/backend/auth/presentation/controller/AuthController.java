@@ -107,22 +107,6 @@ public class AuthController {
 	}
 
 	/**
-	 * 회원 탈퇴 요청을 처리합니다.
-	 *
-	 * @param memberId 탈퇴할 회원의 ID
-	 * @return 빈 응답(ApiResponse<Void>)
-	 * @author 박찬병
-	 * @since 2025-05-12
-	 * @modified 2025-05-12
-	 */
-	@EntryExitLog
-	@DeleteMapping("/delete")
-	public ResponseEntity<ApiResponse<Void>> deleteAccount(@LoginUser Long memberId) {
-		authServiceUseCase.deleteUser(memberId);
-		return ApiResponse.success();
-	}
-
-	/**
 	 * 액세스 토큰 갱신 요청을 처리합니다.
 	 *
 	 * @param requestToken 재발행 요청 토큰 정보 DTO

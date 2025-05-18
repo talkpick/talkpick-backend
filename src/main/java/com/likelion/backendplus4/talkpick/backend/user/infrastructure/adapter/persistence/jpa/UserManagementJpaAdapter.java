@@ -58,6 +58,28 @@ public class UserManagementJpaAdapter implements UserManagementPort {
 	}
 
 	/**
+	 * 사용자 ID로 회원을 삭제합니다.
+	 *
+	 * 1. ID로 Entity 조회
+	 * 2. 존재하지 않으면 예외 발생
+	 * 3. Repository를 통해 논리 삭제
+	 *
+	 * @param id 삭제할 사용자 고유 식별자
+	 * @throws UserException 사용자가 존재하지 않을 경우
+	 * @author 박찬병
+	 * @since 2025-05-12
+	 * @modified 2025-05-12
+	 */
+	@Override
+	@Transactional
+	@EntryExitLog
+	public void deleteUser(Long id) {
+		UserEntity userEntity = fetchUserOrThrow(id);
+
+		userEntity.markAsDeleted();
+	}
+
+	/**
 	 * ID로 사용자 엔티티를 조회하고, 존재하지 않으면 예외를 던집니다.
 	 *
 	 * 1. ID로 Entity 조회

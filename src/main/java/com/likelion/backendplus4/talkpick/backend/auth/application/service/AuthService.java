@@ -129,21 +129,6 @@ public class AuthService implements AuthServiceUseCase {
 	}
 
 	/**
-	 * 회원 정보를 영구 삭제합니다.
-	 *
-	 * @param id 삭제할 회원의 고유 식별자
-	 * @author 박찬병
-	 * @since 2025-05-12
-	 * @modified 2025-05-12
-	 */
-	@Override
-	@EntryExitLog
-	public void deleteUser(Long id) {
-		userRepositoryPort.deleteUser(id);
-	}
-
-
-	/**
 	 * AuthUser의 비밀번호를 인코딩하여 설정합니다.
 	 *
 	 * @param authUser 비밀번호를 인코딩할 대상 AuthUser

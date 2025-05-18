@@ -76,15 +76,4 @@ public interface AuthServiceUseCase {
 	 */
 	void logout(String accessToken);
 
-	/**
-	 * 회원 정보를 영구 삭제합니다.
-	 *
-	 * @param id 삭제할 회원의 고유 식별자
-	 * @author 박찬병
-	 * @since 2025-05-12
-	 * @modified 2025-05-12
-	 */
-	void deleteUser(Long id);
-
-
 }

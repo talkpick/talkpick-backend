@@ -1,6 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.user.presentation.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,6 +63,22 @@ public class UserController {
 		@Valid @RequestBody UserUpdateReqDto updateReqDto) {
 		User user = UserMapper.toDomainFromDto(userId, updateReqDto);
 		userServiceUseCase.updateMyInfo(user);
+		return ApiResponse.success();
+	}
+
+	/**
+	 * 회원 탈퇴 요청을 처리합니다.
+	 *
+	 * @param userId 탈퇴할 회원의 ID
+	 * @return 빈 응답(ApiResponse<Void>)
+	 * @author 박찬병
+	 * @since 2025-05-12
+	 * @modified 2025-05-12
+	 */
+	@EntryExitLog
+	@DeleteMapping("/delete")
+	public ResponseEntity<ApiResponse<Void>> deleteAccount(@LoginUser Long userId) {
+		userServiceUseCase.deleteUser(userId);
 		return ApiResponse.success();
 	}
 }

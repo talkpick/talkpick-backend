@@ -48,4 +48,18 @@ public class UserService implements UserServiceUseCase {
 	public void updateMyInfo(User user) {
 		userManagementPort.updateUser(user);
 	}
+
+	/**
+	 * 회원 정보를 논리 삭제합니다.
+	 *
+	 * @param id 삭제할 회원의 고유 식별자
+	 * @author 박찬병
+	 * @since 2025-05-12
+	 * @modified 2025-05-12
+	 */
+	@Override
+	@EntryExitLog
+	public void deleteUser(Long id) {
+		userManagementPort.deleteUser(id);
+	}
 }
