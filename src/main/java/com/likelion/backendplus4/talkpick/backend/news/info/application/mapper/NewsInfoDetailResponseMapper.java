@@ -26,6 +26,7 @@ public class NewsInfoDetailResponseMapper {
 			.content(newsInfoDetail.content())
 			.originLink(newsInfoDetail.originLink())
 			.publishDate(newsInfoDetail.pubDate())
+			.viewCount(newsInfoDetail.viewCount())
 			.build();
 	}
 }

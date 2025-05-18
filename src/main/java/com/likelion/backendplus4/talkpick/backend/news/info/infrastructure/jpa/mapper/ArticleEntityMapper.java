@@ -17,6 +17,7 @@ public class ArticleEntityMapper {
 			.content(entity.getDescription())
 			.originLink(entity.getLink())
 			.pubDate(entity.getPubDate())
+			.viewCount(entity.getViewCount())
 			.build();
 	}
 }

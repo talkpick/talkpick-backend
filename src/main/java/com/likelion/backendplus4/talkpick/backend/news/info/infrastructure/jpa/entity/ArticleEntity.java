@@ -36,44 +36,48 @@ import lombok.ToString;
 @EqualsAndHashCode(of = "id")
 public class ArticleEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+
+	@Setter
+	@Column(nullable = false)
+	private String title;
+
+	@Column(nullable = false, unique = true)
+	private String link;
+
+	@Setter
+	@Column(name = "pub_date")
+	private LocalDateTime pubDate;
+
+	@Column
+	private String category;
+
+	@Column
+	private String guid;
+
+	@Setter
+	@Column(columnDefinition = "TEXT")
+	private String description;
+
+	@Column(name = "is_summary")
+	private boolean isSummary;
+
+	@Column(name = "created_at")
+	private LocalDateTime createdAt;
 
     @Setter
-    @Column(nullable = false)
-    private String title;
+    @Column(name = "view_count", nullable = false)
+    private Long viewCount = 0L;
 
-    @Column(nullable = false, unique = true)
-    private String link;
+	@PrePersist
+	protected void onCreate() {
+		createdAt = LocalDateTime.now();
+	}
 
-    @Setter
-    @Column(name = "pub_date")
-    private LocalDateTime pubDate;
-
-    @Column
-    private String category;
-
-    @Column
-    private String guid;
-
-    @Setter
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
-    @Column(name = "is_summary")
-    private boolean isSummary;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
-
-    public String getDescription(){
-        return description != null ? description : "";
-    }
+	public String getDescription() {
+		return description != null ? description : "";
+	}
 
 }

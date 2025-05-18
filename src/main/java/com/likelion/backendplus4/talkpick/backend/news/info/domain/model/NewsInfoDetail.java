@@ -17,6 +17,7 @@ public record NewsInfoDetail(
 	String title,
 	String content,
 	String originLink,
-	LocalDateTime pubDate
+	LocalDateTime pubDate,
+	Long viewCount
 ) {
 }
