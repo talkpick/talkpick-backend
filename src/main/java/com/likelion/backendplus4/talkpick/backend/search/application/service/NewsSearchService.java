@@ -35,7 +35,7 @@ public class NewsSearchService implements NewsSearchUseCase {
 	@EntryExitLog
 	@LogMethodValues
 	@Override
-	public List<NewsSearchResult> searchByMatch(NewsSearch newsSearch) {
+	public List<NewsSearchResult> searchByQuery(NewsSearch newsSearch) {
 		return repository.searchByMatch(newsSearch);
 	}
 }
