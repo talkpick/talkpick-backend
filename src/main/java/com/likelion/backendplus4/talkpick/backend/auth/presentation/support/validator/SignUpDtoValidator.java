@@ -77,7 +77,6 @@ public class SignUpDtoValidator extends AbstractAuthValidator<SignUpDto> {
 
 	/**
 	 * 닉네임 값을 검증합니다.
-	 *  - null 허용 (입력된 경우에만 검증)
 	 *  - null 또는 빈 문자열 불가
 	 *  - 공백 문자 불가
 	 *  - 최대 20자
@@ -89,8 +88,6 @@ public class SignUpDtoValidator extends AbstractAuthValidator<SignUpDto> {
 	 * @modified 2025-05-14
 	 */
 	private void validateNickName(String nick, Errors errors) {
-		if (null == nick)
-			return;
 		if (isNickEmpty(nick, errors))
 			return;
 		if (hasNickWhitespace(nick, errors))

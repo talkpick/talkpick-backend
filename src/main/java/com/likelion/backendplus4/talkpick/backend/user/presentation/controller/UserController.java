@@ -16,6 +16,7 @@ import com.likelion.backendplus4.talkpick.backend.user.infrastructure.support.ma
 import com.likelion.backendplus4.talkpick.backend.user.presentation.controller.dto.req.UserUpdateReqDto;
 import com.likelion.backendplus4.talkpick.backend.user.presentation.controller.dto.res.UserInfoResDto;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -58,7 +59,7 @@ public class UserController {
 	@EntryExitLog
 	@PatchMapping("/profile")
 	public ResponseEntity<ApiResponse<Void>> updateProfile(@LoginUser Long userId,
-		@RequestBody UserUpdateReqDto updateReqDto) {
+		@Valid @RequestBody UserUpdateReqDto updateReqDto) {
 		User user = UserMapper.toDomainFromDto(userId, updateReqDto);
 		userServiceUseCase.updateMyInfo(user);
 		return ApiResponse.success();
