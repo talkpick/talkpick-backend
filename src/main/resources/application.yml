@@ -34,6 +34,9 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
+  quartz:
+    view-count-sync:
+      cron: "0 0 0 * * ?"
 
 host:
   name: ${HOST_NAME:http://localhost:3000}
