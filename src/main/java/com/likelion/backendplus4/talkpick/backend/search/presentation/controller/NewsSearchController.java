@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,7 +44,7 @@ public class NewsSearchController {
 	@LogJson
 	@EntryExitLog
 	@GetMapping("/search")
-	public ResponseEntity<ApiResponse<NewsSearchResponseList>> search(NewsSearchRequest request) {
+	public ResponseEntity<ApiResponse<NewsSearchResponseList>> search(@ModelAttribute NewsSearchRequest request) {
 		NewsSearch newsSearch = NewsSearchRequestMapper.toDomain(request);
 		List<NewsSearchResult> newsSearchResultList = searchUseCase.searchByMatch(newsSearch);
 
