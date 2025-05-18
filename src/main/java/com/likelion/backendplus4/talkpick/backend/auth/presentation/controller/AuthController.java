@@ -99,7 +99,7 @@ public class AuthController {
 	 * @modified 2025-05-12
 	 */
 	@EntryExitLog
-	@PostMapping("/logout")
+	@PostMapping("/signOut")
 	public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
 		String token = TokenExtractUtil.extractToken(request);
 		authServiceUseCase.logout(token);
