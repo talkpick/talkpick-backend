@@ -13,7 +13,6 @@ import com.likelion.backendplus4.talkpick.backend.auth.domain.model.vo.TokenInfo
 import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
-import com.likelion.backendplus4.talkpick.backend.auth.presentation.enums.DuplicateField;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.support.mapper.TokenDtoMapper;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 
@@ -52,24 +51,46 @@ public class AuthService implements AuthServiceUseCase {
 	}
 
 	/**
-	 * 중복 검사를 수행합니다.
+	 * 계정의 중복 검사를 수행합니다.
 	 *
-	 * 필드 유형에 따라 계정, 이메일 또는 닉네임의 중복 여부를 조회합니다.
-	 *
-	 * @param field 중복 검사 대상 필드 (ACCOUNT, EMAIL, NICKNAME)
-	 * @param value 검사할 값
+	 * @param account 검사할 계정
 	 * @author 박찬병
-	 * @since 2025-05-15
-	 * @modified 2025-05-15
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
 	 */
 	@Override
 	@EntryExitLog
-	public void checkDuplicate(DuplicateField field, String value) {
-		switch (field) {
-			case ACCOUNT -> userRepositoryPort.existsByAccount(value);
-			case EMAIL -> userRepositoryPort.existsByEmail(value);
-			case NICKNAME -> userRepositoryPort.existsByNickname(value);
-		}
+	public void checkDuplicateAccount(String account) {
+		userRepositoryPort.existsByAccount(account);
+	}
+
+
+	/**
+	 * 이메일의 중복 검사를 수행합니다.
+	 *
+	 * @param email 검사할 이메일
+	 * @author 박찬병
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
+	 */
+	@Override
+	@EntryExitLog
+	public void checkDuplicateEmail(String email) {
+		userRepositoryPort.existsByEmail(email);
+	}
+
+	/**
+	 * 닉네임의 중복 검사를 수행합니다.
+	 *
+	 * @param nickname 검사할 닉네임
+	 * @author 박찬병
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
+	 */
+	@Override
+	@EntryExitLog
+	public void checkDuplicateNickname(String nickname) {
+		userRepositoryPort.existsByNickname(nickname);
 	}
 
 	/**

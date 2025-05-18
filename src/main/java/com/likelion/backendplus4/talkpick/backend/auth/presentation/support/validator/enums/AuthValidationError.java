@@ -35,13 +35,7 @@ public enum AuthValidationError {
 	BIRTHDAY_FUTURE("birthDay", "birthDay.future", "생년월일은 현재 날짜 이전이어야 합니다."),
 
 	ACCESS_TOKEN_EMPTY("accessToken", "accessToken.empty", "accessToken은 필수입니다."),
-	REFRESH_TOKEN_EMPTY("refreshToken", "refreshToken.empty", "refreshToken은 필수합니다."),
-
-	VALUE_EMPTY("value", "value.empty", "값은 필수입니다."),
-	VALUE_WHITESPACE("value", "value.whitespace", "값에 공백은 허용되지 않습니다."),
-	VALUE_SIZE("value", "value.size", "값의 길이가 유효하지 않습니다."),
-	VALUE_PATTERN("value", "value.pattern", "값 형식이 유효하지 않습니다."),
-	VALUE_INVALID_CHAR("value", "value.invalid.char", "닉네임은 영문과 한글만 허용됩니다,");
+	REFRESH_TOKEN_EMPTY("refreshToken", "refreshToken.empty", "refreshToken은 필수합니다.");
 
 
 	private final String field;

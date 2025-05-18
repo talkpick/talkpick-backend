@@ -2,7 +2,6 @@ package com.likelion.backendplus4.talkpick.backend.auth.application.port.in;
 
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
-import com.likelion.backendplus4.talkpick.backend.auth.presentation.enums.DuplicateField;
 
 /**
  * 인증 관련 비즈니스 로직을 수행하는 유스케이스
@@ -26,17 +25,34 @@ public interface AuthServiceUseCase {
 	void signUp(AuthUser authUser);
 
 	/**
-	 * 중복 검사를 수행합니다.
+	 * 계정의 중복 검사를 수행합니다.
 	 *
-	 * 필드 유형에 따라 계정, 이메일 또는 닉네임의 중복 여부를 조회합니다.
-	 *
-	 * @param field 중복 검사 대상 필드 (ACCOUNT, EMAIL, NICKNAME)
-	 * @param value 검사할 값
+	 * @param account 검사할 계정
 	 * @author 박찬병
-	 * @since 2025-05-15
-	 * @modified 2025-05-15
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
 	 */
-	void checkDuplicate(DuplicateField field, String value);
+	void checkDuplicateAccount(String account);
+
+	/**
+	 * 이메일의 중복 검사를 수행합니다.
+	 *
+	 * @param email 검사할 이메일
+	 * @author 박찬병
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
+	 */
+	void checkDuplicateEmail(String email);
+
+	/**
+	 * 닉네임의 중복 검사를 수행합니다.
+	 *
+	 * @param nickname 검사할 닉네임
+	 * @author 박찬병
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
+	 */
+	void checkDuplicateNickname(String nickname);
 
 	/**
 	 * 사용자를 인증하고 액세스·리프레시 토큰을 발급합니다.
@@ -44,7 +60,7 @@ public interface AuthServiceUseCase {
 	 * 1. 계정과 비밀번호로 Authentication 객체 생성
 	 * 2. Authentication 기반으로 토큰 쌍(TokenPair) 생성
 	 * 3. TokenPair를 TokenDto로 변환하여 반환
-	 * *
+	 *
 	 * @param account  로그인 계정
 	 * @param password 로그인 비밀번호
 	 * @return 발급된 토큰 정보를 담은 TokenDto
