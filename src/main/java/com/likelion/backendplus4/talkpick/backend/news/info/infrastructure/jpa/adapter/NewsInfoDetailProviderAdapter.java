@@ -8,6 +8,7 @@ import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInf
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoException;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
+import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.adapter.dto.SliceResult;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.entity.ArticleEntity;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.mapper.ArticleEntityMapper;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.repository.NewsInfoJpaRepository;
