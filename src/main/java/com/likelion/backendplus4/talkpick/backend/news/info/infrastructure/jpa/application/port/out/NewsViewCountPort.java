@@ -1,0 +1,29 @@
+package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.application.port.out;
+
+public interface NewsViewCountPort {
+	/**
+	 * 뉴스 조회수를 증가시킵니다.
+	 *
+	 * @param newsId 뉴스 ID
+	 * @return 증가 후 조회수
+	 */
+	Long increaseViewCount(String newsId);
+
+	/**
+	 * 특정 IP의 뉴스 조회 기록을 저장합니다.
+	 *
+	 * @param newsId 뉴스 ID
+	 * @param ipAddress 사용자 IP 주소
+	 * @return 저장 성공 여부
+	 */
+	boolean saveViewHistory(String newsId, String ipAddress);
+
+	/**
+	 * 특정 IP의 뉴스 조회 기록이 있는지 확인합니다.
+	 *
+	 * @param newsId 뉴스 ID
+	 * @param ipAddress 사용자 IP 주소
+	 * @return 조회 기록 존재 여부
+	 */
+	boolean hasViewHistory(String newsId, String ipAddress);
+}
