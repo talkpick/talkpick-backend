@@ -2,10 +2,12 @@ package com.likelion.backendplus4.talkpick.backend.chat.domain.model;
 
 import com.likelion.backendplus4.talkpick.backend.chat.exception.ChatException;
 import com.likelion.backendplus4.talkpick.backend.chat.exception.error.ChatErrorCode;
+import lombok.Builder;
 import lombok.Getter;
 
 
 @Getter
+@Builder
 public class ChatMessage {
     private final String articleId;
     private final String sender;
