@@ -61,3 +61,6 @@ validator:
     name: '^[A-Za-z가-힣]+$'
     nickname: '^[A-Za-z가-힣]+$'
     password: '^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$'
+news:
+  index:
+    name: news_index
