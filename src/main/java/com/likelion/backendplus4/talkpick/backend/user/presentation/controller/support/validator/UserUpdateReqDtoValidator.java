@@ -2,6 +2,8 @@ package com.likelion.backendplus4.talkpick.backend.user.presentation.controller.
 
 import java.time.LocalDate;
 import java.util.regex.Pattern;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
@@ -18,9 +20,14 @@ import com.likelion.backendplus4.talkpick.backend.auth.presentation.support.vali
 @Component
 public class UserUpdateReqDtoValidator implements Validator {
 
-    private static final Pattern EMAIL_PATTERN    = Pattern.compile("^\\S+@(?:[A-Za-z0-9-]+\\.)+[A-Za-z]{2,6}$");
-    private static final Pattern NAME_PATTERN     = Pattern.compile("^[A-Za-z가-힣]+$");
-    private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[A-Za-z가-힣]+$");
+	@Value("#{T(java.util.regex.Pattern).compile('${validator.pattern.email}')}")
+	private Pattern EMAIL_PATTERN;
+
+	@Value("#{T(java.util.regex.Pattern).compile('${validator.pattern.name}')}")
+	private Pattern NAME_PATTERN;
+
+	@Value("#{T(java.util.regex.Pattern).compile('${validator.pattern.nickname}')}")
+	private Pattern NICKNAME_PATTERN;
 
     @Override
     public boolean supports(Class<?> clazz) {

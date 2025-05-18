@@ -2,6 +2,7 @@ package com.likelion.backendplus4.talkpick.backend.auth.presentation.support.val
 
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
@@ -13,7 +14,8 @@ import com.likelion.backendplus4.talkpick.backend.auth.presentation.support.vali
 @Component
 public class CheckNicknameValidator implements Validator {
 
-	private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[A-Za-z가-힣]+$");
+	@Value("#{T(java.util.regex.Pattern).compile('${validator.pattern.nickname}')}")
+	private Pattern NICKNAME_PATTERN;
 
 	@Override
 	public boolean supports(Class<?> clazz) {
