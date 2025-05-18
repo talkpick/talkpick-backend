@@ -1,0 +1,21 @@
+name: PR Supporter
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  pr-gpt-summary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: PR 요약 코멘트
+        uses: yj-circle/gpt-pr-supporter@v0.0.4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
