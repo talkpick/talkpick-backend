@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.NewsInfoDetailResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoDetailProviderUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
-import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.application.port.out.NewsDetailProviderPort;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
 
 import lombok.RequiredArgsConstructor;
 

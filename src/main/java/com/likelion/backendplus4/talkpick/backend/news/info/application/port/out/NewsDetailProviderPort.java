@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.application.port.out;
+package com.likelion.backendplus4.talkpick.backend.news.info.application.port.out;
 
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
 
