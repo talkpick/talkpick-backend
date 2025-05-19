@@ -25,12 +25,42 @@ public interface AuthServiceUseCase {
 	void signUp(AuthUser authUser);
 
 	/**
+	 * 계정의 중복 검사를 수행합니다.
+	 *
+	 * @param account 검사할 계정
+	 * @author 박찬병
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
+	 */
+	void checkDuplicateAccount(String account);
+
+	/**
+	 * 이메일의 중복 검사를 수행합니다.
+	 *
+	 * @param email 검사할 이메일
+	 * @author 박찬병
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
+	 */
+	void checkDuplicateEmail(String email);
+
+	/**
+	 * 닉네임의 중복 검사를 수행합니다.
+	 *
+	 * @param nickname 검사할 닉네임
+	 * @author 박찬병
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
+	 */
+	void checkDuplicateNickname(String nickname);
+
+	/**
 	 * 사용자를 인증하고 액세스·리프레시 토큰을 발급합니다.
 	 *
 	 * 1. 계정과 비밀번호로 Authentication 객체 생성
 	 * 2. Authentication 기반으로 토큰 쌍(TokenPair) 생성
 	 * 3. TokenPair를 TokenDto로 변환하여 반환
-	 * *
+	 *
 	 * @param account  로그인 계정
 	 * @param password 로그인 비밀번호
 	 * @return 발급된 토큰 정보를 담은 TokenDto
@@ -61,15 +91,5 @@ public interface AuthServiceUseCase {
 	 * @modified 2025-05-12
 	 */
 	void logout(String accessToken);
-
-	/**
-	 * 회원 정보를 영구 삭제합니다.
-	 *
-	 * @param id 삭제할 회원의 고유 식별자
-	 * @author 박찬병
-	 * @since 2025-05-12
-	 * @modified 2025-05-12
-	 */
-	void deleteUser(Long id);
 
 }

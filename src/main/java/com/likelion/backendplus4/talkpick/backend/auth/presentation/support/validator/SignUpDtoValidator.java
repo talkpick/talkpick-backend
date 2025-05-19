@@ -3,6 +3,7 @@ package com.likelion.backendplus4.talkpick.backend.auth.presentation.support.val
 import java.util.regex.Pattern;
 import java.time.LocalDate;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
@@ -22,13 +23,14 @@ import com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.pe
 @Component
 public class SignUpDtoValidator extends AbstractAuthValidator<SignUpDto> {
 
-	/** 이메일 패턴: 공백 불가, 로컬파트·서브도메인·TLD 검증 */
-	private static final Pattern EMAIL_PATTERN = Pattern.compile(
-		"^\\S+@(?:[A-Za-z0-9-]+\\.)+[A-Za-z]{2,6}$"
-	);
-	/** 이름/닉네임에 허용할 문자 패턴: 영문 대소문자, 한글만 허용 */
-	private static final Pattern NAME_PATTERN = Pattern.compile("^[A-Za-z가-힣]+$");
-	private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[A-Za-z가-힣]+$");
+	@Value("#{T(java.util.regex.Pattern).compile('${validator.pattern.email}')}")
+	private Pattern EMAIL_PATTERN;
+
+	@Value("#{T(java.util.regex.Pattern).compile('${validator.pattern.name}')}")
+	private Pattern NAME_PATTERN;
+
+	@Value("#{T(java.util.regex.Pattern).compile('${validator.pattern.nickname}')}")
+	private Pattern NICKNAME_PATTERN;
 
 	public SignUpDtoValidator() {
 		super(SignUpDto.class);
@@ -77,7 +79,6 @@ public class SignUpDtoValidator extends AbstractAuthValidator<SignUpDto> {
 
 	/**
 	 * 닉네임 값을 검증합니다.
-	 *  - null 허용 (입력된 경우에만 검증)
 	 *  - null 또는 빈 문자열 불가
 	 *  - 공백 문자 불가
 	 *  - 최대 20자
@@ -89,8 +90,6 @@ public class SignUpDtoValidator extends AbstractAuthValidator<SignUpDto> {
 	 * @modified 2025-05-14
 	 */
 	private void validateNickName(String nick, Errors errors) {
-		if (null == nick)
-			return;
 		if (isNickEmpty(nick, errors))
 			return;
 		if (hasNickWhitespace(nick, errors))

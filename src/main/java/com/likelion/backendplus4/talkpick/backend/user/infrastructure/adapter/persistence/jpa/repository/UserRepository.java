@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.jpa;
+package com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.jpa.repository;
 
 import java.util.Optional;
 
@@ -10,4 +10,9 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 	boolean existsByAccount(String account);
 
 	Optional<UserEntity> findUserByAccount(String account);
+
+	boolean existsByEmail(String email);
+
+	boolean existsByNickName(String nickname);
+
 }

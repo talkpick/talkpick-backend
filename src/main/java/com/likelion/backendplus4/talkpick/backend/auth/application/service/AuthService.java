@@ -14,6 +14,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.support.mapper.TokenDtoMapper;
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 
 import lombok.RequiredArgsConstructor;
 
@@ -34,9 +35,8 @@ public class AuthService implements AuthServiceUseCase {
 	/**
 	 * 신규 회원을 등록합니다.
 	 *
-	 * 1. 계정 중복 여부 검증
-	 * 2. 비밀번호 인코딩
-	 * 3. 회원 정보 저장
+	 * 1. 비밀번호 인코딩
+	 * 2. 회원 정보 저장
 	 *
 	 * @param authUser 회원 도메인 객체
 	 * @author 박찬병
@@ -44,10 +44,53 @@ public class AuthService implements AuthServiceUseCase {
 	 * @modified 2025-05-12
 	 */
 	@Override
+	@EntryExitLog
 	public void signUp(AuthUser authUser) {
-		validateAccountNotExists(authUser.getAccount());
 		applyPasswordEncoding(authUser);
 		userRepositoryPort.saveUser(authUser);
+	}
+
+	/**
+	 * 계정의 중복 검사를 수행합니다.
+	 *
+	 * @param account 검사할 계정
+	 * @author 박찬병
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
+	 */
+	@Override
+	@EntryExitLog
+	public void checkDuplicateAccount(String account) {
+		userRepositoryPort.existsByAccount(account);
+	}
+
+
+	/**
+	 * 이메일의 중복 검사를 수행합니다.
+	 *
+	 * @param email 검사할 이메일
+	 * @author 박찬병
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
+	 */
+	@Override
+	@EntryExitLog
+	public void checkDuplicateEmail(String email) {
+		userRepositoryPort.existsByEmail(email);
+	}
+
+	/**
+	 * 닉네임의 중복 검사를 수행합니다.
+	 *
+	 * @param nickname 검사할 닉네임
+	 * @author 박찬병
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
+	 */
+	@Override
+	@EntryExitLog
+	public void checkDuplicateNickname(String nickname) {
+		userRepositoryPort.existsByNickname(nickname);
 	}
 
 	/**
@@ -65,6 +108,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @modified 2025-05-12
 	 */
 	@Override
+	@EntryExitLog
 	public TokenResDto signIn(String account, String password) {
 		Authentication auth = securityPort.authenticate(account, password);
 		TokenPair pair = securityPort.issueToken(auth);
@@ -82,6 +126,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @modified 2025-05-12
 	 */
 	@Override
+	@EntryExitLog
 	public TokenResDto refreshToken(String refreshToken) {
 		TokenPair tokenPair = securityPort.refreshToken(refreshToken);
 		return TokenDtoMapper.toDto(tokenPair, null);
@@ -97,35 +142,11 @@ public class AuthService implements AuthServiceUseCase {
 	 * @modified 2025-05-14
 	 */
 	@Override
+	@EntryExitLog
 	public void logout(String accessToken) {
 		validateAccessToken(accessToken);
 		TokenInfo tokenInfo = securityPort.parseTokenInfo(accessToken);
 		performLogoutIfValid(accessToken, tokenInfo);
-	}
-
-	/**
-	 * 회원 정보를 영구 삭제합니다.
-	 *
-	 * @param id 삭제할 회원의 고유 식별자
-	 * @author 박찬병
-	 * @since 2025-05-12
-	 * @modified 2025-05-12
-	 */
-	@Override
-	public void deleteUser(Long id) {
-		userRepositoryPort.deleteUser(id);
-	}
-
-	/**
-	 * 계정 중복 여부를 확인합니다.
-	 *
-	 * @param account 검사할 계정
-	 * @author 박찬병
-	 * @since 2025-05-12
-	 * @modified 2025-05-12
-	 */
-	private void validateAccountNotExists(String account) {
-		userRepositoryPort.existsByAccountAndEmail(account);
 	}
 
 	/**
@@ -136,6 +157,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@EntryExitLog
 	private void applyPasswordEncoding(AuthUser authUser) {
 		String encoded = securityPort.encodePassword(authUser.getPassword());
 		authUser.updateEncodedPassword(encoded);
@@ -150,6 +172,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@EntryExitLog
 	private void performLogoutIfValid(String rawToken, TokenInfo tokenInfo) {
 		if (!tokenInfo.isExpired()) {
 			authTokenStorePort.logoutTokens(
@@ -169,6 +192,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @modified 2025-05-14
 	 * @author 박찬병
 	 */
+	@EntryExitLog
 	private void validateAccessToken(String accessToken) {
 		if (accessToken == null) {
 			throw new AuthException(AuthErrorCode.INVALID_ACCESS_TOKEN);
