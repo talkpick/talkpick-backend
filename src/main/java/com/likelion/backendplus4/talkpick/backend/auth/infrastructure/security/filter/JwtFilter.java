@@ -68,7 +68,7 @@ public class JwtFilter extends OncePerRequestFilter {
      * @author 박찬병
      * @since 2025-05-16
      * @modified 2025-05-19
-     * - 2025-05-19 필터 제외 URL 추가
+     * 2025-05-19 - 필터 제외 URL 추가
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {

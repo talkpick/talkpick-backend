@@ -29,7 +29,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
  * Security 설정을 담당하는 Configuration 클래스입니다.
  *
  * @since 2025-05-12
- * @modified 2025-05-12
+ * @modified 2025-05-19
  */
 @Configuration
 @RequiredArgsConstructor
@@ -87,7 +87,8 @@ public class SecurityConfig {
      * @throws Exception 설정 중 예외 발생 시
      * @author 박찬병
      * @since 2025-05-13
-     * @modified 2025-05-13
+     * @modified 2025-05-19
+     * 2025-05-19 - url 설정 추가
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
