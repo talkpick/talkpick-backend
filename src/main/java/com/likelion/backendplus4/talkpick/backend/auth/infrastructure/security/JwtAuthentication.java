@@ -3,6 +3,8 @@ package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security;
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.AuthTokenStorePort;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.user.CustomUserDetails;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.CustomUserDetailsMapper;
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
+
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
@@ -38,6 +40,7 @@ public class JwtAuthentication {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@EntryExitLog
 	public Authentication validateAndGetAuthentication(String token) {
 		Claims claims = jwtParser.verifyToken(token);
 
@@ -61,6 +64,7 @@ public class JwtAuthentication {
      * @modified 2025-05-14
      * @author 박찬병
      */
+	@EntryExitLog
     private void ensureNotBlacklisted(String token) {
         if (authTokenStorePort.isTokenBlacklisted(token)) {
             throw new InsufficientAuthenticationException("블랙리스트된 토큰입니다.");

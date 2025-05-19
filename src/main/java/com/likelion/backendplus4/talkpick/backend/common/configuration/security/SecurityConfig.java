@@ -97,7 +97,7 @@ public class SecurityConfig {
                 STATELESS))
             .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                 authorizationManagerRequestMatcherRegistry
-                    .requestMatchers("/auth/**").permitAll()
+                    .requestMatchers("/auth/**", "/news/**").permitAll()
                     .anyRequest().authenticated()) // TODO 허용되는 api 추가
             .exceptionHandling(e -> e
                 .authenticationEntryPoint(customAuthenticationEntryPoint)

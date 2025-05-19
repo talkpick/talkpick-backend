@@ -2,22 +2,25 @@ package com.likelion.backendplus4.talkpick.backend.news.info.domain.model;
 
 import java.time.LocalDateTime;
 
+
 import lombok.Builder;
+import lombok.Getter;
 
 /**
  * 뉴스 상세 정보를 표현하는 도메인 모델 클래스입니다.
  *
  * @since 2025-05-14
  */
-
 @Builder
-public record NewsInfoDetail(
-	String newsId,
-	String category,
-	String title,
-	String content,
-	String originLink,
-	LocalDateTime pubDate,
-	Long viewCount
-) {
+@Getter
+public class NewsInfoDetail {
+	private String newsId;
+	private String title;
+	private String originLink;
+	private LocalDateTime pubDate;
+	private String category;
+	private String content;
+	private String imageUrl;
+	private String summary;
+	private Long viewCount;
 }

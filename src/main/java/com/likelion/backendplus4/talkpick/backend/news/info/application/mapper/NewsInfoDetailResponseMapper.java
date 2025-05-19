@@ -20,13 +20,15 @@ public class NewsInfoDetailResponseMapper {
 	public static NewsInfoDetailResponse toResponseFromDomain(NewsInfoDetail newsInfoDetail) {
 		return NewsInfoDetailResponse
 			.builder()
-			.newsId(newsInfoDetail.newsId())
-			.category(newsInfoDetail.category())
-			.title(newsInfoDetail.title())
-			.content(newsInfoDetail.content())
-			.originLink(newsInfoDetail.originLink())
-			.publishDate(newsInfoDetail.pubDate())
-			.viewCount(newsInfoDetail.viewCount())
+			.newsId(newsInfoDetail.getNewsId())
+			.category(newsInfoDetail.getCategory())
+			.title(newsInfoDetail.getTitle())
+			.content(newsInfoDetail.getContent())
+			.originLink(newsInfoDetail.getOriginLink())
+			.publishDate(newsInfoDetail.getPubDate())
+			.imageUrl(newsInfoDetail.getImageUrl())
+			.summary(newsInfoDetail.getSummary())
+			.viewCount(newsInfoDetail.getViewCount())
 			.build();
 	}
 }

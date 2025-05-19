@@ -3,6 +3,8 @@ package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.persisten
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.AuthTokenStorePort;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
+
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -49,6 +51,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
      * @author 박찬병
      */
     @Override
+    @EntryExitLog
     public void storeRefreshToken(String userId, String refreshToken, String roles) {
         storeRefreshTokenInternal(userId, refreshToken, roles);
     }
@@ -69,6 +72,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
      * @author 박찬병
      */
     @Override
+    @EntryExitLog
     public boolean isValidRefreshToken(String userId, String refreshToken) {
         return isValidRefreshTokenInternal(userId, refreshToken);
     }
@@ -87,6 +91,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
      * @author 박찬병
      */
     @Override
+    @EntryExitLog
     public boolean isTokenBlacklisted(String accessToken) {
         return isTokenBlacklistedInternal(accessToken);
     }
@@ -106,6 +111,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
      * @author 박찬병
      */
     @Override
+    @EntryExitLog
     public void logoutTokens(String accessToken, long accessTokenExpiration, String userId) {
         logoutTokensInternal(accessToken, accessTokenExpiration, userId);
     }
@@ -124,6 +130,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
      * @author 박찬병
      */
     @Override
+    @EntryExitLog
     public String getAuthorities(String userId) {
         return getAuthoritiesInternal(userId);
     }
@@ -138,6 +145,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
      * @since 2025-05-12
      * @modified 2025-05-14
      */
+    @EntryExitLog
     private void storeRefreshTokenInternal(String userId, String refreshToken, String roles) {
         try {
             redisTemplate.delete(userId);
@@ -160,6 +168,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
      * @since 2025-05-12
      * @modified 2025-05-14
      */
+    @EntryExitLog
     private boolean isValidRefreshTokenInternal(String userId, String refreshToken) {
         try {
             String stored = Objects.requireNonNull(redisTemplate.opsForHash()
@@ -180,6 +189,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
      * @since 2025-05-12
      * @modified 2025-05-14
      */
+    @EntryExitLog
     private boolean isTokenBlacklistedInternal(String accessToken) {
         try {
             return redisTemplate.hasKey(accessToken);
@@ -196,6 +206,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
      * @since 2025-05-12
      * @modified 2025-05-12
      */
+    @EntryExitLog
     private void logoutTokensInternal(String accessToken, long accessTokenExpiration, String userId) {
         try {
             redisTemplate.opsForValue().set(
@@ -219,6 +230,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
      * @since 2025-05-12
      * @modified 2025-05-14
      */
+    @EntryExitLog
     private String getAuthoritiesInternal(String userId) {
         try {
             return Objects.requireNonNull(redisTemplate.opsForHash()
@@ -237,6 +249,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
      * @since 2025-05-12
      * @modified 2025-05-14
      */
+    @EntryExitLog
     private HashMap<String, String> createTokenDataMap(String refreshToken, String authorities) {
         HashMap<String, String> map = new HashMap<>();
         map.put(REFRESH_TOKEN_KEY, refreshToken);

@@ -24,6 +24,19 @@ public class NewsInfoDetailProviderController {
 	private final NewsInfoDetailProviderUseCase newsInfoDetailProviderUseCase;
 	private final NewsViewCountIncreaseUseCase newsViewCountIncreaseUseCase;
 
+	/**
+	 * 뉴스 ID를 기반으로 뉴스 상세 정보를 조회하는 API 엔드포인트입니다.
+	 *
+	 * 1. 클라이언트 IP 주소 획득
+	 * 2. 조회수 증가 (중복 조회 제외)
+	 * 3. 뉴스 상세 정보 조회 및 응답
+	 *
+	 * @param id 조회할 뉴스의 ID
+	 * @param request HTTP 요청 객체 (IP 주소 획득용)
+	 * @return 뉴스 상세 정보가 포함된 API 응답
+	 * @since 2025-05-19 최초 작성
+	 * @author 양병학
+	 */
 	@GetMapping
 	public ResponseEntity<ApiResponse<NewsInfoDetailResponse>> getNewsInfoDetailsByArticleId(@PathVariable String id
 		, HttpServletRequest request) {

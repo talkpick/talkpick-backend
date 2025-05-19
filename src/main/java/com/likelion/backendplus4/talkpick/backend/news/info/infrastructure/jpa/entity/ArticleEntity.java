@@ -2,6 +2,7 @@ package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -36,48 +37,50 @@ import lombok.ToString;
 @EqualsAndHashCode(of = "id")
 public class ArticleEntity {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Setter
-	@Column(nullable = false)
-	private String title;
+    @Column(nullable = false)
+    private String title;
 
-	@Column(nullable = false, unique = true)
-	private String link;
+    @Column(nullable = false, unique = true)
+    private String link;
 
-	@Setter
-	@Column(name = "pub_date")
-	private LocalDateTime pubDate;
+    @Column(name = "pub_date")
+    private LocalDateTime pubDate;
 
-	@Column
-	private String category;
+    @Column
+    private String category;
 
-	@Column
-	private String guid;
+    @Column
+    private String guid;
 
-	@Setter
-	@Column(columnDefinition = "TEXT")
-	private String description;
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
-	@Column(name = "is_summary")
-	private boolean isSummary;
+    @Column(name = "image_url")
+    private String imageUrl;
 
-	@Column(name = "created_at")
-	private LocalDateTime createdAt;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "summary", columnDefinition = "TEXT")
+    private String summary;
+
+    @Column(name = "summary_vector", columnDefinition = "JSON")
+    private float[] summaryVector;
 
     @Setter
     @Column(name = "view_count", nullable = false)
-    private Long viewCount = 0L;
+    private Long viewCount;
 
-	@PrePersist
-	protected void onCreate() {
-		createdAt = LocalDateTime.now();
-	}
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
 
-	public String getDescription() {
-		return description != null ? description : "";
-	}
-
+    public String getDescription() {
+        return description != null ? description : "";
+    }
 }
