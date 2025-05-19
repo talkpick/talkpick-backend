@@ -22,28 +22,30 @@ public class NewsInfoProviderAdapter implements NewsInfoProviderPort {
 	private final NewsInfoJpaRepository newsInfoJpaRepository;
 
 	@Override
-	public SliceResult<NewsInfo> getLatestNewsInfo(Long lastId, int limit) {
-		Sort sortType = SortBuilder.createSortByIdDesc();
-		Pageable pageable = PageableBuilder.createPageable(0, limit, sortType);
+	public SliceResult<NewsInfo> getLatestNewsInfo(int limit) {
+		return getFirstPageArticles(createPageable(limit));
+	}
 
-		if (lastId == null) {
-			return getFirstPageArticles(pageable);
-		}
-		return getNextPageArticles(lastId, pageable);
+	@Override
+	public SliceResult<NewsInfo> getLatestNewsInfo(Long lastId, int limit) {
+		return getNextPageArticles(lastId, createPageable(limit));
+	}
+
+	private Pageable createPageable(int limit) {
+		Sort sortType = SortBuilder.createSortByIdDesc();
+		return PageableBuilder.createPageable(0, limit, sortType);
 	}
 
 	private SliceResult<NewsInfo> getFirstPageArticles(Pageable pageable) {
 		Slice<NewsInfo> slice =
 			newsInfoJpaRepository.findAll(pageable)
 				.map(ArticleEntityMapper::toInfoFromEntity);
-
 		return SliceResultBuilder.createSliceResult(slice);
 	}
 
 	private SliceResult<NewsInfo> getNextPageArticles(Long lastId, Pageable pageable) {
 		Slice<NewsInfo> slice = newsInfoJpaRepository.findByIdLessThanOrderByIdDesc(lastId, pageable)
 			.map(ArticleEntityMapper::toInfoFromEntity);
-
 		return SliceResultBuilder.createSliceResult(slice);
 	}
 }
