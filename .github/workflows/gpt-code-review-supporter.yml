@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: PR 요약 코멘트
-        uses: yj-circle/gpt-pr-supporter@v0.0.4
+        uses: yj-circle/gpt-pr-supporter@v0.0.5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}

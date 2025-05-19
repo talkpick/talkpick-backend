@@ -2,12 +2,7 @@ package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.
 
 import java.time.LocalDateTime;
 
-import org.hibernate.validator.constraints.URL;
-
-import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.converter.FloatArrayToJsonConverter;
-
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,10 +10,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,14 +20,12 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * RSS 피드를 수집 객체
+ * RSS 피드에서 수집한 뉴스 기사를 저장하는 JPA 엔티티 클래스입니다.
+ * 각 기사 데이터는 데이터베이스의 "article" 테이블에 매핑됩니다.
  *
  * @author 양병학
  * @since 2025-05-10 최초 작성
- * @modify 2025-05-10 17:47 PR 수정
- * @ToString exclude로 대량의 텍스트필드 로그에서 제외
- * @Data -> @Getter후 Setter는 개별 지정해서 식별자 보호
- * @EqualsAndHashCode 지정으로 갹채 비교 최적화
+ * @modified 2025-05-10
  */
 @Entity
 @Table(name = "article", uniqueConstraints = @UniqueConstraint(columnNames = {"link"}))
@@ -47,70 +36,52 @@ import lombok.ToString;
 @ToString(exclude = "description")
 @EqualsAndHashCode(of = "id")
 public class ArticleEntity {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
 
-	@Setter
-	@Column(nullable = false)
-	@NotBlank(message = "제목은 필수 값입니다")
-	@Size(max = 500, message = "제목은 최대 500자까지 허용됩니다")
-	private String title;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Column(nullable = false, unique = true)
-	@NotBlank(message = "링크는 필수 값입니다")
-	@URL(message = "유효한 URL 형식이어야 합니다")
-	@Size(max = 255, message = "링크는 최대 255자까지 허용됩니다")
-	private String link;
+    @Column(nullable = false)
+    private String title;
 
-	@Setter
-	@Column(name = "pub_date")
-	@NotNull(message = "발행일은 필수 값입니다")
-	@PastOrPresent(message = "발행일은 현재 또는 과거 날짜여야 합니다")
-	private LocalDateTime pubDate;
+    @Column(nullable = false, unique = true)
+    private String link;
 
-	@Column
-	@NotBlank(message = "카테고리는 필수 값입니다")
-	@Size(max = 10, message = "카테고리는 최대 10자까지 허용됩니다")
-	private String category;
+    @Column(name = "pub_date")
+    private LocalDateTime pubDate;
 
-	@Column
-	@NotBlank(message = "GUID는 필수 값입니다")
-	@Size(max = 255, message = "GUID는 최대 255자까지 허용됩니다")
-	@Pattern(regexp = "^[A-Z]{2}\\d+$", message = "GUID는 2개의 대문자와 숫자로 구성되어야 합니다") // 예: KM12345
-	private String guid;
+    @Column
+    private String category;
 
-	@Setter
-	@Column(columnDefinition = "TEXT")
-	private String description;
+    @Column
+    private String guid;
 
-	@Setter
-	@Column(name = "image_url")
-	@Size(max = 1000, message = "이미지 URL은 최대 1000자까지 허용됩니다")
-	private String imageUrl;
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
-	@Column(name = "created_at")
-	private LocalDateTime createdAt;
+    @Column(name = "image_url")
+    private String imageUrl;
 
-	@Setter
-	@Column(name = "summary", columnDefinition = "TEXT")
-	private String summary;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
-	@Convert(converter = FloatArrayToJsonConverter.class)
-	@Column(name = "summary_vector", columnDefinition = "JSON")
-	private float[] summaryVector;
+    @Column(name = "summary", columnDefinition = "TEXT")
+    private String summary;
 
-	public ArticleEntity changeSummaryVector(float[] vector) {
-		summaryVector = vector;
-		return this;
-	}
+    @Column(name = "summary_vector", columnDefinition = "JSON")
+    private float[] summaryVector;
 
-	@PrePersist
-	protected void onCreate() {
-		createdAt = LocalDateTime.now();
-	}
+    @Setter
+    @Column(name = "view_count", nullable = false)
+    private Long viewCount = 0L;
 
-	public String getDescription() {
-		return description != null ? description : "";
-	}
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    public String getDescription() {
+        return description != null ? description : "";
+    }
+
 }

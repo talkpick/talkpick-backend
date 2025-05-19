@@ -4,6 +4,7 @@ import static org.springframework.util.StringUtils.*;
 
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
@@ -18,10 +19,8 @@ import com.likelion.backendplus4.talkpick.backend.auth.presentation.support.vali
 public abstract class AbstractAuthValidator<T> implements Validator {
 	private final Class<T> targetType;
 
-	/** 비밀번호 패턴: 8~16자, 대문자·소문자·숫자·특수문자 각각 최소 1회 포함 */
-	private static final Pattern PASSWORD_PATTERN = Pattern.compile(
-		"^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[!@#$%^&*])[A-Za-z\\d!@#$%^&*]{8,16}$"
-	);
+	@Value("#{T(java.util.regex.Pattern).compile('${validator.pattern.password}')}")
+	private Pattern PASSWORD_PATTERN;
 
 	protected AbstractAuthValidator(Class<T> targetType) {
 		this.targetType = targetType;
