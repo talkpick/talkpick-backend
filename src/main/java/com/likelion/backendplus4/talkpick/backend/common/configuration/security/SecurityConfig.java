@@ -5,6 +5,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.filter.JwtFilter;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.handler.CustomAccessDeniedHandler;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.handler.CustomAuthenticationEntryPoint;
+import com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.jpa.entity.Role;
+
 import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +29,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
  * Security 설정을 담당하는 Configuration 클래스입니다.
  *
  * @since 2025-05-12
- * @modified 2025-05-12
+ * @modified 2025-05-19
  */
 @Configuration
 @RequiredArgsConstructor
@@ -85,7 +87,8 @@ public class SecurityConfig {
      * @throws Exception 설정 중 예외 발생 시
      * @author 박찬병
      * @since 2025-05-13
-     * @modified 2025-05-13
+     * @modified 2025-05-19
+     * 2025-05-19 - url 설정 추가
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -98,7 +101,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                 authorizationManagerRequestMatcherRegistry
                     .requestMatchers("/auth/**").permitAll()
-                    .anyRequest().authenticated()) // TODO 허용되는 api 추가
+                    .requestMatchers("/public/**").permitAll()
+                    .requestMatchers("/user/**").hasRole(Role.USER.getRoleName())
+                    .requestMatchers("/admin/**").hasRole(Role.ADMIN.getRoleName())
+                    .anyRequest().authenticated())
             .exceptionHandling(e -> e
                 .authenticationEntryPoint(customAuthenticationEntryPoint)
                 .accessDeniedHandler(customAccessDeniedHandler))

@@ -8,6 +8,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,11 +21,13 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * 유효할 경우 SecurityContext에 인증 정보를 설정하는 필터.
  *
  * @since 2025-05-12
- * @modified 2025-05-12
+ * @modified 2025-05-19
  */
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
+
+    private static final String[] EXCLUDE_URLS = { "/auth", "/public" };
 
     private final JwtAuthentication jwtAuthentication;
 
@@ -54,6 +58,22 @@ public class JwtFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * 특정 URL 경로에서는 이 필터를 적용하지 않습니다.
+     *
+     * @param request HTTP 요청 객체
+     * @return 필터를 적용하지 않을 경우 true
+     * @author 박찬병
+     * @since 2025-05-16
+     * @modified 2025-05-19
+     * 2025-05-19 - 필터 제외 URL 추가
+     */
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return Arrays.stream(EXCLUDE_URLS).anyMatch(path::startsWith);
     }
 
 }

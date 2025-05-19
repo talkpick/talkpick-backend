@@ -53,7 +53,7 @@ public class CustomUserDetailsMapper {
     public static CustomUserDetails fromClaims(Claims claims) {
         String subject = claims.getSubject();
         List<GrantedAuthority> auths = extractAuthorities(claims);
-        String nickName = claims.get("nickName", String.class);
+        String nickName = claims.get("nickname", String.class);
 
         return CustomUserDetails.builder()
             .username(subject)

@@ -5,6 +5,8 @@ import java.security.Key;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
 
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -37,6 +39,7 @@ public class JwtVerifier {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@EntryExitLog
 	public Claims verifyToken(String token) {
 		return parseClaims(token);
 	}
@@ -56,6 +59,7 @@ public class JwtVerifier {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@EntryExitLog
 	private Claims parseClaims(String token) {
 		try {
 			return Jwts.parserBuilder()

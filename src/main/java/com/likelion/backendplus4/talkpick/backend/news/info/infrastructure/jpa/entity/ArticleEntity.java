@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -40,14 +41,12 @@ public class ArticleEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Setter
     @Column(nullable = false)
     private String title;
 
     @Column(nullable = false, unique = true)
     private String link;
 
-    @Setter
     @Column(name = "pub_date")
     private LocalDateTime pubDate;
 
@@ -57,22 +56,31 @@ public class ArticleEntity {
     @Column
     private String guid;
 
-    @Setter
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "is_summary")
-    private boolean isSummary;
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "summary", columnDefinition = "TEXT")
+    private String summary;
+
+    @Column(name = "summary_vector", columnDefinition = "JSON")
+    private float[] summaryVector;
+
+    @Setter
+    @Column(name = "view_count", nullable = false)
+    private Long viewCount = 0L;
 
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
 
-    public String getDescription(){
+    public String getDescription() {
         return description != null ? description : "";
     }
 

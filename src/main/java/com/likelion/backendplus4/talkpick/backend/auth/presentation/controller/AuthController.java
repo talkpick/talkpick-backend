@@ -1,7 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.auth.presentation.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,11 +9,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.in.AuthServiceUseCase;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.AuthUserMapper;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.CheckAccountDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.CheckEmailDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.CheckNicknameDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.RefreshReqDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignInDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignUpDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
-import com.likelion.backendplus4.talkpick.backend.common.annotation.security.LoginUser;
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 import com.likelion.backendplus4.talkpick.backend.common.util.security.TokenExtractUtil;
 
@@ -45,10 +47,59 @@ public class AuthController {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@EntryExitLog
 	@PostMapping("/signUp")
 	public ResponseEntity<ApiResponse<Void>> signUp(@Valid @RequestBody SignUpDto signUpDto) {
 		AuthUser user = AuthUserMapper.toDomainByDto(signUpDto);
 		authServiceUseCase.signUp(user);
+		return ApiResponse.success();
+	}
+
+	/**
+	 * 클라이언트로부터 계정 중복 검사 요청을 받아 처리합니다.
+	 *
+	 * @param checkAccountDto 검사할 계정
+	 * @return 빈 성공 응답(ApiResponse<Void>)
+	 * @author 박찬병
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
+	 */
+	@EntryExitLog
+	@PostMapping("/checkDuplicate/account")
+	public ResponseEntity<ApiResponse<Void>> checkDuplicateAccount(@Valid @RequestBody CheckAccountDto checkAccountDto) {
+		authServiceUseCase.checkDuplicateAccount(checkAccountDto.account());
+		return ApiResponse.success();
+	}
+
+	/**
+	 * 클라이언트로부터 이메일 중복 검사 요청을 받아 처리합니다.
+	 *
+	 * @param checkEmailDto 검사할 이메일
+	 * @return 빈 성공 응답(ApiResponse<Void>)
+	 * @author 박찬병
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
+	 */
+	@EntryExitLog
+	@PostMapping("/checkDuplicate/email")
+	public ResponseEntity<ApiResponse<Void>> checkDuplicateEmail(@Valid @RequestBody CheckEmailDto checkEmailDto) {
+		authServiceUseCase.checkDuplicateEmail(checkEmailDto.email());
+		return ApiResponse.success();
+	}
+
+	/**
+	 * 클라이언트로부터 닉네임 중복 검사 요청을 받아 처리합니다.
+	 *
+	 * @param checkNicknameDto 검사할 닉네임
+	 * @return 빈 성공 응답(ApiResponse<Void>)
+	 * @author 박찬병
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
+	 */
+	@EntryExitLog
+	@PostMapping("/checkDuplicate/nickname")
+	public ResponseEntity<ApiResponse<Void>> checkDuplicateNickname(@Valid @RequestBody CheckNicknameDto checkNicknameDto) {
+		authServiceUseCase.checkDuplicateNickname(checkNicknameDto.nickName());
 		return ApiResponse.success();
 	}
 
@@ -61,6 +112,7 @@ public class AuthController {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@EntryExitLog
 	@PostMapping("/signIn")
 	public ResponseEntity<ApiResponse<TokenResDto>> signIn(@Valid @RequestBody SignInDto signInDto) {
 		TokenResDto tokenResDto = authServiceUseCase.signIn(signInDto.account(), signInDto.password());
@@ -75,25 +127,11 @@ public class AuthController {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
-	@PostMapping("/logout")
+	@EntryExitLog
+	@PostMapping("/signOut")
 	public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
 		String token = TokenExtractUtil.extractToken(request);
 		authServiceUseCase.logout(token);
-		return ApiResponse.success();
-	}
-
-	/**
-	 * 회원 탈퇴 요청을 처리합니다.
-	 *
-	 * @param memberId 탈퇴할 회원의 ID
-	 * @return 빈 응답(ApiResponse<Void>)
-	 * @author 박찬병
-	 * @since 2025-05-12
-	 * @modified 2025-05-12
-	 */
-	@DeleteMapping("/delete")
-	public ResponseEntity<ApiResponse<Void>> deleteAccount(@LoginUser Long memberId) {
-		authServiceUseCase.deleteUser(memberId);
 		return ApiResponse.success();
 	}
 
@@ -106,6 +144,7 @@ public class AuthController {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@EntryExitLog
 	@PostMapping("/refresh")
 	public ResponseEntity<ApiResponse<TokenResDto>> refreshAccessToken(
 		@Valid @RequestBody RefreshReqDto requestToken

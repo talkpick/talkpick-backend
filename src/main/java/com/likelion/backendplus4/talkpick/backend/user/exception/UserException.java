@@ -19,7 +19,7 @@ public class UserException extends CustomException {
 
   @Override
   public ErrorCode getErrorCode() {
-    return null;
+    return errorCode;
   }
 }
 
