@@ -18,12 +18,12 @@ public class ArticleEntityMapper {
 				.originLink(entity.getLink())
 				.pubDate(entity.getPubDate())
 				.category(entity.getCategory())
-				.guid(entity.getGuid())
 				.content(entity.getDescription())
+				.imageUrl(entity.getImageUrl())
+				.summary(entity.getSummary())
 				.build();
 	}
 }
-
 
 
 

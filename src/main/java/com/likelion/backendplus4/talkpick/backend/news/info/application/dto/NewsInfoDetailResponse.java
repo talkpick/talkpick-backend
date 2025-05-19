@@ -17,7 +17,6 @@ public record NewsInfoDetailResponse(
 	String originLink,
 	LocalDateTime publishDate,
 	String category,
-	String guid,
 	String content,
 	String imageUrl,
 	String summary
