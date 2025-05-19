@@ -1,5 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.mapper;
 
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfo;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.entity.ArticleEntity;
 
@@ -17,6 +18,17 @@ public class ArticleEntityMapper {
 			.content(entity.getDescription())
 			.originLink(entity.getLink())
 			.pubDate(entity.getPubDate())
+			.build();
+	}
+
+	public static NewsInfo toInfoFromEntity(ArticleEntity e){
+		return NewsInfo.builder()
+			.id(e.getGuid())
+			.category(e.getCategory())
+			.title(e.getTitle())
+			.publishedAt(e.getPubDate())
+			.imageUrl(e.getImageUrl())
+			.summary(e.getSummary())
 			.build();
 	}
 }
