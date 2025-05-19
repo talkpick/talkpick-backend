@@ -13,10 +13,13 @@ import lombok.Builder;
 @Builder
 public record NewsInfoDetailResponse(
 	String newsId,
-	String category,
 	String title,
-	String content,
 	String originLink,
-	LocalDateTime publishDate
+	LocalDateTime pubDate,
+	String category,
+	String guid,
+	String content,
+	String imageUrl,
+	String summary
 ) {
 }
