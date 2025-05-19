@@ -6,6 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import lombok.Getter;
 
 /**
  * 뉴스 정보를 표현하는 도메인 모델
@@ -14,22 +15,23 @@ import lombok.Builder;
  * @modified 2025-05-18
  */
 @Builder
-public record NewsInfo(
+@Getter
+public class NewsInfo {
 	@NotNull
-	String id,
+	private String id;
 
 	@NotNull
-	String category,
+	private String category;
 
 	@NotNull
-	String title,
+	private String title;
 
 	@NotNull
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	LocalDateTime publishedAt,
+	private LocalDateTime publishedAt;
 
-	String imageUrl,
+	private String imageUrl;
 
 	@NotNull
-	String summary) {
+	private String content;
 }

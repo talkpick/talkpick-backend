@@ -30,7 +30,7 @@ public class NewsInfoProviderAdapter implements NewsInfoProviderPort {
 	public SliceResult<NewsInfo> getLatestNewsInfo(Long lastId, int limit) {
 		return getNextPageArticles(lastId, createPageable(limit));
 	}
-
+	
 	private Pageable createPageable(int limit) {
 		Sort sortType = SortBuilder.createSortByIdDesc();
 		return PageableBuilder.createPageable(0, limit, sortType);

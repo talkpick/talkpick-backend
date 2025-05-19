@@ -28,7 +28,7 @@ public class ArticleEntityMapper {
 			.title(e.getTitle())
 			.publishedAt(e.getPubDate())
 			.imageUrl(e.getImageUrl())
-			.summary(e.getSummary())
+			.content(e.getDescription())
 			.build();
 	}
 }
