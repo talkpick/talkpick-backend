@@ -5,6 +5,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.filter.JwtFilter;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.handler.CustomAccessDeniedHandler;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.custom.handler.CustomAuthenticationEntryPoint;
+import com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.persistence.jpa.entity.Role;
+
 import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -98,7 +100,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                 authorizationManagerRequestMatcherRegistry
                     .requestMatchers("/auth/**").permitAll()
-                    .anyRequest().authenticated()) // TODO 허용되는 api 추가
+                    .requestMatchers("/public/**").permitAll()
+                    .requestMatchers("/user/**").hasRole(Role.USER.getRoleName())
+                    .requestMatchers("/admin/**").hasRole(Role.ADMIN.getRoleName())
+                    .anyRequest().authenticated())
             .exceptionHandling(e -> e
                 .authenticationEntryPoint(customAuthenticationEntryPoint)
                 .accessDeniedHandler(customAccessDeniedHandler))
