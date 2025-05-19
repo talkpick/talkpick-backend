@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -102,6 +103,7 @@ public class SecurityConfig {
                 authorizationManagerRequestMatcherRegistry
                     .requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/public/**").permitAll()
+                    .requestMatchers("/ws-chat/**").permitAll() // TODO: 웹소켓 인증관련 설정 시 수정
                     .requestMatchers("/user/**").hasRole(Role.USER.getRoleName())
                     .requestMatchers("/admin/**").hasRole(Role.ADMIN.getRoleName())
                     .anyRequest().authenticated())
