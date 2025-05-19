@@ -2,7 +2,11 @@ package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.
 
 import java.time.LocalDateTime;
 
+import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.converter.FloatArrayToJsonConverter;
+
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Converter;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -67,6 +71,7 @@ public class ArticleEntity {
 	@Column(name = "summary", columnDefinition = "TEXT")
 	private String summary;
 
+	@Convert(converter = FloatArrayToJsonConverter.class)
 	@Column(name = "summary_vector", columnDefinition = "JSON")
 	private float[] summaryVector;
 

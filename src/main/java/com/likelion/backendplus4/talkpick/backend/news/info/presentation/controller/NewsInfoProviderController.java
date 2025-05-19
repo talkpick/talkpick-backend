@@ -27,9 +27,10 @@ public class NewsInfoProviderController {
 
 	@GetMapping("/latest")
 	public ResponseEntity<ApiResponse<SliceResponse>> getLatestNewsInfo(
-		@RequestParam Long lastIndex, @RequestParam int pageSize) {
+		@RequestParam(defaultValue = "-1") Long last,
+		@RequestParam int size) {
 		SliceResult<NewsInfo> latestNewsInfos =
-			newsInfoProviderUsecase.getLatestNewsInfo(lastIndex, pageSize);
+			newsInfoProviderUsecase.getLatestNewsInfo(last, size);
 
 		return success(NewsInfoResponseMapper.toSliceResponse(latestNewsInfos));
 	}
