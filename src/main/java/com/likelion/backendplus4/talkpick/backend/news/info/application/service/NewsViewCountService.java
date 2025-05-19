@@ -38,4 +38,9 @@ public class NewsViewCountService implements NewsViewCountIncreaseUseCase {
 			newsViewCountPort.saveViewHistory(newsId, ipAddress);
 		}
 	}
+
+	@Override
+	public Long getCurrentViewCount(String newsId) {
+		return newsViewCountPort.getCurrentViewCount(newsId);
+	}
 }

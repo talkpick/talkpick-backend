@@ -2,6 +2,8 @@ package com.likelion.backendplus4.talkpick.backend.news.info.application.service
 
 import static com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoDetailResponseMapper.*;
 
+import com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoDetailResponseMapper;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsViewCountIncreaseUseCase;
 import org.springframework.stereotype.Service;
 
 import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.NewsInfoDetailResponse;
@@ -21,19 +23,23 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseCase {
 	private final NewsDetailProviderPort newsDetailProviderPort;
+	private final NewsViewCountIncreaseUseCase newsViewCountIncreaseUseCase; // 추가
 
-	/**
-	 * 주어진 뉴스 ID를 기반으로 뉴스 상세 정보를 조회합니다.
-	 *
-	 * @param newsId 뉴스 고유 ID
-	 * @return 뉴스 상세 도메인 객체
-	 *
-	 * @author 함예정
-	 * @since 2025-05-14
-	 */
 	@Override
 	public NewsInfoDetailResponse getNewsInfoDetailByNewsId(String newsId) {
+
 		NewsInfoDetail newsInfoDetail = newsDetailProviderPort.getNewsInfoDetailsByArticleId(newsId);
-		return toResponseFromDomain(newsInfoDetail);
+		Long currentViewCount = newsViewCountIncreaseUseCase.getCurrentViewCount(newsId);
+		NewsInfoDetailResponse response = NewsInfoDetailResponseMapper.toResponseFromDomain(newsInfoDetail);
+
+		return new NewsInfoDetailResponse(
+				response.newsId(),
+				response.category(),
+				response.title(),
+				response.content(),
+				response.originLink(),
+				response.publishDate(),
+				currentViewCount
+		);
 	}
 }

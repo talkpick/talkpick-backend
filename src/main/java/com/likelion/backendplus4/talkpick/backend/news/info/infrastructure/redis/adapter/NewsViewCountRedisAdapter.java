@@ -107,6 +107,22 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
 			.orElse(0L);
 	}
 
+	@Override
+	public Long getCurrentViewCount(String newsId) {
+		String key = VIEW_COUNT_KEY_PREFIX + newsId;
+
+		String countFromRedis = redisTemplate.opsForValue().get(key);
+
+		if (countFromRedis != null) {
+			try {
+				return Long.parseLong(countFromRedis);
+			} catch (NumberFormatException e) {
+			}
+		}
+
+		return getViewCountFromDb(newsId);
+	}
+
 	private void updateViewCountInDb(String newsId, Long newCount) {
 		newsInfoJpaRepository.findByGuid(newsId)
 			.stream()

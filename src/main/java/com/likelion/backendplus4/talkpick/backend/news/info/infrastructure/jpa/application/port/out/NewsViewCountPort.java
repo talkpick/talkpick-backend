@@ -26,4 +26,13 @@ public interface NewsViewCountPort {
 	 * @return 조회 기록 존재 여부
 	 */
 	boolean hasViewHistory(String newsId, String ipAddress);
+
+	/**
+	 * 뉴스의 현재 조회수를 조회합니다.
+	 * Redis에 있으면 Redis에서, 없으면 DB에서 조회합니다.
+	 *
+	 * @param newsId 뉴스 ID
+	 * @return 현재 조회수
+	 */
+	Long getCurrentViewCount(String newsId);
 }
