@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
  * @since 2025-05-15
  */
 @RestController
-@RequestMapping("/news")
+@RequestMapping("/public/news")
 @RequiredArgsConstructor
 public class NewsSearchController {
 
@@ -56,10 +56,13 @@ public class NewsSearchController {
 		return success(toListResponse(newsSearchResultList));
 	}
 
+	@LogJson
+	@EntryExitLog
+	@GetMapping("/similar")
 	public ResponseEntity<ApiResponse<NewsSearchResponseList>> searchSimilar(
 		@ModelAttribute NewsSimilarSearchRequest request) {
 		NewsSimilarSearch newsSimilarSearch = toDomain(request);
-		List<NewsSearchResult> newsSearchResultList = searchUseCase.searchByNewsId(newsSimilarSearch);
+		List<NewsSearchResult> newsSearchResultList = searchUseCase.searchSimilarByNewsId(newsSimilarSearch);
 
 		return success(toListResponse(newsSearchResultList));
 	}

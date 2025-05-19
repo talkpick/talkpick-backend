@@ -23,5 +23,5 @@ public interface NewsSearchUseCase {
 	 */
 	List<NewsSearchResult> searchByQuery(NewsSearch newsSearch);
 
-	List<NewsSearchResult> searchByNewsId(NewsSimilarSearch newsSimilarSearch);
+	List<NewsSearchResult> searchSimilarByNewsId(NewsSimilarSearch newsSimilarSearch);
 }

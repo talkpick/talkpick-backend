@@ -8,6 +8,8 @@ import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.InnerField;
+import org.springframework.data.elasticsearch.annotations.MultiField;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,4 +31,22 @@ public class NewsSearchDocument {
 	private Instant publishedAt;
 	private String imageUrl;
 	private String category;
+	@MultiField(
+		mainField   = @Field(type = FieldType.Text, analyzer = "nori"),
+		otherFields = {
+			@InnerField(suffix = "keyword", type = FieldType.Keyword)
+		}
+	)
+	private String summary;
+
+	/**
+	 * summaryVector: 1536차원 dense_vector, 코사인 유사도 인덱싱
+	 */
+	@Field(
+		type       = FieldType.Dense_Vector,
+		dims       = 1536,
+		index      = true,
+		similarity = "cosine"
+	)
+	private float[] summaryVector;
 }
