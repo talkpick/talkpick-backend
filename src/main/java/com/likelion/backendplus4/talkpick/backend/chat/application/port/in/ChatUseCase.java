@@ -6,5 +6,4 @@ import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 public interface ChatUseCase {
     void sendMessage(ChatMessage message);
     void receiveMessage(ChatMessage message);
-    void subscribe(SessionSubscribeEvent event);
 }

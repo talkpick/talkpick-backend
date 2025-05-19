@@ -2,20 +2,13 @@ package com.likelion.backendplus4.talkpick.backend.chat.application.service;
 
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.in.ChatUseCase;
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.ChatMessage;
-import com.likelion.backendplus4.talkpick.backend.chat.domain.model.MessageType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
-import java.security.Principal;
-import java.time.LocalDateTime;
-
-import static com.likelion.backendplus4.talkpick.backend.chat.config.RabbitMQConfig.FORMATTER;
 
 @Slf4j
 @Service
@@ -52,46 +45,5 @@ public class ChatService implements ChatUseCase {
     public void receiveMessage(ChatMessage message) {
         String destination = "/topic/chat." + message.getArticleId();
         wsTemplate.convertAndSend(destination, message);
-    }
-
-
-    @Override
-    public void subscribe(SessionSubscribeEvent event) {
-        log.debug("Received subscribe event: {}", event);
-        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
-        String destination = accessor.getDestination();
-        if (isChat(destination)) {
-            String articleId = getArticleId(destination);
-            String sender = getNickname(accessor);
-            ChatMessage joinMessage = buildJoinMessage(articleId, sender);
-            rabbitTemplate.convertAndSend(
-                    "chat.exchange",
-                    "chat.article." + joinMessage.getArticleId(),
-                    joinMessage
-            );
-        }
-    }
-
-    private boolean isChat(String destination) {
-        return destination != null && destination.startsWith("/topic/chat.");
-    }
-
-    private String getNickname(StompHeaderAccessor accessor) {
-        Principal user = accessor.getUser();
-        return (user != null) ? user.getName() : "Anonymous";
-    }
-
-    private String getArticleId(String destination) {
-        return destination.substring(destination.lastIndexOf('.') + 1);
-    }
-
-    private ChatMessage buildJoinMessage(String articleId, String sender) {
-        return ChatMessage.builder()
-                .articleId(articleId)
-                .sender("SYSTEM")
-                .content(sender + "님이 입장하셨습니다.")
-                .timestamp(LocalDateTime.now().format(FORMATTER))
-                .messageType(MessageType.JOIN)
-                .build();
     }
 }
