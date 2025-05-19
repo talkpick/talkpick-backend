@@ -5,6 +5,8 @@ import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.CustomUserDetailsMapper;
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -37,6 +39,7 @@ public class CustomUserDetailsService implements UserDetailsService {
      * @modified 2025-05-12
      */
     @Override
+    @EntryExitLog
     public UserDetails loadUserByUsername(String account) {
         AuthUser authUser = getAuthUserByAccount(account);
         return CustomUserDetailsMapper.toCustomUserDetails(authUser);
@@ -55,6 +58,7 @@ public class CustomUserDetailsService implements UserDetailsService {
      * @modified 2025-05-14
      * @author 박찬병
      */
+    @EntryExitLog
     private AuthUser getAuthUserByAccount(String account) {
         return userRepositoryPort.findUserByAccount(account)
             .orElseThrow(() -> new AuthException(AuthErrorCode.AUTHENTICATION_FAILED));
