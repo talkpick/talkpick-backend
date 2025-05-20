@@ -1,5 +1,5 @@
 server:
-  port: ${BACKEND_WEB_PORT:8078}
+  port: ${BACKEND_WEB_PORT:8210}
   error:
     whitelabel:
       enabled: false

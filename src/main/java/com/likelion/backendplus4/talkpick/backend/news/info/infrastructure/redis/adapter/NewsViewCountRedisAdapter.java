@@ -1,5 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.redis.adapter;
 
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoException;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.application.port.out.NewsViewCountPort;
@@ -186,6 +187,7 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
      * @return 현재 조회수 (없을 경우 0)
      * @throws NewsInfoException DB 조회 실패 시
      */
+    @EntryExitLog
     private Long getViewCountFromDb(String newsId) {
         try {
             return newsInfoJpaRepository.findByGuid(newsId)

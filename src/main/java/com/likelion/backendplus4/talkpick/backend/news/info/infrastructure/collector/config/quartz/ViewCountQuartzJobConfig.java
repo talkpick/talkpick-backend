@@ -1,11 +1,11 @@
-package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.batch.config;
+package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.config.quartz;
 
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.batch.executor.ViewCountSyncJobExecutor;
+import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.executor.ViewCountSyncJobExecutor;
 
 /**
  * 뉴스 조회수 동기화를 위한 Quartz Job 설정 클래스.

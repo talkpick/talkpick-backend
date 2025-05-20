@@ -22,6 +22,7 @@ public class ArticleEntityMapper {
 				.summary(entity.getSummary())
 				.viewCount(entity.getViewCount())
 				.build();
+	}
 
 	public static NewsInfo toInfoFromEntity(ArticleEntity e) {
 		return NewsInfo.builder()

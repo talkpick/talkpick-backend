@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.batch.config;
+package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.config.quartz;
 
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobDetail;
