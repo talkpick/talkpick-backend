@@ -90,6 +90,5 @@ public interface AuthTokenStorePort {
      */
     String getAuthorities(String userId);
 
-
-
+	void saveVerifyCode(String email, String emailAuthCode);
 }

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.in.AuthServiceUseCase;
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.AuthTokenStorePort;
+import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.MailSendPort;
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.SecurityPort;
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.UserRepositoryPort;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
@@ -15,6 +16,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthError
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.support.mapper.TokenDtoMapper;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
+import com.likelion.backendplus4.talkpick.backend.common.util.code.CodeGenerator;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +32,7 @@ public class AuthService implements AuthServiceUseCase {
 
 	private final AuthTokenStorePort authTokenStorePort;
 	private final UserRepositoryPort userRepositoryPort;
+	private final MailSendPort mailSendPort;
 	private final SecurityPort securityPort;
 
 	/**
@@ -77,6 +80,7 @@ public class AuthService implements AuthServiceUseCase {
 	@EntryExitLog
 	public void checkDuplicateEmail(String email) {
 		userRepositoryPort.existsByEmail(email);
+		generateAndSendEmailVerifyCode(email);
 	}
 
 	/**
@@ -161,6 +165,20 @@ public class AuthService implements AuthServiceUseCase {
 	private void applyPasswordEncoding(AuthUser authUser) {
 		String encoded = securityPort.encodePassword(authUser.getPassword());
 		authUser.updateEncodedPassword(encoded);
+	}
+
+	/**
+	 * 이메일 인증 코드를 생성하여 저장하고 전송합니다.
+	 *
+	 * @param email 인증 코드를 전송할 이메일 주소
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	@EntryExitLog
+	private void generateAndSendEmailVerifyCode(String email) {
+		String emailAuthCode = CodeGenerator.generateCode();
+		authTokenStorePort.saveVerifyCode(email, emailAuthCode);
+		mailSendPort.sendMail(email, emailAuthCode);
 	}
 
 	/**

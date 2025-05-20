@@ -34,6 +34,17 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    username: talkpick.verify@gmail.com
+    password: ${MAIL_APP_KEY}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl.enable: true
+          starttls.enable: false
 
 host:
   name: ${HOST_NAME:http://localhost:3000}

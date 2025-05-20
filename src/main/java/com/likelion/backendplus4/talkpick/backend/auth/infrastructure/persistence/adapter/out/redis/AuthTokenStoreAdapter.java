@@ -5,6 +5,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +32,8 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
     private static final String REFRESH_TOKEN_KEY = "refreshToken";
     private static final String AUTHORITIES_KEY = "authorities";
     private static final String BLACKLIST = "blacklisted";
+    private static final String EMAIL_KEY = "mail:";
+    private static final Duration VERIFY_EMAIL_CODE_TTL = Duration.ofMillis(5);
     private static final int REFRESH_TOKEN_EXPIRATION_DAYS = 7;
 
     private final RedisTemplate<String, String> redisTemplate;
@@ -94,6 +97,20 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
     @EntryExitLog
     public boolean isTokenBlacklisted(String accessToken) {
         return isTokenBlacklistedInternal(accessToken);
+    }
+
+    /**
+     * 이메일 인증 코드를 Redis에 저장합니다.
+     *
+     * @param email 인증 코드를 저장할 이메일 주소
+     * @param emailAuthCode 저장할 인증 코드
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    @Override
+    @EntryExitLog
+    public void saveVerifyCode(String email, String emailAuthCode) {
+        redisTemplate.opsForValue().set(EMAIL_KEY + email, emailAuthCode, VERIFY_EMAIL_CODE_TTL.toMillis());
     }
 
     /**
