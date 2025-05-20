@@ -52,12 +52,20 @@ public class ViewCountSyncJobExecutor implements org.quartz.Job {
     @Override
     @Transactional
     public void execute(JobExecutionContext context) {
+        executeSync();
+    }
+
+    private void executeSync() {
         try {
             syncViewCountToDb();
             cleanupOldData();
         } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_SYNC_FAILED, e);
+            handleSyncException(e);
         }
+    }
+
+    private void handleSyncException(Exception e) {
+        throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_SYNC_FAILED, e);
     }
 
     /**
