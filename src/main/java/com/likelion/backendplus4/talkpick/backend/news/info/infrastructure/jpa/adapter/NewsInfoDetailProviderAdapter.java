@@ -5,10 +5,10 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoException;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
-import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.application.port.out.NewsDetailProviderPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.entity.ArticleEntity;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.mapper.ArticleEntityMapper;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.repository.NewsInfoJpaRepository;
@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NewsInfoDetailProviderAdapter implements NewsDetailProviderPort {
 	private final NewsInfoJpaRepository newsInfoJpaRepository;
-	
+
 	/**
 	 * 주어진 guid(뉴스 ID)를 기준으로 뉴스 상세 정보를 조회합니다.
 	 * 조회된 뉴스가 정확히 하나인 경우에만 도메인 객체로 변환하여 반환합니다.
@@ -53,7 +53,6 @@ public class NewsInfoDetailProviderAdapter implements NewsDetailProviderPort {
 	 * @since 2025-05-14
 	 */
 	private ArticleEntity getOnlyArticleOrThrow(List<ArticleEntity> savedNewsInfo) {
-
 		if(savedNewsInfo.size() == 1) {
 			return savedNewsInfo.getFirst();
 		}
