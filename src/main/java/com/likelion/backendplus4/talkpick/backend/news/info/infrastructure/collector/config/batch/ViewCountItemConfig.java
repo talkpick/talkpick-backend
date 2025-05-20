@@ -11,26 +11,27 @@ import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.colle
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.item.ViewCountRedisReader;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.item.ViewCountProcessor;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.item.ViewCountDatabaseWriter;
+import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.service.ViewCountUpdateService;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.tasklet.OldDataCleanupTasklet;
-import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.repository.NewsInfoJpaRepository;
 
 /**
  * Spring Batch Item 구성 클래스.
  * 조회수 동기화를 위한 Reader, Processor, Writer 및 Tasklet을 설정합니다.
  *
  * @since 2025-05-20
+ * @modified 2025-05-23 ViewCountUpdateService 추가
  */
 @Configuration
 public class ViewCountItemConfig {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private final NewsInfoJpaRepository newsInfoJpaRepository;
+    private final ViewCountUpdateService viewCountUpdateService;
 
     public ViewCountItemConfig(
-            RedisTemplate<String, String> redisTemplate,
-            NewsInfoJpaRepository newsInfoJpaRepository) {
+        RedisTemplate<String, String> redisTemplate,
+        ViewCountUpdateService viewCountUpdateService) {
         this.redisTemplate = redisTemplate;
-        this.newsInfoJpaRepository = newsInfoJpaRepository;
+        this.viewCountUpdateService = viewCountUpdateService;
     }
 
     /**
@@ -63,7 +64,7 @@ public class ViewCountItemConfig {
      */
     @Bean
     public ItemWriter<ViewCountItem> viewCountWriter() {
-        return new ViewCountDatabaseWriter(newsInfoJpaRepository);
+        return new ViewCountDatabaseWriter(viewCountUpdateService);
     }
 
     /**

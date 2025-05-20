@@ -5,14 +5,18 @@ import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.item.ViewCountItem;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.entity.ArticleEntity;
 
 /**
  * ArticleEntity에 대한 데이터 접근을 담당하는 JPA 리포지토리 인터페이스입니다.
  *
  * @since 2025-05-14
+ * @modified 2025-05-23 조회수 배치 업데이트 최적화
  */
 @Repository
 public interface NewsInfoJpaRepository extends JpaRepository<ArticleEntity, Long> {
@@ -24,7 +28,6 @@ public interface NewsInfoJpaRepository extends JpaRepository<ArticleEntity, Long
 	 *
 	 * @param guid 뉴스 고유 식별자
 	 * @return guid에 해당하는 뉴스 엔티티 리스트
-	 * @author 함예정
 	 * @since 2025-05-14
 	 */
 	List<ArticleEntity> findByGuid(String guid);
@@ -35,8 +38,26 @@ public interface NewsInfoJpaRepository extends JpaRepository<ArticleEntity, Long
 	 * @param lastId 기준이 되는 마지막 Article ID (미포함)
 	 * @param pageable 페이지 정보 (페이지 크기 및 정렬 정보 포함)
 	 * @return 조건에 맞는 ArticleEntity 목록의 슬라이스
-	 * @author 함예정
 	 * @since 2025-05-19
 	 */
 	Slice<ArticleEntity> findByIdLessThanOrderByIdDesc(Long lastId, Pageable pageable);
+
+	/**
+	 * 여러 guid에 해당하는 ArticleEntity 목록을 조회합니다.
+	 *
+	 * @param guids guid 목록
+	 * @return 조회된 ArticleEntity 목록
+	 * @since 2025-05-21
+	 */
+	List<ArticleEntity> findAllByGuidIn(List<String> guids);
+
+	/**
+	 * 여러 guid에 해당하는 기사의 guid, 조회수만 조회합니다.
+	 *
+	 * @param guids guid 목록
+	 * @return guid와 조회수 정보만 포함한 ViewCountItem 목록
+	 * @since 2025-05-23
+	 */
+	@Query("SELECT new com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.item.ViewCountItem(a.guid, a.viewCount) FROM ArticleEntity a WHERE a.guid IN :guids")
+	List<ViewCountItem> findViewCountItemsByGuidIn(@Param("guids") List<String> guids);
 }

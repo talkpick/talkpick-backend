@@ -29,7 +29,7 @@ public class ViewCountStepConfig {
     private final String cleanupStepName = "viewCountCleanupStep";
     private final int chunkSize = 100;
     private final int retryLimit = 3;
-    private final int skipLimit = 5;
+    private final int skipLimit = 1000;
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;

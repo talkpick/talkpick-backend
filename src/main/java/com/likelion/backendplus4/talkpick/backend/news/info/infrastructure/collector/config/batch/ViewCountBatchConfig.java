@@ -40,6 +40,7 @@ public class ViewCountBatchConfig {
     public Job viewCountSyncJob() {
         return new JobBuilder(jobName, jobRepository)
                 .start(viewCountSyncStep)
+                .next(viewCountSyncStep)
                 .build();
     }
 }

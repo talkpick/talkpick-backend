@@ -57,6 +57,7 @@ public class ArticleEntity {
 	private String category;
 
 	@Column
+	@Setter
 	private String guid;
 
 	@Column(columnDefinition = "TEXT")

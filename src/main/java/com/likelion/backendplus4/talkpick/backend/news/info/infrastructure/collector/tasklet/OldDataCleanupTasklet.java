@@ -3,7 +3,9 @@ package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.coll
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
@@ -48,6 +50,16 @@ public class OldDataCleanupTasklet implements Tasklet {
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
         try {
+            // 이전 Step이 성공적으로 완료되었는지 확인
+            String previousStepName = "viewCountSyncStep"; // 이전 Step 이름
+            StepExecution previousStepExecution = findStepExecution(chunkContext, previousStepName);
+
+            if (previousStepExecution == null ||
+                !ExitStatus.COMPLETED.equals(previousStepExecution.getExitStatus())) {
+                // 이전 Step이 없거나 성공적으로 완료되지 않았다면 정리 작업 건너뜀
+                return RepeatStatus.FINISHED;
+            }
+
             Set<String> keys = redisTemplate.keys(VIEW_COUNT_PATTERN);
 
             if (keys == null || keys.isEmpty()) {
@@ -92,5 +104,21 @@ public class OldDataCleanupTasklet implements Tasklet {
         } catch (NumberFormatException e) {
             // 숫자 변환 실패 - 무시하고 계속 진행
         }
+    }
+
+    /**
+     * 지정된 이름의 Step 실행 정보를 찾습니다.
+     *
+     * @param chunkContext 현재 Chunk 컨텍스트
+     * @param stepName 찾을 Step 이름
+     * @return 해당 Step의 실행 정보 또는 null
+     */
+    private StepExecution findStepExecution(ChunkContext chunkContext, String stepName) {
+        for (StepExecution execution : chunkContext.getStepContext().getStepExecution().getJobExecution().getStepExecutions()) {
+            if (stepName.equals(execution.getStepName())) {
+                return execution;
+            }
+        }
+        return null;
     }
 }

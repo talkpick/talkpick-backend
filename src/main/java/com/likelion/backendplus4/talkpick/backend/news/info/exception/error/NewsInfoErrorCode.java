@@ -23,7 +23,12 @@ public enum NewsInfoErrorCode implements ErrorCode {
 	VIEW_COUNT_INVALID_FORMAT(HttpStatus.BAD_REQUEST, 450011, "조회수 값의 형식이 올바르지 않습니다"),
 	VIEW_COUNT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450012, "조회수 업데이트 처리 중 오류가 발생했습니다"),
 	VIEW_COUNT_CLEANUP_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450013, "오래된 조회수 데이터 정리 중 오류가 발생했습니다"),
-	VIEW_COUNT_SYNC_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450014, "조회수 동기화 처리 중 오류가 발생했습니다");
+	VIEW_COUNT_SYNC_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450014, "조회수 동기화 처리 중 오류가 발생했습니다"),
+
+	// 조회수 Batch 작업
+	VIEW_COUNT_BATCH_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450015, "조회수 배치 업데이트 중 오류가 발생했습니다"),
+	VIEW_COUNT_FETCH_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450016, "조회수 업데이트를 위한 기사 조회 중 오류가 발생했습니다"),
+	VIEW_COUNT_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450017, "조회수가 업데이트된 기사 저장 중 오류가 발생했습니다");
 
 	private final HttpStatus status;
 	private final int code;
