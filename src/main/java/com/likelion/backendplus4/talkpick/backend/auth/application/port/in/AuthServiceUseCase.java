@@ -92,4 +92,13 @@ public interface AuthServiceUseCase {
 	 */
 	void logout(String accessToken);
 
+	/**
+	 * 이메일 인증 코드를 검증합니다.
+	 *
+	 * @param email 인증할 이메일 주소
+	 * @param code 사용자가 입력한 인증 코드
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	void confirmCode(String email,String code);
 }

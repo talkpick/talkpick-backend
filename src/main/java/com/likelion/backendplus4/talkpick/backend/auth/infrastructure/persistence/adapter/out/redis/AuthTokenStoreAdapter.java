@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -29,12 +30,23 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AuthTokenStoreAdapter implements AuthTokenStorePort {
 
-    private static final String REFRESH_TOKEN_KEY = "refreshToken";
-    private static final String AUTHORITIES_KEY = "authorities";
-    private static final String BLACKLIST = "blacklisted";
-    private static final String EMAIL_KEY = "mail:";
-    private static final Duration VERIFY_EMAIL_CODE_TTL = Duration.ofMillis(5);
-    private static final int REFRESH_TOKEN_EXPIRATION_DAYS = 7;
+    @Value("${auth.redis.refresh-token-key}")
+    private String refreshTokenKey;
+
+    @Value("${auth.redis.authorities-key}")
+    private String authoritiesKey;
+
+    @Value("${auth.redis.blacklist-value}")
+    private String blacklistValue;
+
+    @Value("${auth.redis.email-prefix}")
+    private String emailKey;
+
+    @Value("${auth.redis.verify-email-code-ttl}")
+    private Duration verifyEmailCodeTtl;
+
+    @Value("${auth.redis.refresh-token-expiration-days}")
+    private int refreshTokenExpirationDays;
 
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -110,7 +122,31 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
     @Override
     @EntryExitLog
     public void saveVerifyCode(String email, String emailAuthCode) {
-        redisTemplate.opsForValue().set(EMAIL_KEY + email, emailAuthCode, VERIFY_EMAIL_CODE_TTL.toMillis());
+        redisTemplate.opsForValue().set(emailKey + email, emailAuthCode, verifyEmailCodeTtl);
+    }
+
+    /**
+     * 이메일 인증 코드를 검증합니다.
+     *
+     * Redis에서 저장된 인증 코드가 존재하는지 확인하고,
+     * 사용자가 입력한 코드와 일치하는지 검증합니다.
+     * 검증에 성공하면 해당 인증 코드를 Redis에서 삭제합니다.
+     *
+     * @param email 인증할 이메일 주소
+     * @param code 사용자가 입력한 인증 코드
+     * @throws AuthException 인증 실패 시 예외 발생
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    @Override
+    @EntryExitLog
+    public void verifyCode(String email, String code) {
+        String key = emailKey + email;
+        String savedCode = redisTemplate.opsForValue().get(key);
+        checkSaveCodeNull(savedCode);
+        checkSaveCodeNotEqual(code, savedCode);
+
+        redisTemplate.delete(key);
     }
 
     /**
@@ -168,7 +204,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
             redisTemplate.delete(userId);
             HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
             hashOps.putAll(userId, createTokenDataMap(refreshToken, roles));
-            redisTemplate.expire(userId, REFRESH_TOKEN_EXPIRATION_DAYS, TimeUnit.DAYS);
+            redisTemplate.expire(userId, refreshTokenExpirationDays, TimeUnit.DAYS);
         } catch (DataAccessException dae) {
             throw new AuthException(AuthErrorCode.REDIS_STORE_FAILURE, dae);
         }
@@ -189,7 +225,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
     private boolean isValidRefreshTokenInternal(String userId, String refreshToken) {
         try {
             String stored = Objects.requireNonNull(redisTemplate.opsForHash()
-				.get(userId, REFRESH_TOKEN_KEY)).toString();
+				.get(userId, refreshTokenKey)).toString();
             return Objects.requireNonNull(stored).equals(refreshToken);
         } catch (DataAccessException dae) {
             throw new AuthException(AuthErrorCode.REDIS_RETRIEVE_FAILURE, dae);
@@ -216,6 +252,35 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
     }
 
     /**
+     * 저장된 인증 코드가 존재하지 않는 경우 예외를 발생시킵니다.
+     *
+     * @param savedCode Redis에 저장된 인증 코드
+     * @throws AuthException 인증 코드가 존재하지 않을 경우
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    private void checkSaveCodeNull(String savedCode) {
+        if (savedCode == null) {
+            throw new AuthException(AuthErrorCode.VERIFY_CODE_NOT_FOUND);
+        }
+    }
+
+    /**
+     * 저장된 인증 코드가 입력값과 일치하지 않는 경우 예외를 발생시킵니다.
+     *
+     * @param code 사용자가 입력한 인증 코드
+     * @param savedCode Redis에 저장된 인증 코드
+     * @throws AuthException 인증 코드가 일치하지 않을 경우
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    private void checkSaveCodeNotEqual(String code, String savedCode) {
+        if (!savedCode.equals(code)) {
+            throw new AuthException(AuthErrorCode.VERIFY_CODE_MISMATCH);
+        }
+    }
+
+    /**
      * 1. 블랙리스트에 액세스 토큰 저장
      * 2. 리프레시 토큰 키 삭제
      *
@@ -228,7 +293,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
         try {
             redisTemplate.opsForValue().set(
                 accessToken,
-                BLACKLIST,
+                blacklistValue,
                 accessTokenExpiration,
                 TimeUnit.MILLISECONDS);
             redisTemplate.delete(userId);
@@ -251,7 +316,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
     private String getAuthoritiesInternal(String userId) {
         try {
             return Objects.requireNonNull(redisTemplate.opsForHash()
-				.get(userId, AUTHORITIES_KEY)).toString();
+				.get(userId, authoritiesKey)).toString();
         } catch (DataAccessException dae) {
             throw new AuthException(AuthErrorCode.REDIS_AUTHORITIES_RETRIEVE_FAIL, dae);
         }
@@ -269,8 +334,8 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
     @EntryExitLog
     private HashMap<String, String> createTokenDataMap(String refreshToken, String authorities) {
         HashMap<String, String> map = new HashMap<>();
-        map.put(REFRESH_TOKEN_KEY, refreshToken);
-        map.put(AUTHORITIES_KEY, authorities);
+        map.put(refreshTokenKey, refreshToken);
+        map.put(authoritiesKey, authorities);
         return map;
     }
 

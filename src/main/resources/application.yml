@@ -75,3 +75,12 @@ validator:
 news:
   index:
     name: news_index
+
+auth:
+  redis:
+    refresh-token-key: refreshToken
+    blacklist-value: blacklisted
+    authorities-key: authorities
+    email-prefix: "mail:"
+    verify-email-code-ttl: PT5M
+    refresh-token-expiration-days: 7

@@ -14,6 +14,9 @@ public enum AuthErrorCode implements ErrorCode {
     AUTHENTICATION_REQUIRED(HttpStatus.UNAUTHORIZED, 220005, "사용자 인증 정보가 필요합니다."),
     INVALID_USER_ID_FORMAT(HttpStatus.BAD_REQUEST,    220006, "ID 값이 Long으로 변환할 수 없습니다."),
 
+    VERIFY_CODE_NOT_FOUND(HttpStatus.BAD_REQUEST, 220007, "인증 코드가 존재하지 않거나 만료되었습니다."),
+    VERIFY_CODE_MISMATCH(HttpStatus.BAD_REQUEST, 220008, "인증 코드가 일치하지 않습니다."),
+
     REDIS_STORE_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, 430001, "Redis에 리프레시 토큰 저장에 실패했습니다."),
     REDIS_RETRIEVE_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, 430002, "Redis에서 리프레시 토큰 조회에 실패했습니다."),
     REDIS_BLACKLIST_CHECK_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, 430003, "Redis에서 블랙리스트 토큰 조회에 실패했습니다."),

@@ -155,6 +155,21 @@ public class AuthService implements AuthServiceUseCase {
 	}
 
 	/**
+	 * 사용자가 입력한 이메일 인증 코드를 검증합니다.
+	 *
+	 * @param email 인증할 이메일 주소
+	 * @param code 사용자가 입력한 인증 코드
+	 * @throws AuthException 인증 코드가 없거나 일치하지 않을 경우 발생
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	@Override
+	@EntryExitLog
+	public void confirmCode(String email, String code) {
+		authTokenStorePort.verifyCode(email, code);
+	}
+
+	/**
 	 * AuthUser의 비밀번호를 인코딩하여 설정합니다.
 	 *
 	 * @param authUser 비밀번호를 인코딩할 대상 AuthUser

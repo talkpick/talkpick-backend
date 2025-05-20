@@ -1,9 +1,11 @@
 package com.likelion.backendplus4.talkpick.backend.auth.presentation.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.in.AuthServiceUseCase;
@@ -12,6 +14,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.ma
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.CheckAccountDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.CheckEmailDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.CheckNicknameDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.ConfirmCodeDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.RefreshReqDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignInDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignUpDto;
@@ -84,6 +87,21 @@ public class AuthController {
 	@PostMapping("/checkDuplicate/email")
 	public ResponseEntity<ApiResponse<Void>> verifyEmailDuplicationAndSendCode(@Valid @RequestBody CheckEmailDto checkEmailDto) {
 		authServiceUseCase.verifyEmailDuplicationAndSendCode(checkEmailDto.email());
+		return ApiResponse.success();
+	}
+
+	/**
+	 * 클라이언트가 입력한 이메일 인증 코드를 검증합니다.
+	 *
+	 * @param confirmDto 이메일과 인증 코드가 담긴 DTO
+	 * @return 빈 성공 응답(ApiResponse<Void>)
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	@EntryExitLog
+	@PostMapping("/confirm/code")
+	public ResponseEntity<ApiResponse<Void>> confirmCode(@RequestBody ConfirmCodeDto confirmDto) {
+		authServiceUseCase.confirmCode(confirmDto.email(), confirmDto.code());
 		return ApiResponse.success();
 	}
 

@@ -90,5 +90,28 @@ public interface AuthTokenStorePort {
      */
     String getAuthorities(String userId);
 
+    /**
+     * 이메일 인증 코드를 Redis에 저장합니다.
+     *
+     * @param email 인증 코드를 저장할 이메일 주소
+     * @param emailAuthCode 저장할 인증 코드
+     * @author 박찬병
+     * @since 2025-05-20
+     */
 	void saveVerifyCode(String email, String emailAuthCode);
+
+    /**
+     * 이메일 인증 코드를 검증합니다.
+     *
+     * Redis에서 저장된 인증 코드가 존재하는지 확인하고,
+     * 사용자가 입력한 코드와 일치하는지 검증합니다.
+     * 검증에 성공하면 해당 인증 코드를 Redis에서 삭제합니다.
+     *
+     * @param email 인증할 이메일 주소
+     * @param code 사용자가 입력한 인증 코드
+     * @throws AuthException 인증 실패 시 예외 발생
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    void verifyCode(String email, String code);
 }
