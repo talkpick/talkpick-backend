@@ -22,4 +22,5 @@ public class NewsInfoDetail {
 	private String content;
 	private String imageUrl;
 	private String summary;
+	private Long viewCount;
 }

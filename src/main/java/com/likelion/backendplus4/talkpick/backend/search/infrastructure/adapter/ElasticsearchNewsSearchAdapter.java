@@ -2,7 +2,10 @@ package com.likelion.backendplus4.talkpick.backend.search.infrastructure.adapter
 
 import static co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders.*;
 
+import java.util.ArrayList;
+import static co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders.functionScore;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -17,10 +20,15 @@ import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.LogM
 import com.likelion.backendplus4.talkpick.backend.search.application.port.out.NewsSearchRepositoryPort;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearch;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearchResult;
+import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSimilarSearch;
+import com.likelion.backendplus4.talkpick.backend.search.exception.SearchException;
+import com.likelion.backendplus4.talkpick.backend.search.exception.error.SearchErrorCode;
 import com.likelion.backendplus4.talkpick.backend.search.infrastructure.adapter.document.NewsSearchDocument;
 import com.likelion.backendplus4.talkpick.backend.search.infrastructure.adapter.mapper.NewsSearchDocumentMapper;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.FunctionScoreMode;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.json.JsonData;
 
 /**
  * Elasticsearch를 사용해 뉴스 검색 도메인의 searchByMatch를 구현하는 어댑터 클래스
@@ -59,6 +67,61 @@ public class ElasticsearchNewsSearchAdapter implements NewsSearchRepositoryPort 
 		NativeQuery query = buildNativeQuery(newsSearch);
 		SearchHits<NewsSearchDocument> hits = executeSearch(query);
 		return mapToDomain(hits);
+	}
+
+	@EntryExitLog
+	@LogMethodValues
+	@Override
+	public List<NewsSearchResult> searchByNewsId(NewsSimilarSearch newsSimilarSearch) {
+		NewsSearchDocument origin = fetchOriginalDocument(newsSimilarSearch.getNewsId());
+		float[] queryVector = origin.getSummaryVector();
+
+		NativeQuery cosineQuery = buildCosineQuery(queryVector, newsSimilarSearch);
+		SearchHits<NewsSearchDocument> hits = executeSearch(cosineQuery);
+
+		return mapToDomain(hits);
+	}
+
+	private NewsSearchDocument fetchOriginalDocument(String newsId) {
+		NewsSearchDocument doc = ops.get(
+			newsId,
+			NewsSearchDocument.class,
+			IndexCoordinates.of(indexName)
+		);
+		if (doc == null) {
+			throw new SearchException(SearchErrorCode.INVALID_NEWS_ID);
+		}
+		return doc;
+	}
+
+	private NativeQuery buildCosineQuery(float[] queryVector, NewsSimilarSearch search) {
+		// 1) float[] → List<Float> 로 변환
+		List<Float> vectorList = new ArrayList<>(queryVector.length);
+		for (float v : queryVector) {
+			vectorList.add(v);
+		}
+
+		// 2) JsonData 파라미터 준비
+		Map<String, JsonData> params = Map.of(
+			"query_vector", JsonData.of(vectorList)
+		);
+
+		// 3) functionScore 로 Query 객체 생성
+		Query cosineScoreQuery = functionScore(fs -> fs
+			.functions(fn -> fn
+				.scriptScore(sc -> sc.script(s -> s
+					.source("cosineSimilarity(params.query_vector, 'summaryVector') + 1.0")
+					.params(params)
+				))
+			)
+			.scoreMode(FunctionScoreMode.Sum)
+		);
+
+		// 4) 완성된 Query를 withQuery()에 직접 전달
+		return NativeQuery.builder()
+			.withQuery(cosineScoreQuery)
+			.withPageable(PageRequest.of(search.getPage(), search.getSize()))
+			.build();
 	}
 
 	/**

@@ -1,9 +1,14 @@
 package com.likelion.backendplus4.talkpick.backend.search.presentation.controller;
 
+import static com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse.*;
+import static com.likelion.backendplus4.talkpick.backend.search.application.port.in.mapper.NewsSearchRequestMapper.*;
+import static com.likelion.backendplus4.talkpick.backend.search.application.port.in.mapper.NewsSearchResponseMapper.*;
+
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -11,11 +16,11 @@ import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.Entr
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.LogJson;
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 import com.likelion.backendplus4.talkpick.backend.search.application.port.in.NewsSearchUseCase;
-import com.likelion.backendplus4.talkpick.backend.search.application.port.in.mapper.NewsSearchRequestMapper;
-import com.likelion.backendplus4.talkpick.backend.search.application.port.in.mapper.NewsSearchResponseMapper;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearch;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearchResult;
+import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSimilarSearch;
 import com.likelion.backendplus4.talkpick.backend.search.presentation.controller.dto.request.NewsSearchRequest;
+import com.likelion.backendplus4.talkpick.backend.search.presentation.controller.dto.request.NewsSimilarSearchRequest;
 import com.likelion.backendplus4.talkpick.backend.search.presentation.controller.dto.response.NewsSearchResponseList;
 
 import lombok.RequiredArgsConstructor;
@@ -26,7 +31,7 @@ import lombok.RequiredArgsConstructor;
  * @since 2025-05-15
  */
 @RestController
-@RequestMapping("/news")
+@RequestMapping("/public/news")
 @RequiredArgsConstructor
 public class NewsSearchController {
 
@@ -43,10 +48,22 @@ public class NewsSearchController {
 	@LogJson
 	@EntryExitLog
 	@GetMapping("/search")
-	public ResponseEntity<ApiResponse<NewsSearchResponseList>> search(NewsSearchRequest request) {
-		NewsSearch newsSearch = NewsSearchRequestMapper.toDomain(request);
-		List<NewsSearchResult> newsSearchResultList = searchUseCase.searchByMatch(newsSearch);
+	public ResponseEntity<ApiResponse<NewsSearchResponseList>> search(
+		@ModelAttribute NewsSearchRequest request) {
+		NewsSearch newsSearch = toDomain(request);
+		List<NewsSearchResult> newsSearchResultList = searchUseCase.searchByQuery(newsSearch);
 
-		return ApiResponse.success(NewsSearchResponseMapper.toListResponse(newsSearchResultList));
+		return success(toListResponse(newsSearchResultList));
+	}
+
+	@LogJson
+	@EntryExitLog
+	@GetMapping("/similar")
+	public ResponseEntity<ApiResponse<NewsSearchResponseList>> searchSimilar(
+		@ModelAttribute NewsSimilarSearchRequest request) {
+		NewsSimilarSearch newsSimilarSearch = toDomain(request);
+		List<NewsSearchResult> newsSearchResultList = searchUseCase.searchSimilarByNewsId(newsSimilarSearch);
+
+		return success(toListResponse(newsSearchResultList));
 	}
 }
