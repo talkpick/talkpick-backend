@@ -79,9 +79,10 @@ public class AuthService implements AuthServiceUseCase {
 	 */
 	@Override
 	@EntryExitLog
-	public void verifyEmailDuplicationAndSendCode(String email) {
+	public void checkEmailDuplicationAndSendCode(String email) {
 		userRepositoryPort.existsByEmail(email);
-		generateAndSendEmailVerifyCode(email);
+		String emailAuthCode = generateAndSendEmailVerifyCode(email);
+		authTokenStorePort.saveEmailAuthData(email, emailAuthCode, null);
 	}
 
 	/**
@@ -170,6 +171,36 @@ public class AuthService implements AuthServiceUseCase {
 	}
 
 	/**
+	 * 사용자의 이름과 이메일을 기반으로 계정을 조회한 후,
+	 * 복구용 인증 코드를 이메일로 발송하고, 인증 코드와 계정을 함께 저장합니다.
+	 *
+	 * @param name 사용자의 이름
+	 * @param email 계정 복구를 요청한 이메일 주소
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	@Override
+	public void storeAccountAndSendRecoveryCode(String name, String email) {
+		String account = userRepositoryPort.findUserAccountByNameAndEmail(name, email);
+		String authCode = generateAndSendEmailVerifyCode(email);
+		authTokenStorePort.saveEmailAuthData(email, authCode, account);
+	}
+
+	/**
+	 * 이메일과 인증 코드를 검증하여 계정을 복구합니다.
+	 *
+	 * @param email 인증할 이메일 주소
+	 * @param code 사용자에게 발송된 인증 코드
+	 * @return 복구된 계정 아이디
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	@Override
+	public String recoveryAccount(String email, String code) {
+		return verifyCodeAndRecoveryAccount(email, code);
+	}
+
+	/**
 	 * AuthUser의 비밀번호를 인코딩하여 설정합니다.
 	 *
 	 * @param authUser 비밀번호를 인코딩할 대상 AuthUser
@@ -184,17 +215,18 @@ public class AuthService implements AuthServiceUseCase {
 	}
 
 	/**
-	 * 이메일 인증 코드를 생성하여 저장하고 전송합니다.
+	 * 이메일 인증 코드를 생성하고 전송합니다.
 	 *
 	 * @param email 인증 코드를 전송할 이메일 주소
+	 * @return emailAuthCode 생성한 인증 코드
 	 * @author 박찬병
 	 * @since 2025-05-20
 	 */
 	@EntryExitLog
-	private void generateAndSendEmailVerifyCode(String email) {
+	private String generateAndSendEmailVerifyCode(String email) {
 		String emailAuthCode = CodeGenerator.generateCode();
-		authTokenStorePort.saveVerifyCode(email, emailAuthCode);
 		mailSendPort.sendMail(email, emailAuthCode);
+		return emailAuthCode;
 	}
 
 	/**
@@ -231,5 +263,22 @@ public class AuthService implements AuthServiceUseCase {
 		if (accessToken == null) {
 			throw new AuthException(AuthErrorCode.INVALID_ACCESS_TOKEN);
 		}
+	}
+
+	/**
+	 * 이메일과 인증 코드를 검증하여 계정을 복구합니다.
+	 * 인증에 성공하면 저장된 계정을 반환하고, 실패 시 예외를 발생시킵니다.
+	 *
+	 * @param email 인증할 이메일 주소
+	 * @param code 사용자에게 발송된 인증 코드
+	 * @return 복구된 계정 아이디
+	 * @throws AuthException 인증 실패 또는 계정이 존재하지 않을 경우
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	private String verifyCodeAndRecoveryAccount(String email, String code) {
+		return authTokenStorePort.verifyCode(email, code).orElseThrow(
+			() -> new AuthException(AuthErrorCode.ACCOUNT_NOT_FOUND)
+		);
 	}
 }

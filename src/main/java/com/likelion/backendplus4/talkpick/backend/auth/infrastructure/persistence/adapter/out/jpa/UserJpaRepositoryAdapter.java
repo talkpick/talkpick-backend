@@ -119,6 +119,23 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
     }
 
     /**
+     * 이름과 이메일을 기반으로 사용자를 조회하고, 해당 사용자의 계정 아이디를 반환합니다.
+     *
+     * @param name 사용자 이름
+     * @param email 사용자 이메일
+     * @return 조회된 사용자의 계정 아이디
+     * @throws UserException 사용자가 존재하지 않을 경우 예외 발생
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    @Override
+    @EntryExitLog
+    public String findUserAccountByNameAndEmail(String name, String email) {
+        UserEntity userEntity = findUserByNameAndEmail(name, email);
+        return userEntity.getAccount();
+    }
+
+    /**
      * 계정 중복을 확인하고, 중복 시 예외를 던집니다.
      *
      * 1. 계정 존재 여부 조회
@@ -174,6 +191,12 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
         if (userRepository.existsByNickName(nickname)) {
             throw new UserException(UserErrorCode.NICKNAME_DUPLICATE);
         }
+    }
+
+    @EntryExitLog
+    private UserEntity findUserByNameAndEmail(String name, String email) {
+        return userRepository.findUserByNameAndEmail(name, email)
+            .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
     }
 
 }

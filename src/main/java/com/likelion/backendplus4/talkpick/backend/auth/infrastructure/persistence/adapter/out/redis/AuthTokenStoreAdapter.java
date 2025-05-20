@@ -7,7 +7,9 @@ import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.Entr
 
 import java.time.Duration;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -113,16 +115,23 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
 
     /**
      * 이메일 인증 코드를 Redis에 저장합니다.
+     * 만약 계정 찾기를 하는 경우 계정 정보도 같이 저장합니다.
      *
      * @param email 인증 코드를 저장할 이메일 주소
      * @param emailAuthCode 저장할 인증 코드
+     * @param account (Nullable) 계정
      * @author 박찬병
      * @since 2025-05-20
      */
     @Override
     @EntryExitLog
-    public void saveVerifyCode(String email, String emailAuthCode) {
-        redisTemplate.opsForValue().set(emailKey + email, emailAuthCode, verifyEmailCodeTtl);
+    public void saveEmailAuthData(String email, String emailAuthCode, String account) {
+        String key = emailKey + email;
+        Map<String,String> map = new HashMap<>();
+        map.put("emailAuthCode", emailAuthCode);
+        if (account != null) map.put("account", account);
+        redisTemplate.opsForHash().putAll(key, map);
+        redisTemplate.expire(key, verifyEmailCodeTtl);
     }
 
     /**
@@ -133,20 +142,26 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
      * 검증에 성공하면 해당 인증 코드를 Redis에서 삭제합니다.
      *
      * @param email 인증할 이메일 주소
-     * @param code 사용자가 입력한 인증 코드
+     * @param inputCode 사용자가 입력한 인증 코드
      * @throws AuthException 인증 실패 시 예외 발생
      * @author 박찬병
      * @since 2025-05-20
      */
     @Override
     @EntryExitLog
-    public void verifyCode(String email, String code) {
+    public Optional<String> verifyCode(String email, String inputCode) {
         String key = emailKey + email;
-        String savedCode = redisTemplate.opsForValue().get(key);
-        checkSaveCodeNull(savedCode);
-        checkSaveCodeNotEqual(code, savedCode);
+        String saved = (String)redisTemplate.opsForHash()
+            .get(key, "emailAuthCode");
+
+        checkSaveCodeNull(saved);
+        checkSaveCodeNotEqual(inputCode, saved);
+
+        String account = (String)redisTemplate.opsForHash()
+            .get(key, "account");
 
         redisTemplate.delete(key);
+        return Optional.ofNullable(account);
     }
 
     /**

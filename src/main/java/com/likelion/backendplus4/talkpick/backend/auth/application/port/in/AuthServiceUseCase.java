@@ -42,7 +42,7 @@ public interface AuthServiceUseCase {
 	 * @since 2025-05-18
 	 * @modified 2025-05-18
 	 */
-	void verifyEmailDuplicationAndSendCode(String email);
+	void checkEmailDuplicationAndSendCode(String email);
 
 	/**
 	 * 닉네임의 중복 검사를 수행합니다.
@@ -101,4 +101,26 @@ public interface AuthServiceUseCase {
 	 * @since 2025-05-20
 	 */
 	void confirmCode(String email,String code);
+
+	/**
+	 * 사용자의 이름과 이메일을 기반으로 계정을 조회한 후,
+	 * 복구용 인증 코드를 이메일로 발송하고, 인증 코드와 계정을 함께 저장합니다.
+	 *
+	 * @param name 사용자의 이름
+	 * @param email 계정 복구를 요청한 이메일 주소
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	void storeAccountAndSendRecoveryCode(String name, String email);
+
+	/**
+	 * 이메일과 인증 코드를 검증하여 계정을 복구합니다.
+	 *
+	 * @param email 인증할 이메일 주소
+	 * @param code 사용자에게 발송된 인증 코드
+	 * @return 복구된 계정 아이디
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	String recoveryAccount(String email, String code);
 }

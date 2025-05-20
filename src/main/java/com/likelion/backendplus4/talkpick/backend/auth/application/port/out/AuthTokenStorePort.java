@@ -1,5 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.auth.application.port.out;
 
+import java.util.Optional;
+
 import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 
 /**
@@ -98,7 +100,8 @@ public interface AuthTokenStorePort {
      * @author 박찬병
      * @since 2025-05-20
      */
-	void saveVerifyCode(String email, String emailAuthCode);
+	void saveEmailAuthData(String email, String emailAuthCode, String account);
+
 
     /**
      * 이메일 인증 코드를 검증합니다.
@@ -113,5 +116,6 @@ public interface AuthTokenStorePort {
      * @author 박찬병
      * @since 2025-05-20
      */
-    void verifyCode(String email, String code);
+    Optional<String> verifyCode(String email, String code);
+
 }

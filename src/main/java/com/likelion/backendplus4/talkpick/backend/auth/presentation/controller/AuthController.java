@@ -16,6 +16,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.conf
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.RefreshReqDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignInDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignUpDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.recovery.RecoveryAccountDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
@@ -135,7 +136,7 @@ public class AuthController {
 	@EntryExitLog
 	@PostMapping("/checkDuplicate/email")
 	public ResponseEntity<ApiResponse<Void>> verifyEmailDuplicationAndSendCode(@Valid @RequestBody CheckEmailDto checkEmailDto) {
-		authServiceUseCase.verifyEmailDuplicationAndSendCode(checkEmailDto.email());
+		authServiceUseCase.checkEmailDuplicationAndSendCode(checkEmailDto.email());
 		return ApiResponse.success();
 	}
 
@@ -171,5 +172,33 @@ public class AuthController {
 		return ApiResponse.success();
 	}
 
+	/**
+	 * 계정 복구를 위한 인증 코드를 이메일로 발송합니다.
+	 *
+	 * @param recoveryAccountDto 사용자 이름과 이메일이 담긴 요청 DTO
+	 * @return 응답 본문 없이 성공 응답 반환
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	@EntryExitLog
+	@PostMapping("/account/recovery/code")
+	public ResponseEntity<ApiResponse<Void>> sendAccountRecoveryCode(@RequestBody RecoveryAccountDto recoveryAccountDto) {
+		authServiceUseCase.storeAccountAndSendRecoveryCode(recoveryAccountDto.name(), recoveryAccountDto.email());
+		return ApiResponse.success();
+	}
 
+	/**
+	 * 이메일과 인증 코드를 검증하여 사용자의 계정을 반환합니다.
+	 *
+	 * @param confirmCodeDto 이메일과 인증 코드가 담긴 요청 DTO
+	 * @return 복구된 계정 아이디 문자열을 포함한 성공 응답 반환
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	@EntryExitLog
+	@PostMapping("/account/recovery/result")
+	public ResponseEntity<ApiResponse<String>> recoveryAccount(@RequestBody ConfirmCodeDto confirmCodeDto) {
+		String account = authServiceUseCase.recoveryAccount(confirmCodeDto.email(), confirmCodeDto.code());
+		return ApiResponse.success(account);
+	}
 }
