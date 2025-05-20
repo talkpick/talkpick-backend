@@ -28,6 +28,24 @@ public class NewsInfoDetailResponseMapper {
 			.publishDate(newsInfoDetail.getPubDate())
 			.imageUrl(newsInfoDetail.getImageUrl())
 			.summary(newsInfoDetail.getSummary())
+			.viewCount(newsInfoDetail.getViewCount())
 			.build();
+	}
+
+	public static NewsInfoDetailResponse toResponseWithViewCount(NewsInfoDetail newsInfoDetail, Long currentViewCount) {
+		NewsInfoDetailResponse baseResponse = toResponseFromDomain(newsInfoDetail);
+
+		return NewsInfoDetailResponse
+				.builder()
+				.newsId(baseResponse.newsId())
+				.title(baseResponse.title())
+				.originLink(baseResponse.originLink())
+				.publishDate(baseResponse.publishDate())
+				.category(baseResponse.category())
+				.content(baseResponse.content())
+				.imageUrl(baseResponse.imageUrl())
+				.summary(baseResponse.summary())
+				.viewCount(currentViewCount)
+				.build();
 	}
 }

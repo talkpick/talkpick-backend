@@ -12,16 +12,16 @@ import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.e
 public class ArticleEntityMapper {
 	public static NewsInfoDetail toDetailFromEntity(ArticleEntity entity) {
 		return NewsInfoDetail.builder()
-			.newsId(entity.getGuid())
-			.title(entity.getTitle())
-			.originLink(entity.getLink())
-			.pubDate(entity.getPubDate())
-			.category(entity.getCategory())
-			.content(entity.getDescription())
-			.imageUrl(entity.getImageUrl())
-			.summary(entity.getSummary())
-			.build();
-	}
+				.newsId(entity.getGuid())
+				.title(entity.getTitle())
+				.originLink(entity.getLink())
+				.pubDate(entity.getPubDate())
+				.category(entity.getCategory())
+				.content(entity.getDescription())
+				.imageUrl(entity.getImageUrl())
+				.summary(entity.getSummary())
+				.viewCount(entity.getViewCount())
+				.build();
 
 	public static NewsInfo toInfoFromEntity(ArticleEntity e) {
 		return NewsInfo.builder()
@@ -34,6 +34,3 @@ public class ArticleEntityMapper {
 			.build();
 	}
 }
-
-
-

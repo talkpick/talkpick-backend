@@ -2,8 +2,8 @@ package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.
 
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.converter.FloatArrayToJsonConverter;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Converter;
@@ -75,9 +75,9 @@ public class ArticleEntity {
 	@Column(name = "summary_vector", columnDefinition = "JSON")
 	private float[] summaryVector;
 
-	@Setter
-	@Column(name = "view_count", nullable = false)
-	private Long viewCount = 0L;
+  @Setter
+  @Column(name = "view_count", nullable = false)
+  private Long viewCount;
 
 	@PrePersist
 	protected void onCreate() {
@@ -87,5 +87,4 @@ public class ArticleEntity {
 	public String getDescription() {
 		return description != null ? description : "";
 	}
-
 }

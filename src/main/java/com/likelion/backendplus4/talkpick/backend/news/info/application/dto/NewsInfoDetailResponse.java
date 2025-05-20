@@ -19,6 +19,7 @@ public record NewsInfoDetailResponse(
 	String category,
 	String content,
 	String imageUrl,
-	String summary
+	String summary,
+	Long viewCount
 ) {
 }

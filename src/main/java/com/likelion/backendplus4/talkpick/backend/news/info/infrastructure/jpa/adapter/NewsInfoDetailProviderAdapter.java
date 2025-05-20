@@ -2,6 +2,7 @@ package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
  *
  * @since 2025-05-14
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class NewsInfoDetailProviderAdapter implements NewsDetailProviderPort {
@@ -51,7 +53,7 @@ public class NewsInfoDetailProviderAdapter implements NewsDetailProviderPort {
 	 * @since 2025-05-14
 	 */
 	private ArticleEntity getOnlyArticleOrThrow(List<ArticleEntity> savedNewsInfo) {
-		if (savedNewsInfo.size() == 1) {
+		if(savedNewsInfo.size() == 1) {
 			return savedNewsInfo.getFirst();
 		}
 		throw new NewsInfoException(NewsInfoErrorCode.NON_UNIQUE_NEWS_INFO);

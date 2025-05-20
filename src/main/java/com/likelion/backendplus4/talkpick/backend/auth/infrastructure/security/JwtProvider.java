@@ -35,8 +35,8 @@ public class JwtProvider {
     private final Key jwtSigningKey;
     private final AuthTokenStorePort authTokenStorePort;
 
-    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 30;         // 30분
-    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7일
+    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 30;
+    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
     private static final String CLAIMS_NICKNAME = "nickname";
     private static final String CLAIMS_ROLES = "roles";
 
