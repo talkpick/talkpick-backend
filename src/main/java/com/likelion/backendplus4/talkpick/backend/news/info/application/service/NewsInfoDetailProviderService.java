@@ -67,18 +67,6 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
 	 * @return 통합된 응답 객체
 	 */
 	private NewsInfoDetailResponse createResponseWithCurrentViewCount(NewsInfoDetail newsInfoDetail, Long currentViewCount) {
-		NewsInfoDetailResponse baseResponse = NewsInfoDetailResponseMapper.toResponseFromDomain(newsInfoDetail);
-
-		return new NewsInfoDetailResponse(
-				baseResponse.newsId(),
-				baseResponse.title(),
-				baseResponse.originLink(),
-				baseResponse.publishDate(),
-				baseResponse.category(),
-				baseResponse.content(),
-				baseResponse.imageUrl(),
-				baseResponse.summary(),
-				currentViewCount
-		);
+		return NewsInfoDetailResponseMapper.toResponseWithViewCount(newsInfoDetail, currentViewCount);
 	}
 }
