@@ -16,7 +16,8 @@ import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.conf
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.RefreshReqDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignInDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.SignUpDto;
-import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.recovery.RecoveryAccountDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.recovery.RecoveryUserInfoDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.recovery.RecoveryPasswordDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
@@ -175,15 +176,15 @@ public class AuthController {
 	/**
 	 * 계정 복구를 위한 인증 코드를 이메일로 발송합니다.
 	 *
-	 * @param recoveryAccountDto 사용자 이름과 이메일이 담긴 요청 DTO
+	 * @param recoveryUserInfoDto 사용자 이름과 이메일이 담긴 요청 DTO
 	 * @return 응답 본문 없이 성공 응답 반환
 	 * @author 박찬병
 	 * @since 2025-05-20
 	 */
 	@EntryExitLog
 	@PostMapping("/account/recovery/code")
-	public ResponseEntity<ApiResponse<Void>> sendAccountRecoveryCode(@RequestBody RecoveryAccountDto recoveryAccountDto) {
-		authServiceUseCase.storeAccountAndSendRecoveryCode(recoveryAccountDto.name(), recoveryAccountDto.email());
+	public ResponseEntity<ApiResponse<Void>> sendAccountRecoveryCode(@RequestBody RecoveryUserInfoDto recoveryUserInfoDto) {
+		authServiceUseCase.storeAccountAndSendRecoveryCode(recoveryUserInfoDto.name(), recoveryUserInfoDto.email());
 		return ApiResponse.success();
 	}
 
@@ -201,4 +202,42 @@ public class AuthController {
 		String account = authServiceUseCase.recoveryAccount(confirmCodeDto.email(), confirmCodeDto.code());
 		return ApiResponse.success(account);
 	}
+
+	/**
+	 * 비밀번호 재설정을 위한 인증 코드를 사용자 이메일로 전송합니다.
+	 *
+	 * 사용자가 입력한 이름, 이메일, 계정을 기준으로 존재 여부를 확인한 뒤,
+	 * 인증 코드를 생성하여 메일로 발송하고 관련 정보를 Redis에 저장합니다.
+	 *
+	 * @param recoveryUserInfoDto 사용자 이름, 이메일, 계정 정보를 포함한 요청 DTO
+	 * @return 성공 응답 (본문 없음)
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	@EntryExitLog
+	@PostMapping("/password/recovery/code")
+	public ResponseEntity<ApiResponse<Void>> sendPasswordRecoveryCode(@RequestBody RecoveryUserInfoDto recoveryUserInfoDto) {
+		authServiceUseCase.findUserAndSendRecoveryCode(recoveryUserInfoDto.name(), recoveryUserInfoDto.email(),
+			recoveryUserInfoDto.account());
+		return ApiResponse.success();
+	}
+
+	/**
+	 * 이메일 인증 코드 검증 후 비밀번호를 재설정합니다.
+	 *
+	 * 인증 코드가 유효할 경우, 새로운 비밀번호를 암호화하여 저장합니다.
+	 *
+	 * @param recoveryPasswordDto 이메일, 인증 코드, 새 비밀번호를 포함한 요청 DTO
+	 * @return 성공 응답 (본문 없음)
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	@EntryExitLog
+	@PostMapping("/password/recovery/result")
+	public ResponseEntity<ApiResponse<Void>> recoveryPassword(@RequestBody RecoveryPasswordDto recoveryPasswordDto) {
+		authServiceUseCase.recoveryPassword(recoveryPasswordDto.email(), recoveryPasswordDto.code(),
+			recoveryPasswordDto.newPassword());
+		return ApiResponse.success();
+	}
+
 }

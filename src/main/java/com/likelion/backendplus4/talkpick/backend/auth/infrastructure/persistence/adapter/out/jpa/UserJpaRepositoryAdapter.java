@@ -136,6 +136,44 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
     }
 
     /**
+     * 주어진 이름, 이메일, 계정을 기반으로 사용자의 존재 여부를 확인합니다.
+     *
+     * 해당 조건에 부합하는 사용자가 존재하지 않을 경우 예외가 발생합니다.
+     *
+     * @param name 사용자 이름
+     * @param email 사용자 이메일
+     * @param account 사용자 계정 ID
+     * @throws UserException 사용자가 존재하지 않을 경우
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    @Override
+    @EntryExitLog
+    public void validateUserExistence(String name, String email, String account) {
+        findUserByNameEmailAndAccount(name, email, account);
+    }
+
+
+    /**
+     * 이메일을 기준으로 사용자를 찾아 비밀번호를 업데이트합니다.
+     *
+     * 인코딩된 새 비밀번호로 사용자 정보를 갱신합니다.
+     *
+     * @param email 사용자 이메일
+     * @param encodePassword 인코딩된 새 비밀번호
+     * @throws UserException 해당 이메일로 사용자를 찾을 수 없는 경우
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    @Override
+    @Transactional
+    @EntryExitLog
+    public void updateUserPassword(String email, String encodePassword) {
+        UserEntity findUser = findUserByEmail(email);
+        findUser.updatePassword(encodePassword);
+    }
+
+    /**
      * 계정 중복을 확인하고, 중복 시 예외를 던집니다.
      *
      * 1. 계정 존재 여부 조회
@@ -193,10 +231,56 @@ public class UserJpaRepositoryAdapter implements UserRepositoryPort {
         }
     }
 
+    /**
+     * 이름과 이메일을 기준으로 사용자를 조회합니다.
+     *
+     * @param name 사용자 이름
+     * @param email 사용자 이메일
+     * @return 조회된 사용자 엔터티
+     * @throws UserException 사용자가 존재하지 않을 경우 예외 발생
+     * @author 박찬병
+     * @since 2025-05-20
+     */
     @EntryExitLog
     private UserEntity findUserByNameAndEmail(String name, String email) {
         return userRepository.findUserByNameAndEmail(name, email)
             .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+    }
+
+    /**
+     * 이름, 이메일, 계정을 기준으로 사용자의 존재 여부를 확인합니다.
+     *
+     * 사용자 조회에 실패할 경우 예외가 발생합니다.
+     *
+     * @param name 사용자 이름
+     * @param email 사용자 이메일
+     * @param account 사용자 계정 ID
+     * @throws UserException 사용자가 존재하지 않을 경우 예외 발생
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    @EntryExitLog
+    private void findUserByNameEmailAndAccount(String name, String email, String account) {
+        userRepository.findUserByNameAndEmailAndAccount(name, email,
+            account).orElseThrow(
+            () -> new UserException(UserErrorCode.USER_NOT_FOUND)
+        );
+    }
+
+    /**
+     * 이메일을 기준으로 사용자를 조회합니다.
+     *
+     * @param email 사용자 이메일
+     * @return 조회된 사용자 엔터티
+     * @throws UserException 사용자가 존재하지 않을 경우 예외 발생
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    @EntryExitLog
+    private UserEntity findUserByEmail(String email) {
+        return userRepository.findUserByEmail(email).orElseThrow(
+            () -> new UserException(UserErrorCode.USER_NOT_FOUND)
+        );
     }
 
 }

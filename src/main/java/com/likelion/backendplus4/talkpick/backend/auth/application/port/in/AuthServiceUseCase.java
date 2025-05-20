@@ -1,12 +1,13 @@
 package com.likelion.backendplus4.talkpick.backend.auth.application.port.in;
 
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
+import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
 
 /**
  * 인증 관련 비즈니스 로직을 수행하는 유스케이스
  * @since 2025-05-12
- * @modified 2025-05-12
+ * @modified 2025-05-20
  */
 public interface AuthServiceUseCase {
 
@@ -123,4 +124,31 @@ public interface AuthServiceUseCase {
 	 * @since 2025-05-20
 	 */
 	String recoveryAccount(String email, String code);
+
+	/**
+	 * 사용자 존재 여부를 확인하고 계정 복구를 위한 이메일 인증 코드를 전송합니다.
+	 *
+	 * 인증 코드는 Redis에 저장되며, 사용자 입력과의 검증에 사용됩니다.
+	 *
+	 * @param name 사용자 이름
+	 * @param email 사용자 이메일
+	 * @param account 사용자 계정 ID
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	void findUserAndSendRecoveryCode(String name, String email, String account);
+
+	/**
+	 * 이메일 인증 코드 검증 후, 새 비밀번호로 사용자 비밀번호를 재설정합니다.
+	 *
+	 * 인증 코드가 올바를 경우 비밀번호를 인코딩하여 업데이트합니다.
+	 *
+	 * @param email 사용자 이메일
+	 * @param code 이메일 인증 코드
+	 * @param newPassword 새 비밀번호 (인코딩 전)
+	 * @throws AuthException 인증 코드가 잘못되었을 경우
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	void recoveryPassword(String email, String code, String newPassword);
 }
