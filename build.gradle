@@ -53,6 +53,13 @@ dependencies {
     //Valid
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    //rabbitmq (amqp: (Advanced Message Queuing Protocol))
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    //WebSocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-reactor-netty'
+
 }
 
 tasks.named('test') {
