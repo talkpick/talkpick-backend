@@ -1,11 +1,11 @@
 package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.persistence.adapter.out.redis;
 
-import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.AuthTokenStorePort;
+import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.AuthStorePort;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
+import com.likelion.backendplus4.talkpick.backend.common.configuration.redis.properties.RedisAuthProperties;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -14,7 +14,6 @@ import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -24,32 +23,15 @@ import org.springframework.stereotype.Component;
  * Redis를 이용해 리프레시 토큰 및 로그아웃 블랙리스트를 관리하는 어댑터 구현체.
  *
  * @since 2025-05-12
- * @modified 2025-05-12
+ * @modified 2025-05-20
  * @author 박찬병
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class AuthTokenStoreAdapter implements AuthTokenStorePort {
+public class RedisAuthStoreAdapter implements AuthStorePort {
 
-    @Value("${auth.redis.refresh-token-key}")
-    private String refreshTokenKey;
-
-    @Value("${auth.redis.authorities-key}")
-    private String authoritiesKey;
-
-    @Value("${auth.redis.blacklist-value}")
-    private String blacklistValue;
-
-    @Value("${auth.redis.email-prefix}")
-    private String emailKey;
-
-    @Value("${auth.redis.verify-email-code-ttl}")
-    private Duration verifyEmailCodeTtl;
-
-    @Value("${auth.redis.refresh-token-expiration-days}")
-    private int refreshTokenExpirationDays;
-
+    private final RedisAuthProperties redisProps;
     private final RedisTemplate<String, String> redisTemplate;
 
     /**
@@ -126,12 +108,12 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
     @Override
     @EntryExitLog
     public void saveEmailAuthData(String email, String emailAuthCode, String account) {
-        String key = emailKey + email;
+        String key = redisProps.getEmailPrefix() + email;
         Map<String,String> map = new HashMap<>();
-        map.put("emailAuthCode", emailAuthCode);
-        if (account != null) map.put("account", account);
+        map.put(redisProps.getField().getEmailAuthCode(), emailAuthCode);
+        if (account != null) map.put(redisProps.getField().getAccount(), account);
         redisTemplate.opsForHash().putAll(key, map);
-        redisTemplate.expire(key, verifyEmailCodeTtl);
+        redisTemplate.expire(key, redisProps.getVerifyEmailCodeTtl());
     }
 
     /**
@@ -150,15 +132,15 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
     @Override
     @EntryExitLog
     public Optional<String> verifyCode(String email, String inputCode) {
-        String key = emailKey + email;
+        String key = redisProps.getEmailPrefix() + email;
         String saved = (String)redisTemplate.opsForHash()
-            .get(key, "emailAuthCode");
+            .get(key, redisProps.getField().getEmailAuthCode());
 
         checkSaveCodeNull(saved);
         checkSaveCodeNotEqual(inputCode, saved);
 
         String account = (String)redisTemplate.opsForHash()
-            .get(key, "account");
+            .get(key, redisProps.getField().getAccount());
 
         redisTemplate.delete(key);
         return Optional.ofNullable(account);
@@ -219,7 +201,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
             redisTemplate.delete(userId);
             HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
             hashOps.putAll(userId, createTokenDataMap(refreshToken, roles));
-            redisTemplate.expire(userId, refreshTokenExpirationDays, TimeUnit.DAYS);
+            redisTemplate.expire(userId, redisProps.getRefreshTokenExpirationDays(), TimeUnit.DAYS);
         } catch (DataAccessException dae) {
             throw new AuthException(AuthErrorCode.REDIS_STORE_FAILURE, dae);
         }
@@ -240,7 +222,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
     private boolean isValidRefreshTokenInternal(String userId, String refreshToken) {
         try {
             String stored = Objects.requireNonNull(redisTemplate.opsForHash()
-				.get(userId, refreshTokenKey)).toString();
+				.get(userId, redisProps.getRefreshTokenKey())).toString();
             return Objects.requireNonNull(stored).equals(refreshToken);
         } catch (DataAccessException dae) {
             throw new AuthException(AuthErrorCode.REDIS_RETRIEVE_FAILURE, dae);
@@ -308,7 +290,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
         try {
             redisTemplate.opsForValue().set(
                 accessToken,
-                blacklistValue,
+                redisProps.getBlacklistIndicator(),
                 accessTokenExpiration,
                 TimeUnit.MILLISECONDS);
             redisTemplate.delete(userId);
@@ -331,7 +313,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
     private String getAuthoritiesInternal(String userId) {
         try {
             return Objects.requireNonNull(redisTemplate.opsForHash()
-				.get(userId, authoritiesKey)).toString();
+				.get(userId, redisProps.getAuthoritiesKey())).toString();
         } catch (DataAccessException dae) {
             throw new AuthException(AuthErrorCode.REDIS_AUTHORITIES_RETRIEVE_FAIL, dae);
         }
@@ -349,8 +331,8 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
     @EntryExitLog
     private HashMap<String, String> createTokenDataMap(String refreshToken, String authorities) {
         HashMap<String, String> map = new HashMap<>();
-        map.put(refreshTokenKey, refreshToken);
-        map.put(authoritiesKey, authorities);
+        map.put(redisProps.getRefreshTokenKey(), refreshToken);
+        map.put(redisProps.getAuthoritiesKey(), authorities);
         return map;
     }
 

@@ -101,7 +101,7 @@ public interface AuthServiceUseCase {
 	 * @author 박찬병
 	 * @since 2025-05-20
 	 */
-	void confirmCode(String email,String code);
+	void verifyEmailCode(String email,String code);
 
 	/**
 	 * 사용자의 이름과 이메일을 기반으로 계정을 조회한 후,

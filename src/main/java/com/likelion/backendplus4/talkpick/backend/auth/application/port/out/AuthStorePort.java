@@ -10,7 +10,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
  * @since 2025-05-12
  * @modified 2025-05-12
  */
-public interface AuthTokenStorePort {
+public interface AuthStorePort {
 
     /**
      * RefreshToken 과 사용자 권한 정보를 저장합니다.

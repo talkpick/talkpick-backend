@@ -167,9 +167,9 @@ public class AuthController {
 	 * @since 2025-05-20
 	 */
 	@EntryExitLog
-	@PostMapping("/confirm/code")
-	public ResponseEntity<ApiResponse<Void>> confirmCode(@RequestBody ConfirmCodeDto confirmDto) {
-		authServiceUseCase.confirmCode(confirmDto.email(), confirmDto.code());
+	@PostMapping("/checkDuplicate/email/result")
+	public ResponseEntity<ApiResponse<Void>> verifyEmailCode(@RequestBody ConfirmCodeDto confirmDto) {
+		authServiceUseCase.verifyEmailCode(confirmDto.email(), confirmDto.code());
 		return ApiResponse.success();
 	}
 

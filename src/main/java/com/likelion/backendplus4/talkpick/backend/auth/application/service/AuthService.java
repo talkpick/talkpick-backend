@@ -4,7 +4,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.in.AuthServiceUseCase;
-import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.AuthTokenStorePort;
+import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.AuthStorePort;
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.MailSendPort;
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.SecurityPort;
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.UserRepositoryPort;
@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthService implements AuthServiceUseCase {
 
-	private final AuthTokenStorePort authTokenStorePort;
+	private final AuthStorePort authStorePort;
 	private final UserRepositoryPort userRepositoryPort;
 	private final MailSendPort mailSendPort;
 	private final SecurityPort securityPort;
@@ -83,7 +83,7 @@ public class AuthService implements AuthServiceUseCase {
 	public void checkEmailDuplicationAndSendCode(String email) {
 		userRepositoryPort.existsByEmail(email);
 		String emailAuthCode = generateAndSendEmailVerifyCode(email);
-		authTokenStorePort.saveEmailAuthData(email, emailAuthCode, null);
+		authStorePort.saveEmailAuthData(email, emailAuthCode, null);
 	}
 
 	/**
@@ -167,8 +167,8 @@ public class AuthService implements AuthServiceUseCase {
 	 */
 	@Override
 	@EntryExitLog
-	public void confirmCode(String email, String code) {
-		authTokenStorePort.verifyCode(email, code);
+	public void verifyEmailCode(String email, String code) {
+		authStorePort.verifyCode(email, code);
 	}
 
 	/**
@@ -184,7 +184,7 @@ public class AuthService implements AuthServiceUseCase {
 	public void storeAccountAndSendRecoveryCode(String name, String email) {
 		String account = userRepositoryPort.findUserAccountByNameAndEmail(name, email);
 		String authCode = generateAndSendEmailVerifyCode(email);
-		authTokenStorePort.saveEmailAuthData(email, authCode, account);
+		authStorePort.saveEmailAuthData(email, authCode, account);
 	}
 
 	/**
@@ -216,7 +216,7 @@ public class AuthService implements AuthServiceUseCase {
 	public void findUserAndSendRecoveryCode(String name, String email, String account) {
 		userRepositoryPort.validateUserExistence(name, email, account);
 		String authCode = generateAndSendEmailVerifyCode(email);
-		authTokenStorePort.saveEmailAuthData(email, authCode, null);
+		authStorePort.saveEmailAuthData(email, authCode, null);
 	}
 
 
@@ -234,7 +234,7 @@ public class AuthService implements AuthServiceUseCase {
 	 */
 	@Override
 	public void recoveryPassword(String email, String code, String newPassword) {
-		authTokenStorePort.verifyCode(email, code);
+		authStorePort.verifyCode(email, code);
 		String encodePassword = securityPort.encodePassword(newPassword);
 		userRepositoryPort.updateUserPassword(email, encodePassword);
 	}
@@ -280,7 +280,7 @@ public class AuthService implements AuthServiceUseCase {
 	@EntryExitLog
 	private void performLogoutIfValid(String rawToken, TokenInfo tokenInfo) {
 		if (!tokenInfo.isExpired()) {
-			authTokenStorePort.logoutTokens(
+			authStorePort.logoutTokens(
 				rawToken,
 				tokenInfo.getExpirationMillis(),
 				tokenInfo.getUserId()
@@ -316,7 +316,7 @@ public class AuthService implements AuthServiceUseCase {
 	 * @since 2025-05-20
 	 */
 	private String verifyCodeAndRecoveryAccount(String email, String code) {
-		return authTokenStorePort.verifyCode(email, code).orElseThrow(
+		return authStorePort.verifyCode(email, code).orElseThrow(
 			() -> new AuthException(AuthErrorCode.ACCOUNT_NOT_FOUND)
 		);
 	}

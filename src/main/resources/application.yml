@@ -79,8 +79,11 @@ news:
 auth:
   redis:
     refresh-token-key: refreshToken
-    blacklist-value: blacklisted
+    blacklist-indicator: blacklisted
     authorities-key: authorities
     email-prefix: "mail:"
     verify-email-code-ttl: PT5M
     refresh-token-expiration-days: 7
+    field:
+      email-auth-code: emailAuthCode
+      account: account
