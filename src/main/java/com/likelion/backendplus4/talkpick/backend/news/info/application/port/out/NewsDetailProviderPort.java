@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.application.port.out;
+package com.likelion.backendplus4.talkpick.backend.news.info.application.port.out;
 
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
 
@@ -7,7 +7,7 @@ import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInf
  *
  * @since 2025-05-14
  */
-public interface NewsDetailProviderPort {
+	public interface NewsDetailProviderPort {
 
 	/**
 	 * 주어진 guid(뉴스 ID)를 기반으로 뉴스 상세 정보를 조회합니다.

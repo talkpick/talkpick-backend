@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/news/{id}")
+@RequestMapping("/public/news")
 public class NewsInfoDetailProviderController {
 	private final NewsInfoDetailProviderUseCase newsInfoDetailProviderUseCase;
 	private final NewsViewCountIncreaseUseCase newsViewCountIncreaseUseCase;
@@ -37,7 +37,7 @@ public class NewsInfoDetailProviderController {
 	 * @since 2025-05-19 최초 작성
 	 * @author 양병학
 	 */
-	@GetMapping
+	@GetMapping("/{id}")
 	public ResponseEntity<ApiResponse<NewsInfoDetailResponse>> getNewsInfoDetailsByArticleId(@PathVariable String id
 		, HttpServletRequest request) {
 

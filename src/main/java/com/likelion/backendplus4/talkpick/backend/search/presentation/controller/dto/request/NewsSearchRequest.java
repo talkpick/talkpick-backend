@@ -1,5 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.search.presentation.controller.dto.request;
 
+import org.springframework.web.bind.annotation.RequestParam;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -8,10 +10,8 @@ import lombok.RequiredArgsConstructor;
  *
  * @since 2025-05-15
  */
-@RequiredArgsConstructor
-@Getter
-public class NewsSearchRequest {
-	private final String q;
-	private final int  page = 0;
-	private final int  size = 10;
-}
+public record NewsSearchRequest(
+	@RequestParam("q") String q,
+	@RequestParam(value = "page", defaultValue = "0") int page,
+	@RequestParam(value = "size", defaultValue = "10") int size
+) {}
