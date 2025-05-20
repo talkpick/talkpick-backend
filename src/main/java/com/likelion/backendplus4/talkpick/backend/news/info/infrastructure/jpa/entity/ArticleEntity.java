@@ -69,7 +69,7 @@ public class ArticleEntity {
     private String summary;
 
     @Column(name = "summary_vector", columnDefinition = "JSON")
-    private String summaryVector;
+    private float[] summaryVector;
 
     @Setter
     @Column(name = "view_count", nullable = false)
