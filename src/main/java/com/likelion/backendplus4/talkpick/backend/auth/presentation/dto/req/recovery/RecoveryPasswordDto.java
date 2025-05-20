@@ -3,6 +3,6 @@ package com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.rec
 public record RecoveryPasswordDto(
 	String email,
 	String tempToken,
-	String newPassword
+	String password
 ) {
 }

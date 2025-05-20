@@ -254,9 +254,9 @@ public class AuthController {
 	 */
 	@EntryExitLog
 	@PutMapping("/password/recovery/result")
-	public ResponseEntity<ApiResponse<Void>> recoveryPassword(@RequestBody RecoveryPasswordDto recoveryPasswordDto) {
+	public ResponseEntity<ApiResponse<Void>> recoveryPassword(@Valid @RequestBody RecoveryPasswordDto recoveryPasswordDto) {
 		authServiceUseCase.recoveryPassword(recoveryPasswordDto.email(), recoveryPasswordDto.tempToken(),
-			recoveryPasswordDto.newPassword());
+			recoveryPasswordDto.password());
 		return ApiResponse.success();
 	}
 
