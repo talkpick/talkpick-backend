@@ -169,7 +169,7 @@ public class AuthController {
 	 */
 	@EntryExitLog
 	@PostMapping("/checkDuplicate/email/result")
-	public ResponseEntity<ApiResponse<Void>> verifyEmailCode(@RequestBody ConfirmCodeDto confirmDto) {
+	public ResponseEntity<ApiResponse<Void>> verifyEmailCode(@Valid @RequestBody ConfirmCodeDto confirmDto) {
 		authServiceUseCase.verifyEmailCode(confirmDto.email(), confirmDto.code());
 		return ApiResponse.success();
 	}
@@ -199,7 +199,7 @@ public class AuthController {
 	 */
 	@EntryExitLog
 	@PostMapping("/account/recovery/result")
-	public ResponseEntity<ApiResponse<String>> recoveryAccount(@RequestBody ConfirmCodeDto confirmCodeDto) {
+	public ResponseEntity<ApiResponse<String>> recoveryAccount(@Valid @RequestBody ConfirmCodeDto confirmCodeDto) {
 		String account = authServiceUseCase.recoveryAccount(confirmCodeDto.email(), confirmCodeDto.code());
 		return ApiResponse.success(account);
 	}
@@ -235,7 +235,7 @@ public class AuthController {
 	 */
 	@EntryExitLog
 	@PostMapping("/password/recovery/result")
-	public ResponseEntity<ApiResponse<String>> verifyPasswordRecoveryCode(@RequestBody ConfirmCodeDto confirmCodeDto) {
+	public ResponseEntity<ApiResponse<String>> verifyPasswordRecoveryCode(@Valid @RequestBody ConfirmCodeDto confirmCodeDto) {
 		String tempToken = authServiceUseCase.verifyEmailCodeAndGenerateTempToken(confirmCodeDto.email(),
 			confirmCodeDto.code());
 		return ApiResponse.success(tempToken);

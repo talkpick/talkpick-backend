@@ -29,6 +29,9 @@ public enum AuthValidationError {
 	EMAIL_WHITESPACE("email", "email.whitespace", "이메일에 공백은 허용되지 않습니다."),
 	EMAIL_PATTERN("email", "email.pattern", "올바른 이메일 형식이 아닙니다."),
 
+	CODE_EMPTY("code", "code.empty", "인증 코드는 필수입니다."),
+	CODE_INVALID_FORMAT("code", "code.invalid.format", "인증 코드는 숫자 6자리여야 합니다."),
+
 	GENDER_EMPTY("gender", "gender.empty", "성별은 필수입니다."),
 
 	BIRTHDAY_EMPTY("birthDay", "birthDay.empty", "생년월일은 필수입니다."),

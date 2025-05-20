@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.auth.presentation.support.validator;
+package com.likelion.backendplus4.talkpick.backend.auth.presentation.support.validator.check;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
