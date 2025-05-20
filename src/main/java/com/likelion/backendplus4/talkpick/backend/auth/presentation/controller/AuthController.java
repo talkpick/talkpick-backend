@@ -2,6 +2,7 @@ package com.likelion.backendplus4.talkpick.backend.auth.presentation.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -223,21 +224,41 @@ public class AuthController {
 	}
 
 	/**
-	 * 이메일 인증 코드 검증 후 비밀번호를 재설정합니다.
+	 * 이메일 인증 코드 검증 후 임시 토큰을 발급합니다.
 	 *
 	 * 인증 코드가 유효할 경우, 새로운 비밀번호를 암호화하여 저장합니다.
 	 *
-	 * @param recoveryPasswordDto 이메일, 인증 코드, 새 비밀번호를 포함한 요청 DTO
+	 * @param confirmCodeDto 이메일, 인증 코드를 포함한 요청 DTO
 	 * @return 성공 응답 (본문 없음)
 	 * @author 박찬병
 	 * @since 2025-05-20
 	 */
 	@EntryExitLog
 	@PostMapping("/password/recovery/result")
+	public ResponseEntity<ApiResponse<String>> verifyPasswordRecoveryCode(@RequestBody ConfirmCodeDto confirmCodeDto) {
+		String tempToken = authServiceUseCase.verifyEmailCodeAndGenerateTempToken(confirmCodeDto.email(),
+			confirmCodeDto.code());
+		return ApiResponse.success(tempToken);
+	}
+
+	/**
+	 * 임시 토큰과 이메일을 검증하고, 새로운 비밀번호로 변경합니다.
+	 *
+	 * 사용자가 제출한 이메일과 임시 토큰의 유효성을 확인한 후,
+	 * 새로운 비밀번호를 암호화하여 저장합니다.
+	 *
+	 * @param recoveryPasswordDto 이메일, 임시 토큰, 새 비밀번호를 포함한 요청 DTO
+	 * @return 성공 응답 (본문 없음)
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	@EntryExitLog
+	@PutMapping("/password/recovery/result")
 	public ResponseEntity<ApiResponse<Void>> recoveryPassword(@RequestBody RecoveryPasswordDto recoveryPasswordDto) {
-		authServiceUseCase.recoveryPassword(recoveryPasswordDto.email(), recoveryPasswordDto.code(),
+		authServiceUseCase.recoveryPassword(recoveryPasswordDto.email(), recoveryPasswordDto.tempToken(),
 			recoveryPasswordDto.newPassword());
 		return ApiResponse.success();
 	}
+
 
 }

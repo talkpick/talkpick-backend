@@ -219,6 +219,25 @@ public class AuthService implements AuthServiceUseCase {
 		authStorePort.saveEmailAuthData(email, authCode, null);
 	}
 
+	/**
+	 * 이메일 인증 코드를 검증한 후, 임시 토큰을 발급하여 반환합니다.
+	 *
+	 * 인증에 성공하면, 해당 이메일을 기반으로 임시 토큰을 생성하고 Redis에 저장합니다.
+	 * 이 토큰은 이후 비밀번호 재설정 시 사용됩니다.
+	 *
+	 * @param email 인증할 이메일 주소
+	 * @param code 사용자에게 발송된 인증 코드
+	 * @return tempToken 임시 비밀번호 재설정에 사용할 임시 토큰
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	@Override
+	public String verifyEmailCodeAndGenerateTempToken(String email, String code) {
+		authStorePort.verifyCode(email, code);
+		String tempToken = securityPort.issueTempToken(email);
+		authStorePort.saveTempToken(tempToken);
+		return tempToken;
+	}
 
 	/**
 	 * 이메일 인증 코드 검증 후, 새 비밀번호로 사용자 비밀번호를 재설정합니다.
@@ -226,15 +245,15 @@ public class AuthService implements AuthServiceUseCase {
 	 * 인증 코드가 올바를 경우 비밀번호를 인코딩하여 업데이트합니다.
 	 *
 	 * @param email 사용자 이메일
-	 * @param code 이메일 인증 코드
+	 * @param tempToken 임시토큰
 	 * @param newPassword 새 비밀번호 (인코딩 전)
 	 * @throws AuthException 인증 코드가 잘못되었을 경우
 	 * @author 박찬병
 	 * @since 2025-05-20
 	 */
 	@Override
-	public void recoveryPassword(String email, String code, String newPassword) {
-		authStorePort.verifyCode(email, code);
+	public void recoveryPassword(String email, String tempToken, String newPassword) {
+		authStorePort.verifyTempToken(tempToken);
 		String encodePassword = securityPort.encodePassword(newPassword);
 		userRepositoryPort.updateUserPassword(email, encodePassword);
 	}

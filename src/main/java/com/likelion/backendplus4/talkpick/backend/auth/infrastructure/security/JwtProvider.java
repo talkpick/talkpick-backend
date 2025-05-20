@@ -37,6 +37,7 @@ public class JwtProvider {
 
     private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 30;         // 30분
     private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7일
+    private static final long TEMP_TOKEN_EXPIRATION = 1000 * 60 * 5; // 5분
     private static final String CLAIMS_NICKNAME = "nickname";
     private static final String CLAIMS_ROLES = "roles";
 
@@ -196,6 +197,26 @@ public class JwtProvider {
             claims.put(CLAIMS_NICKNAME, nickname);
         }
         return claims;
+    }
+
+    /**
+     * 임시 토큰을 생성합니다. (예: 비밀번호 재설정용)
+     *
+     * @param email 토큰의 Subject로 사용할 이메일
+     * @return 생성된 임시 JWT 토큰 문자열
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    @EntryExitLog
+    public String generateTempToken(String email) {
+        Date now = new Date();
+        Date expiresAt = new Date(now.getTime() + TEMP_TOKEN_EXPIRATION);
+        return Jwts.builder()
+            .setSubject(email)
+            .setIssuedAt(now)
+            .setExpiration(expiresAt)
+            .signWith(jwtSigningKey, SignatureAlgorithm.HS256)
+            .compact();
     }
 
     /**

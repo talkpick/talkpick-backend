@@ -185,6 +185,26 @@ public class RedisAuthStoreAdapter implements AuthStorePort {
         return getAuthoritiesInternal(userId);
     }
 
+    @Override
+    @EntryExitLog
+    public void saveTempToken(String tempToken) {
+        saveTempTokenInternal(tempToken);
+    }
+
+    /**
+     * 임시 토큰의 유효성을 검사하고, 검증 후 Redis에서 삭제합니다.
+     *
+     * @param tempToken 클라이언트가 제출한 임시 토큰
+     * @throws AuthException 토큰이 없거나 만료된 경우 발생
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    @Override
+    @EntryExitLog
+    public void verifyTempToken(String tempToken) {
+        verifyTempTokenInternal(tempToken);
+    }
+
 
     /**
      * 1. 기존 데이터 삭제
@@ -334,6 +354,41 @@ public class RedisAuthStoreAdapter implements AuthStorePort {
         map.put(redisProps.getRefreshTokenKey(), refreshToken);
         map.put(redisProps.getAuthoritiesKey(), authorities);
         return map;
+    }
+
+    /**
+     * 임시 토큰을 Redis에 저장하는 내부 구현.
+     *
+     * @param tempToken 저장할 임시 토큰
+     * @throws AuthException 저장 실패 시 예외 발생
+     */
+    @EntryExitLog
+    private void saveTempTokenInternal(String tempToken) {
+        try {
+            redisTemplate.opsForValue()
+                .set(tempToken, "", redisProps.getVerifyEmailCodeTtl().toMillis(), TimeUnit.MILLISECONDS);
+        } catch (DataAccessException dae) {
+            throw new AuthException(AuthErrorCode.REDIS_STORE_FAILURE, dae);
+        }
+    }
+
+    /**
+     * 임시 토큰 검증 및 삭제 로직의 내부 구현.
+     *
+     * @param tempToken 검증할 임시 토큰
+     * @throws AuthException 검증 실패 시 예외 발생
+     */
+    @EntryExitLog
+    private void verifyTempTokenInternal(String tempToken) {
+        try {
+            Boolean exists = redisTemplate.hasKey(tempToken);
+            if (!exists) {
+                throw new AuthException(AuthErrorCode.INVALID_TEMP_TOKEN);
+            }
+            redisTemplate.delete(tempToken);
+        } catch (DataAccessException dae) {
+            throw new AuthException(AuthErrorCode.REDIS_RETRIEVE_FAILURE, dae);
+        }
     }
 
 }
