@@ -69,16 +69,17 @@ public class AuthService implements AuthServiceUseCase {
 
 
 	/**
-	 * 이메일의 중복 검사를 수행합니다.
+	 * 이메일의 중복 검사를 수행하고, 인증 코드를 전송합니다
 	 *
 	 * @param email 검사할 이메일
 	 * @author 박찬병
 	 * @since 2025-05-18
-	 * @modified 2025-05-18
+	 * @modified 2025-05-20
+	 * 2025-05-20 이메일 인증 코드 전송 구현
 	 */
 	@Override
 	@EntryExitLog
-	public void checkDuplicateEmail(String email) {
+	public void verifyEmailDuplicationAndSendCode(String email) {
 		userRepositoryPort.existsByEmail(email);
 		generateAndSendEmailVerifyCode(email);
 	}

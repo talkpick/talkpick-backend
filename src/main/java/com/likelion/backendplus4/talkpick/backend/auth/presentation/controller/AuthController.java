@@ -82,8 +82,8 @@ public class AuthController {
 	 */
 	@EntryExitLog
 	@PostMapping("/checkDuplicate/email")
-	public ResponseEntity<ApiResponse<Void>> checkDuplicateEmail(@Valid @RequestBody CheckEmailDto checkEmailDto) {
-		authServiceUseCase.checkDuplicateEmail(checkEmailDto.email());
+	public ResponseEntity<ApiResponse<Void>> verifyEmailDuplicationAndSendCode(@Valid @RequestBody CheckEmailDto checkEmailDto) {
+		authServiceUseCase.verifyEmailDuplicationAndSendCode(checkEmailDto.email());
 		return ApiResponse.success();
 	}
 

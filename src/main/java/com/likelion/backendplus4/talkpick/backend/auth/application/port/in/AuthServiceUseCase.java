@@ -42,7 +42,7 @@ public interface AuthServiceUseCase {
 	 * @since 2025-05-18
 	 * @modified 2025-05-18
 	 */
-	void checkDuplicateEmail(String email);
+	void verifyEmailDuplicationAndSendCode(String email);
 
 	/**
 	 * 닉네임의 중복 검사를 수행합니다.
