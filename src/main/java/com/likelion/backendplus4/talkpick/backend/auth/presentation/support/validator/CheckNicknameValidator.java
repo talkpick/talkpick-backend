@@ -8,7 +8,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.CheckNicknameDto;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.check.CheckNicknameDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.support.validator.enums.AuthValidationError;
 
 @Component
