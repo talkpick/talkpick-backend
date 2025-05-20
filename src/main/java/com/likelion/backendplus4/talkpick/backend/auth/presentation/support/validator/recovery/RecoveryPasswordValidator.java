@@ -14,6 +14,12 @@ import org.springframework.validation.Validator;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.recovery.RecoveryPasswordDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.support.validator.enums.AuthValidationError;
 
+/**
+ * 비밀번호 재설정 요청 시 이메일, 임시 토큰, 새 비밀번호를 검증하는 Validator입니다.
+ * 각 필드에 대해 비어있음, 공백 포함 여부, 길이 및 정규식 패턴 등 유효성 검사를 수행합니다.
+ *
+ * @since 2025-05-20
+ */
 @Component
 public class RecoveryPasswordValidator implements Validator {
 

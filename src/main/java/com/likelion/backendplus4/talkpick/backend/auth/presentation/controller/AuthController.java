@@ -184,7 +184,7 @@ public class AuthController {
 	 */
 	@EntryExitLog
 	@PostMapping("/account/recovery/code")
-	public ResponseEntity<ApiResponse<Void>> sendAccountRecoveryCode(@RequestBody RecoveryUserInfoDto recoveryUserInfoDto) {
+	public ResponseEntity<ApiResponse<Void>> sendAccountRecoveryCode(@Valid @RequestBody RecoveryUserInfoDto recoveryUserInfoDto) {
 		authServiceUseCase.storeAccountAndSendRecoveryCode(recoveryUserInfoDto.name(), recoveryUserInfoDto.email());
 		return ApiResponse.success();
 	}
@@ -217,7 +217,7 @@ public class AuthController {
 	 */
 	@EntryExitLog
 	@PostMapping("/password/recovery/code")
-	public ResponseEntity<ApiResponse<Void>> sendPasswordRecoveryCode(@RequestBody RecoveryUserInfoDto recoveryUserInfoDto) {
+	public ResponseEntity<ApiResponse<Void>> sendPasswordRecoveryCode(@Valid @RequestBody RecoveryUserInfoDto recoveryUserInfoDto) {
 		authServiceUseCase.findUserAndSendRecoveryCode(recoveryUserInfoDto.name(), recoveryUserInfoDto.email(),
 			recoveryUserInfoDto.account());
 		return ApiResponse.success();
