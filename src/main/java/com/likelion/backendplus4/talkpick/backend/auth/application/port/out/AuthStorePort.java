@@ -8,7 +8,7 @@ import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
  * Redis를 이용해 리프레시 토큰 및 로그아웃 블랙리스트를 관리하는 어댑터 구현체.
  *
  * @since 2025-05-12
- * @modified 2025-05-12
+ * @modified 2025-05-20
  */
 public interface AuthStorePort {
 
