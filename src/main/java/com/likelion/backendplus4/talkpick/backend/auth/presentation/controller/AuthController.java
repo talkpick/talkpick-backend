@@ -57,69 +57,6 @@ public class AuthController {
 	}
 
 	/**
-	 * 클라이언트로부터 계정 중복 검사 요청을 받아 처리합니다.
-	 *
-	 * @param checkAccountDto 검사할 계정
-	 * @return 빈 성공 응답(ApiResponse<Void>)
-	 * @author 박찬병
-	 * @since 2025-05-18
-	 * @modified 2025-05-18
-	 */
-	@EntryExitLog
-	@PostMapping("/checkDuplicate/account")
-	public ResponseEntity<ApiResponse<Void>> checkDuplicateAccount(@Valid @RequestBody CheckAccountDto checkAccountDto) {
-		authServiceUseCase.checkDuplicateAccount(checkAccountDto.account());
-		return ApiResponse.success();
-	}
-
-	/**
-	 * 클라이언트로부터 이메일 중복 검사 요청을 받아 처리합니다.
-	 *
-	 * @param checkEmailDto 검사할 이메일
-	 * @return 빈 성공 응답(ApiResponse<Void>)
-	 * @author 박찬병
-	 * @since 2025-05-18
-	 * @modified 2025-05-18
-	 */
-	@EntryExitLog
-	@PostMapping("/checkDuplicate/email")
-	public ResponseEntity<ApiResponse<Void>> verifyEmailDuplicationAndSendCode(@Valid @RequestBody CheckEmailDto checkEmailDto) {
-		authServiceUseCase.verifyEmailDuplicationAndSendCode(checkEmailDto.email());
-		return ApiResponse.success();
-	}
-
-	/**
-	 * 클라이언트가 입력한 이메일 인증 코드를 검증합니다.
-	 *
-	 * @param confirmDto 이메일과 인증 코드가 담긴 DTO
-	 * @return 빈 성공 응답(ApiResponse<Void>)
-	 * @author 박찬병
-	 * @since 2025-05-20
-	 */
-	@EntryExitLog
-	@PostMapping("/confirm/code")
-	public ResponseEntity<ApiResponse<Void>> confirmCode(@RequestBody ConfirmCodeDto confirmDto) {
-		authServiceUseCase.confirmCode(confirmDto.email(), confirmDto.code());
-		return ApiResponse.success();
-	}
-
-	/**
-	 * 클라이언트로부터 닉네임 중복 검사 요청을 받아 처리합니다.
-	 *
-	 * @param checkNicknameDto 검사할 닉네임
-	 * @return 빈 성공 응답(ApiResponse<Void>)
-	 * @author 박찬병
-	 * @since 2025-05-18
-	 * @modified 2025-05-18
-	 */
-	@EntryExitLog
-	@PostMapping("/checkDuplicate/nickname")
-	public ResponseEntity<ApiResponse<Void>> checkDuplicateNickname(@Valid @RequestBody CheckNicknameDto checkNicknameDto) {
-		authServiceUseCase.checkDuplicateNickname(checkNicknameDto.nickName());
-		return ApiResponse.success();
-	}
-
-	/**
 	 * 로그인 요청을 처리하고 토큰을 발급합니다.
 	 *
 	 * @param signInDto 로그인 요청 정보 DTO
@@ -168,5 +105,71 @@ public class AuthController {
 		TokenResDto tokenResDto = authServiceUseCase.refreshToken(requestToken.refreshToken());
 		return ApiResponse.success(tokenResDto);
 	}
+
+	/**
+	 * 클라이언트로부터 계정 중복 검사 요청을 받아 처리합니다.
+	 *
+	 * @param checkAccountDto 검사할 계정
+	 * @return 빈 성공 응답(ApiResponse<Void>)
+	 * @author 박찬병
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
+	 */
+	@EntryExitLog
+	@PostMapping("/checkDuplicate/account")
+	public ResponseEntity<ApiResponse<Void>> checkDuplicateAccount(@Valid @RequestBody CheckAccountDto checkAccountDto) {
+		authServiceUseCase.checkDuplicateAccount(checkAccountDto.account());
+		return ApiResponse.success();
+	}
+
+	/**
+	 * 클라이언트로부터 이메일 중복 검사 요청을 받아 처리하고,
+	 * 이메일 인증을 위한 인증 코드를 보냅니다.
+	 *
+	 * @param checkEmailDto 검사할 이메일
+	 * @return 빈 성공 응답(ApiResponse<Void>)
+	 * @author 박찬병
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
+	 */
+	@EntryExitLog
+	@PostMapping("/checkDuplicate/email")
+	public ResponseEntity<ApiResponse<Void>> verifyEmailDuplicationAndSendCode(@Valid @RequestBody CheckEmailDto checkEmailDto) {
+		authServiceUseCase.verifyEmailDuplicationAndSendCode(checkEmailDto.email());
+		return ApiResponse.success();
+	}
+
+
+	/**
+	 * 클라이언트로부터 닉네임 중복 검사 요청을 받아 처리합니다.
+	 *
+	 * @param checkNicknameDto 검사할 닉네임
+	 * @return 빈 성공 응답(ApiResponse<Void>)
+	 * @author 박찬병
+	 * @since 2025-05-18
+	 * @modified 2025-05-18
+	 */
+	@EntryExitLog
+	@PostMapping("/checkDuplicate/nickname")
+	public ResponseEntity<ApiResponse<Void>> checkDuplicateNickname(@Valid @RequestBody CheckNicknameDto checkNicknameDto) {
+		authServiceUseCase.checkDuplicateNickname(checkNicknameDto.nickName());
+		return ApiResponse.success();
+	}
+
+	/**
+	 * 클라이언트가 입력한 이메일 인증 코드를 검증합니다.
+	 *
+	 * @param confirmDto 이메일과 인증 코드가 담긴 DTO
+	 * @return 빈 성공 응답(ApiResponse<Void>)
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	@EntryExitLog
+	@PostMapping("/confirm/code")
+	public ResponseEntity<ApiResponse<Void>> confirmCode(@RequestBody ConfirmCodeDto confirmDto) {
+		authServiceUseCase.confirmCode(confirmDto.email(), confirmDto.code());
+		return ApiResponse.success();
+	}
+
 
 }
