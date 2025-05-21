@@ -39,4 +39,5 @@ jobs:
     - name: Restart Docker
       run: |
         cd /deploy
+        docker-compose down backend
         docker-compose up -d --build --force-recreate backend
