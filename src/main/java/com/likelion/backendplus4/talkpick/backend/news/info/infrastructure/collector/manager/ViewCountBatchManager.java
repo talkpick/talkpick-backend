@@ -188,7 +188,7 @@ public class ViewCountBatchManager {
 	 */
 	private int[] performJdbcBatchUpdate(List<ViewCountItem> batchItems) {
 		return jdbcTemplate.batchUpdate(
-				"UPDATE article_entity SET view_count = ? WHERE guid = ?",
+				"UPDATE article SET view_count = ? WHERE guid = ?",
 				new BatchPreparedStatementSetter() {
 					@Override
 					public void setValues(PreparedStatement ps, int i) throws SQLException {
