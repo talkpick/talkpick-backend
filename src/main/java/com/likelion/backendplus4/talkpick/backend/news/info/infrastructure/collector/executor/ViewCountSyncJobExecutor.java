@@ -41,10 +41,15 @@ public class ViewCountSyncJobExecutor implements org.quartz.Job {
 
     /**
      * Spring Batch Job을 JobLauncher를 통해 실행합니다.
-     * 각 실행마다 timestamp 파라미터를 부여하여 중복 실행을 방지합니다.
-     * 예외 발생 시 NewsInfoException으로 변환하여 처리합니다.
      *
-     * @since 2025-05-20
+     * 1. 고유한 timestamp 파라미터 생성
+     * 2. jobLauncher를 통해 Job 실행
+     * 3. 예외 발생 시 도메인 예외로 변환
+     *
+     * @since 2025-05-20 최초 작성
+     * @author 양병학
+     *
+     * // FIXME: 실패 시 알림 로직 추가 필요
      */
     private void startSpringBatchJob() {
         JobParameters params = new JobParametersBuilder()

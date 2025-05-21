@@ -36,9 +36,11 @@ public class ViewCountItemConfig {
 
     /**
      * Redis에서 조회수 데이터를 읽는 Reader를 생성합니다.
+     * "news:viewCount:*" 패턴에 일치하는 모든 키를 조회합니다.
      *
      * @return 조회수 데이터 Reader
-     * @since 2025-05-20
+     * @since 2025-05-20 최초 작성
+     * @author 양병학
      */
     @Bean
     public ItemReader<ViewCountItem> viewCountReader() {

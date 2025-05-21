@@ -41,23 +41,4 @@ public interface NewsInfoJpaRepository extends JpaRepository<ArticleEntity, Long
 	 * @since 2025-05-19
 	 */
 	Slice<ArticleEntity> findByIdLessThanOrderByIdDesc(Long lastId, Pageable pageable);
-
-	/**
-	 * 여러 guid에 해당하는 ArticleEntity 목록을 조회합니다.
-	 *
-	 * @param guids guid 목록
-	 * @return 조회된 ArticleEntity 목록
-	 * @since 2025-05-21
-	 */
-	List<ArticleEntity> findAllByGuidIn(List<String> guids);
-
-	/**
-	 * 여러 guid에 해당하는 기사의 guid, 조회수만 조회합니다.
-	 *
-	 * @param guids guid 목록
-	 * @return guid와 조회수 정보만 포함한 ViewCountItem 목록
-	 * @since 2025-05-23
-	 */
-	@Query("SELECT new com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.item.ViewCountItem(a.guid, a.viewCount) FROM ArticleEntity a WHERE a.guid IN :guids")
-	List<ViewCountItem> findViewCountItemsByGuidIn(@Param("guids") List<String> guids);
 }

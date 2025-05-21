@@ -39,7 +39,14 @@ public class ViewCountDatabaseWriter implements ItemWriter<ViewCountItem> {
      * 처리된 조회수 항목들을 데이터베이스에 일괄 저장합니다.
      * Spring Batch가 호출하는 진입점 메서드입니다.
      *
+     * 1. 항목 목록 유효성 검사
+     * 2. 서비스 레이어에 업데이트 위임
+     *
      * @param items 저장할 조회수 항목 목록
+     * @since 2025-05-20 최초 작성
+     * @author 양병학
+     * @modified 2025-05-23 양병학
+     *  - 업데이트 로직을 서비스 레이어로 분리
      */
     @Override
     @Transactional
@@ -49,12 +56,17 @@ public class ViewCountDatabaseWriter implements ItemWriter<ViewCountItem> {
             return;
         }
 
-        try {
-            int updatedCount = updateService.updateViewCounts(items.getItems());
-            log.info("조회수 업데이트 완료: 총 {}개 항목", updatedCount);
-        } catch (Exception e) {
-            log.error("조회수 업데이트 실패: {}", e.getMessage());
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
-        }
+        updateViewCounts(items.getItems());
+    }
+
+    /**
+     * 조회수 항목을 업데이트 서비스에 위임하여 처리합니다.
+     * 예외 발생 시 로깅 처리 후 다시 던집니다.
+     *
+     * @param items 처리할 조회수 항목 목록
+     */
+    private void updateViewCounts(List<? extends ViewCountItem> items) {
+        int updatedCount = updateService.updateViewCounts(items);
+        log.info("조회수 업데이트 완료: 총 {}개 항목", updatedCount);
     }
 }

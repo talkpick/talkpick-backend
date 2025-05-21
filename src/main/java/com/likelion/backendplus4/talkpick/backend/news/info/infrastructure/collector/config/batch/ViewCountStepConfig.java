@@ -1,5 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.config.batch;
 
+import com.likelion.backendplus4.talkpick.backend.news.info.exception.ViewCountInvalidFormatException;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -55,10 +56,19 @@ public class ViewCountStepConfig {
 
     /**
      * 조회수 동기화를 위한 청크 기반 Step을 생성합니다.
-     * Redis의 조회수 데이터를 읽고, 처리하고, DB에 저장합니다.
+     *
+     * 1. Redis의 조회수 데이터를 읽고
+     * 2. 처리하고
+     * 3. DB에 저장
+     *
+     * 최대 재시도 횟수: 3회
+     * 최대 건너뛰기 횟수: 1000건
      *
      * @return 조회수 동기화 Step
-     * @since 2025-05-20
+     * @since 2025-05-20 최초 작성
+     * @author 양병학
+     * @modified 2025-05-21 양병학
+     *  - ViewCountInvalidFormatException 예외 처리 추가
      */
     @Bean
     public Step viewCountSyncStep() {
@@ -72,6 +82,7 @@ public class ViewCountStepConfig {
                 .retryLimit(retryLimit)
                 .skip(NewsInfoException.class)
                 .skipLimit(skipLimit)
+                .noSkip(ViewCountInvalidFormatException.class)
                 .build();
     }
 
