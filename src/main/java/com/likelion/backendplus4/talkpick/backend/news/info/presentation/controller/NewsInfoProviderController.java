@@ -15,8 +15,10 @@ import com.likelion.backendplus4.talkpick.backend.common.response.SliceResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoProviderUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfo;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.adapter.dto.SliceResult;
+import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.NewsInfoRequest;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.mapper.NewsInfoResponseMapper;
 
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -27,10 +29,9 @@ public class NewsInfoProviderController {
 
 	@GetMapping("/latest")
 	public ResponseEntity<ApiResponse<SliceResponse>> getLatestNewsInfo(
-		@RequestParam(defaultValue = "-1") Long last,
-		@RequestParam int size) {
+		NewsInfoRequest newsInfoRequest) {
 		SliceResult<NewsInfo> latestNewsInfos =
-			newsInfoProviderUsecase.getLatestNewsInfo(last, size);
+			newsInfoProviderUsecase.getLatestNewsInfo(newsInfoRequest.page()-1, newsInfoRequest.size());
 
 		return success(NewsInfoResponseMapper.toSliceResponse(latestNewsInfos));
 	}

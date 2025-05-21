@@ -5,5 +5,5 @@ import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInf
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.adapter.dto.SliceResult;
 
 public interface NewsInfoProviderUseCase {
-	SliceResult<NewsInfo> getLatestNewsInfo(Long lastIndex, int pageSize);
+	SliceResult<NewsInfo> getLatestNewsInfo(int page, int pageSize);
 }
