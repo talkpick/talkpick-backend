@@ -18,7 +18,6 @@ public class RabbitMessageListener {
 
 	/**
 	 * RabbitMQ 큐로부터 메시지를 수신하여 브로드캐스트합니다.
-	 * 그 후
 	 *
 	 * @param message RabbitListener가 수신한 ChatMessage
 	 * @author 이해창
