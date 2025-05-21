@@ -1,8 +1,8 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.presentation.validator;
 
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.config.NewsViewCountProperties;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
