@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.service;
+package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.manager;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -31,7 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ViewCountUpdateService {
+public class ViewCountBatchManager {
 
 	private final NewsInfoJpaRepository repository;
 	private final JdbcTemplate jdbcTemplate;
