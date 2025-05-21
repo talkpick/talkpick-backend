@@ -1,8 +1,12 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.item;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.config.NewsViewCountProperties;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.ViewCountInvalidFormatException;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -27,16 +31,35 @@ public class ViewCountRedisReader implements ItemReader<ViewCountItem> {
     private final RedisTemplate<String, String> redisTemplate;
     private final String keyPattern;
     private Iterator<String> keyIterator;
+    private final Pattern validNewsIdPattern;
+    private final Set<String> validPrefixes;
 
     /**
      * Redis 템플릿과 키 패턴을 받아 Reader를 초기화합니다.
      *
      * @param redisTemplate Redis 작업을 위한 템플릿
      * @param keyPattern 가져올 키 패턴 (예: "news:viewCount:*")
+     * @param properties 뉴스 조회수 설정 프로퍼티
      */
-    public ViewCountRedisReader(RedisTemplate<String, String> redisTemplate, String keyPattern) {
+    public ViewCountRedisReader(
+            RedisTemplate<String, String> redisTemplate,
+            String keyPattern,
+            NewsViewCountProperties properties) {
         this.redisTemplate = redisTemplate;
         this.keyPattern = keyPattern;
+
+        // 유효한 접두사 설정
+        this.validPrefixes = new HashSet<>(Arrays.asList(properties.getValidPrefixes().split(",")));
+
+        // 유효한 접두사를 사용한 정규식 패턴 생성
+        StringBuilder patternBuilder = new StringBuilder("^(");
+        patternBuilder.append(String.join("|", validPrefixes));
+        patternBuilder.append(")\\d+$");
+
+        this.validNewsIdPattern = Pattern.compile(patternBuilder.toString());
+
+        log.info("뉴스 ID 유효성 검사 패턴 초기화: {}", patternBuilder);
+        log.info("유효한 뉴스 ID 접두사: {}", validPrefixes);
     }
 
     /**
@@ -92,6 +115,13 @@ public class ViewCountRedisReader implements ItemReader<ViewCountItem> {
     private ViewCountItem getViewCountItemFromKey(String key) {
         try {
             String newsId = extractNewsIdFromKey(key);
+
+            // 유효한 뉴스 ID 패턴인지 확인
+            if (!isValidNewsId(newsId)) {
+                log.warn("유효하지 않은 뉴스 ID 형식이 감지되었습니다. 이 항목은 처리되지 않습니다: {}", newsId);
+                return null;
+            }
+
             String countValue = fetchValueFromRedis(key);
 
             if (countValue == null) {
@@ -107,6 +137,18 @@ public class ViewCountRedisReader implements ItemReader<ViewCountItem> {
             log.error("Redis 값 처리 중 오류 발생: {}", e.getMessage());
             throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_SYNC_FAILED, e);
         }
+    }
+
+    /**
+     * 뉴스 ID가 유효한 패턴인지 확인합니다.
+     * 설정된 접두사로 시작하는 숫자 형식만 유효합니다.
+     *
+     * @param newsId 확인할 뉴스 ID
+     * @return 유효하면 true, 아니면 false
+     */
+    private boolean isValidNewsId(String newsId) {
+        // 정규식 패턴을 사용한 검증
+        return validNewsIdPattern.matcher(newsId).matches();
     }
 
     /**

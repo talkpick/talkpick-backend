@@ -1,5 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.config.batch;
 
+import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.config.NewsViewCountProperties;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
@@ -11,7 +12,7 @@ import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.colle
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.item.ViewCountRedisReader;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.item.ViewCountProcessor;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.item.ViewCountDatabaseWriter;
-import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.service.ViewCountUpdateService;
+import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.manager.ViewCountBatchManager;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.tasklet.OldDataCleanupTasklet;
 
 /**
@@ -25,13 +26,16 @@ import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.colle
 public class ViewCountItemConfig {
 
     private final RedisTemplate<String, String> redisTemplate;
-    private final ViewCountUpdateService viewCountUpdateService;
+    private final ViewCountBatchManager viewCountBatchManager;
+    private final NewsViewCountProperties newsViewCountProperties;
 
     public ViewCountItemConfig(
         RedisTemplate<String, String> redisTemplate,
-        ViewCountUpdateService viewCountUpdateService) {
+        ViewCountBatchManager viewCountBatchManager,
+        NewsViewCountProperties newsViewCountProperties) {
         this.redisTemplate = redisTemplate;
-        this.viewCountUpdateService = viewCountUpdateService;
+        this.viewCountBatchManager = viewCountBatchManager;
+        this.newsViewCountProperties = newsViewCountProperties;
     }
 
     /**
@@ -44,7 +48,7 @@ public class ViewCountItemConfig {
      */
     @Bean
     public ItemReader<ViewCountItem> viewCountReader() {
-        return new ViewCountRedisReader(redisTemplate, "news:viewCount:*");
+        return new ViewCountRedisReader(redisTemplate, "news:viewCount:*", newsViewCountProperties);
     }
 
     /**
@@ -66,7 +70,7 @@ public class ViewCountItemConfig {
      */
     @Bean
     public ItemWriter<ViewCountItem> viewCountWriter() {
-        return new ViewCountDatabaseWriter(viewCountUpdateService);
+        return new ViewCountDatabaseWriter(viewCountBatchManager);
     }
 
     /**

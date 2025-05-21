@@ -1,16 +1,12 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.item;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoException;
-import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
-import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.service.ViewCountUpdateService;
+import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.collector.manager.ViewCountBatchManager;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,14 +20,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ViewCountDatabaseWriter implements ItemWriter<ViewCountItem> {
 
-    private final ViewCountUpdateService updateService;
+    private final ViewCountBatchManager updateService;
 
     /**
      * 업데이트 서비스를 받아 Writer를 초기화합니다.
      *
      * @param updateService 조회수 업데이트 서비스
      */
-    public ViewCountDatabaseWriter(ViewCountUpdateService updateService) {
+    public ViewCountDatabaseWriter(ViewCountBatchManager updateService) {
         this.updateService = updateService;
     }
 
