@@ -1,5 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.support.mapper;
 
+import java.time.LocalDateTime;
+
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.ChatMessage;
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.MessageType;
 import com.likelion.backendplus4.talkpick.backend.chat.exception.ChatException;
@@ -19,7 +21,7 @@ public class ChatMessageRequestMapper {
                 request.getArticleId(),
                 request.getSender(),
                 request.getContent(),
-                request.getTimestamp(),
+                LocalDateTime.now(),
                 stringToMessageType(request.getMessageType())
         );
     }
