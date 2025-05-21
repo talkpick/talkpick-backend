@@ -2,6 +2,7 @@ package com.likelion.backendplus4.talkpick.backend.news.info.presentation.contro
 
 import static com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse.*;
 
+import com.likelion.backendplus4.talkpick.backend.news.info.presentation.validator.NewsIdConstraint;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,7 +39,8 @@ public class NewsInfoDetailProviderController {
 	 * @author 양병학
 	 */
 	@GetMapping("/{id}")
-	public ResponseEntity<ApiResponse<NewsInfoDetailResponse>> getNewsInfoDetailsByArticleId(@PathVariable String id
+	public ResponseEntity<ApiResponse<NewsInfoDetailResponse>> getNewsInfoDetailsByArticleId(
+			@PathVariable @NewsIdConstraint String id
 		, HttpServletRequest request) {
 
 		String ipAddress = request.getRemoteAddr();

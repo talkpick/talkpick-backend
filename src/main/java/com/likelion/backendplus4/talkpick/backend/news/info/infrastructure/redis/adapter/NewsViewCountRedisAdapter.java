@@ -5,7 +5,6 @@ import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoEx
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.application.port.out.NewsViewCountPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.repository.NewsInfoJpaRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +13,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Component
-@RequiredArgsConstructor
 public class NewsViewCountRedisAdapter implements NewsViewCountPort {
 
     private static final String VIEW_COUNT_KEY_PREFIX = "news:viewCount:";
@@ -25,46 +23,89 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
     private final RedisTemplate<String, String> redisTemplate;
     private final NewsInfoJpaRepository newsInfoJpaRepository;
 
+    public NewsViewCountRedisAdapter(RedisTemplate<String, String> redisTemplate,
+                                     NewsInfoJpaRepository newsInfoJpaRepository) {
+        this.redisTemplate = redisTemplate;
+        this.newsInfoJpaRepository = newsInfoJpaRepository;
+    }
+
     /**
      * 뉴스 조회수를 증가시키는 메서드입니다.
      *
-     * @param newsId 조회수를 증가시킬 뉴스의 ID
+     * @param newsId    조회수를 증가시킬 뉴스의 ID
+     * @param ipAddress 사용자의 IP 주소
      * @return 증가된 후의 조회수 값
-     * @throws NewsInfoException Redis 작업 실패 시
      */
     @Override
     public Long increaseViewCount(String newsId, String ipAddress) {
+        Long newCount = processViewCountIncrement(newsId);
+        recordViewHistory(newsId, ipAddress);
+        return newCount;
+    }
+
+    /**
+     * 사용자의 뉴스 조회 이력을 저장합니다.
+     *
+     * @param newsId    뉴스 ID
+     * @param ipAddress 사용자 IP 주소
+     * @return 저장 성공 여부
+     */
+    @Override
+    public boolean saveViewHistory(String newsId, String ipAddress) {
+        return recordViewHistory(newsId, ipAddress);
+    }
+
+    /**
+     * 사용자가 특정 뉴스를 이미 조회했는지 확인합니다.
+     *
+     * @param newsId    뉴스 ID
+     * @param ipAddress 사용자 IP 주소
+     * @return 조회 이력 존재 여부
+     */
+    @Override
+    public boolean hasViewHistory(String newsId, String ipAddress) {
+        return checkViewHistory(newsId, ipAddress);
+    }
+
+    /**
+     * 특정 뉴스의 현재 조회수를 조회합니다.
+     *
+     * @param newsId 조회할 뉴스의 ID
+     * @return 현재 조회수
+     */
+    @Override
+    public Long getCurrentViewCount(String newsId) {
+        return retrieveCurrentViewCount(newsId);
+    }
+
+    /**
+     * 조회수 증가 처리를 수행합니다.
+     *
+     * @param newsId 뉴스 ID
+     * @return 증가된 조회수
+     * @throws NewsInfoException 처리 실패 시
+     */
+    private Long processViewCountIncrement(String newsId) {
         try {
             String key = createViewCountKey(newsId);
             String currentCount = redisTemplate.opsForValue().get(key);
 
-            Long newCount = currentCount == null
+            return currentCount == null
                     ? handleColdData(key, newsId)
                     : handleHotData(key, newsId);
-
-            saveViewHistory(newsId, ipAddress);
-
-            return newCount;
         } catch (Exception e) {
             throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
         }
     }
 
     /**
-     * Redis에 뉴스 조회수 정보가 없을 때 초기화하는 메서드입니다.
-     *
-     * @param key    Redis에 저장할 키 값
-     * @param newsId 뉴스 ID
-     * @return 증가된 후의 조회수 값
-     * @throws NewsInfoException DB 조회 또는 Redis 저장 실패 시
+     * Redis에 뉴스 조회수 정보가 없을 때 초기화합니다.
      */
     private Long handleColdData(String key, String newsId) {
         try {
             Long dbCount = getViewCountFromDb(newsId);
             Long newCount = dbCount + 1;
-
             saveViewCountToRedis(key, newCount);
-
             return newCount;
         } catch (Exception e) {
             throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
@@ -72,12 +113,7 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
     }
 
     /**
-     * Redis에서 조회수 직접 증가
-     *
-     * @param key    Redis에 저장된 키 값
-     * @param newsId 뉴스 ID (미사용 파라미터이지만 일관성을 위해 유지)
-     * @return 증가된 후의 조회수 값
-     * @throws NewsInfoException Redis 증가 작업 실패 시
+     * Redis에서 조회수를 직접 증가시킵니다.
      */
     private Long handleHotData(String key, String newsId) {
         try {
@@ -87,20 +123,21 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
         }
     }
 
+    // ===== 조회 이력 관련 =====
+
     /**
-     * 사용자의 뉴스 조회 이력을 저장합니다.
+     * 조회 이력을 기록합니다.
      *
      * @param newsId    뉴스 ID
      * @param ipAddress 사용자 IP 주소
-     * @return 저장 성공 여부
-     * @throws NewsInfoException Redis 저장 실패 시
+     * @return 기록 성공 여부
+     * @throws NewsInfoException 처리 실패 시
      */
-    @Override
-    public boolean saveViewHistory(String newsId, String ipAddress) {
+    private boolean recordViewHistory(String newsId, String ipAddress) {
         try {
             String key = createViewHistoryKey(newsId, ipAddress);
             redisTemplate.opsForValue().set(key, "1");
-            redisTemplate.expire(key, VIEW_HISTORY_EXPIRE_MINUTES, TimeUnit.DAYS);
+            redisTemplate.expire(key, VIEW_HISTORY_EXPIRE_MINUTES, TimeUnit.MINUTES);
             return true;
         } catch (Exception e) {
             throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
@@ -108,15 +145,14 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
     }
 
     /**
-     * 사용자가 특정 뉴스를 이미 조회했는지 확인합니다.
+     * 조회 이력이 존재하는지 확인합니다.
      *
      * @param newsId    뉴스 ID
      * @param ipAddress 사용자 IP 주소
      * @return 조회 이력 존재 여부
-     * @throws NewsInfoException Redis 조회 실패 시
+     * @throws NewsInfoException 처리 실패 시
      */
-    @Override
-    public boolean hasViewHistory(String newsId, String ipAddress) {
+    private boolean checkViewHistory(String newsId, String ipAddress) {
         try {
             String key = createViewHistoryKey(newsId, ipAddress);
             return Boolean.TRUE.equals(redisTemplate.hasKey(key));
@@ -126,14 +162,13 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
     }
 
     /**
-     * 특정 뉴스의 현재 조회수를 조회합니다.
+     * 현재 조회수를 조회합니다.
      *
-     * @param newsId 조회할 뉴스의 ID
+     * @param newsId 뉴스 ID
      * @return 현재 조회수
-     * @throws NewsInfoException 조회 실패 시
+     * @throws NewsInfoException 처리 실패 시
      */
-    @Override
-    public Long getCurrentViewCount(String newsId) {
+    private Long retrieveCurrentViewCount(String newsId) {
         try {
             return getViewCountFromRedis(newsId)
                     .orElseGet(() -> getViewCountFromDb(newsId));
@@ -146,10 +181,6 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
 
     /**
      * Redis에서 뉴스의 현재 조회수를 조회합니다.
-     *
-     * @param newsId 뉴스 ID
-     * @return 조회수를 담은 Optional (Redis에 없거나 파싱 오류 시 빈 Optional)
-     * @throws NewsInfoException Redis 조회 실패 시
      */
     private Optional<Long> getViewCountFromRedis(String newsId) {
         try {
@@ -167,10 +198,6 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
 
     /**
      * 조회수 문자열을 Long 타입으로 파싱합니다.
-     *
-     * @param countValue 파싱할 문자열
-     * @return 파싱된 조회수
-     * @throws NewsInfoException 파싱 실패 시
      */
     private Long parseViewCount(String countValue) {
         try {
@@ -182,12 +209,7 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
 
     /**
      * DB에서 뉴스의 현재 조회수를 조회합니다.
-     *
-     * @param newsId 뉴스 ID (GUID)
-     * @return 현재 조회수 (없을 경우 0)
-     * @throws NewsInfoException DB 조회 실패 시
      */
-    @EntryExitLog
     private Long getViewCountFromDb(String newsId) {
         try {
             return newsInfoJpaRepository.findByGuid(newsId)
@@ -202,10 +224,6 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
 
     /**
      * Redis에 조회수를 저장하고 만료 시간을 설정합니다.
-     *
-     * @param key   Redis 키
-     * @param count 저장할 조회수
-     * @throws NewsInfoException Redis 저장 실패 시
      */
     private void saveViewCountToRedis(String key, Long count) {
         try {
@@ -218,9 +236,6 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
 
     /**
      * 뉴스 ID로 Redis 조회수 키를 생성합니다.
-     *
-     * @param newsId 뉴스 ID
-     * @return Redis 키
      */
     private String createViewCountKey(String newsId) {
         return VIEW_COUNT_KEY_PREFIX + newsId;
@@ -228,10 +243,6 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
 
     /**
      * 뉴스 ID와 IP 주소로 조회 이력 키를 생성합니다.
-     *
-     * @param newsId    뉴스 ID
-     * @param ipAddress 사용자 IP 주소
-     * @return Redis 키
      */
     private String createViewHistoryKey(String newsId, String ipAddress) {
         return VIEW_HISTORY_KEY_PREFIX + newsId + ":" + ipAddress;
