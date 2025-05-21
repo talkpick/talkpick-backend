@@ -3,7 +3,6 @@ package com.likelion.backendplus4.talkpick.backend.chat.infrastructure.adapter.i
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
-import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatMessageCachePort;
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatSocketSenderPort;
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.ChatMessage;
 
@@ -14,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 public class RabbitMessageListener {
 
 	private final ChatSocketSenderPort socketSenderPort;
-	private final ChatMessageCachePort cachePort;
 
 	/**
 	 * RabbitMQ 큐로부터 메시지를 수신하여 브로드캐스트합니다.
@@ -28,7 +26,6 @@ public class RabbitMessageListener {
 	@RabbitListener(queues = "chat.queue.default")
 	public void receiveMessage(ChatMessage message) {
 		socketSenderPort.sendToWebSocket(message.getArticleId(), message);
-		cachePort.cache(message);
 	}
 
 }
