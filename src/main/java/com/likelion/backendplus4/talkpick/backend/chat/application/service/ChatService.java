@@ -5,6 +5,7 @@ import java.util.List;
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.in.ChatUseCase;
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatMessageBrokerPort;
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatMessageCachePort;
+import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatMessageStreamPort;
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.ChatMessage;
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.MessageType;
 import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.dto.response.ChatMessageResponse;
@@ -23,6 +24,7 @@ public class ChatService implements ChatUseCase {
 
     private final ChatMessageBrokerPort brokerPort;
     private final ChatMessageCachePort cachePort;
+    private final ChatMessageStreamPort streamPort;
 
     @Override
     public SliceResponse<ChatMessageResponse> getChatMessage(String articleId) {
@@ -34,7 +36,9 @@ public class ChatService implements ChatUseCase {
 
     /**
      * 사용자가 채팅 메시지를 보낼 때 호출됩니다.
-     * - 메시지 타입이 CHAT 인 경우 Redis에 저장
+     * - 메시지 타입이 CHAT 인 경우
+     *   - Redis 캐시에 저장
+     *   - Redis 스트림에 저장
      * - RabbitMQ에 발행
      * @param message 채팅 메시지
      * @author 박찬병
@@ -44,6 +48,7 @@ public class ChatService implements ChatUseCase {
     public void sendMessage(ChatMessage message) {
         if (message.getMessageType() == MessageType.CHAT) {
             cachePort.cache(message);
+            streamPort.cacheToStream(message);
         }
         brokerPort.publishMessage(message);
     }
