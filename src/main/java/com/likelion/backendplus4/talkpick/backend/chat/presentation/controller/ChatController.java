@@ -1,7 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.chat.presentation.controller;
 
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.in.ChatUseCase;
-import com.likelion.backendplus4.talkpick.backend.chat.application.port.in.mapper.ChatMessageRequestMapper;
+import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.support.mapper.ChatMessageRequestMapper;
 import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.dto.request.ChatMessageRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
