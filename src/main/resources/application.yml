@@ -1,0 +1,78 @@
+server:
+  port: ${BACKEND_WEB_PORT:8078}
+  error:
+    whitelabel:
+      enabled: false
+
+spring:
+  elasticsearch:
+    uris: ${ELS_URI}
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      embedding-model: text-embedding-3-small
+  application:
+    name: talkpick-backend
+  datasource:
+    url: ${MYSQL_URL}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+  web:
+    resources:
+      add-mappings: false
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+
+  quartz:
+    view-count-sync:
+      cron: "0 0 0 * * ?"
+
+  rabbitmq:
+    username: ${RABBIT_MQ_USERNAME:admin}
+    password: ${RABBIT_MQ_PASSWORD:abcde12#}
+    host: ${RABBIT_MQ_HOST:localhost}
+    port: ${RABBIT_MQ_PORT:5672}
+    stomp-port: ${RABBIT_MQ_STOMP_PORT:61613}
+
+
+host:
+  name: ${HOST_NAME:http://localhost:3000}
+
+#p6spy
+decorator:
+  datasource:
+    p6spy:
+      enable-logging: true
+
+log:
+  rolling:
+    directory: logs
+    file-name: talkpick-batch.log
+    pattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [TraceId: %X{traceId:-no-trace}] - %msg%n"
+    max-history: 30
+    total-size-cap: 10MB
+
+jwt:
+  secret: ${JWT_SECRET}
+
+validator:
+  pattern:
+    email: '^\S+@(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,6}$'
+    name: '^[A-Za-z가-힣]+$'
+    nickname: '^[A-Za-z가-힣]+$'
+    password: '^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,16}$'
+news:
+  index:
+    name: news_index

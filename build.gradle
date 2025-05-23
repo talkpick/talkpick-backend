@@ -23,26 +23,50 @@ repositories {
     mavenCentral()
 }
 
-ext {
-    set('springAiVersion', "1.0.0-M8")
-}
-
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
     compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
 
-dependencyManagement {
-    imports {
-        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
-    }
+    //RDB
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // OpenAi
+    implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter:1.0.0-M5'
+
+    //P6spy
+    implementation "com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0"
+
+    //JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    //Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    //Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    //Valid
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    //Spring-batch
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+    testImplementation 'org.springframework.batch:spring-batch-test'
+    implementation 'org.springframework.boot:spring-boot-starter-quartz'
+
+    //rabbitmq (amqp: (Advanced Message Queuing Protocol))
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    //WebSocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework.boot:spring-boot-starter-reactor-netty'
+
 }
 
 tasks.named('test') {
