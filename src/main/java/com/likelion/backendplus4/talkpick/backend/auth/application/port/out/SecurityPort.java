@@ -70,4 +70,16 @@ public interface SecurityPort {
 	 */
 	TokenInfo parseTokenInfo(String accessToken);
 
+	/**
+	 * 이메일을 기반으로 임시 토큰을 발급합니다.
+	 *
+	 * 비밀번호 재설정 등의 절차에서 인증이 완료된 사용자에게
+	 * 임시로 사용할 수 있는 토큰을 발급할 때 사용됩니다.
+	 *
+	 * @param email 인증이 완료된 사용자 이메일
+	 * @return tempToken 발급된 임시 토큰
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	String issueTempToken(String email);
 }

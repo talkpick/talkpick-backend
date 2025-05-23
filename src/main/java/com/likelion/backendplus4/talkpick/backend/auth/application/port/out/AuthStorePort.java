@@ -1,14 +1,16 @@
 package com.likelion.backendplus4.talkpick.backend.auth.application.port.out;
 
+import java.util.Optional;
+
 import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 
 /**
  * Redis를 이용해 리프레시 토큰 및 로그아웃 블랙리스트를 관리하는 어댑터 구현체.
  *
  * @since 2025-05-12
- * @modified 2025-05-12
+ * @modified 2025-05-20
  */
-public interface AuthTokenStorePort {
+public interface AuthStorePort {
 
     /**
      * RefreshToken 과 사용자 권한 정보를 저장합니다.
@@ -90,6 +92,59 @@ public interface AuthTokenStorePort {
      */
     String getAuthorities(String userId);
 
+    /**
+     * 이메일 인증 코드를 Redis에 저장합니다.
+     *
+     * @param email 인증 코드를 저장할 이메일 주소
+     * @param emailAuthCode 저장할 인증 코드
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+	void saveEmailAuthData(String email, String emailAuthCode, String account);
 
 
+    /**
+     * 이메일 인증 코드를 검증합니다.
+     *
+     * Redis에서 저장된 인증 코드가 존재하는지 확인하고,
+     * 사용자가 입력한 코드와 일치하는지 검증합니다.
+     * 검증에 성공하면 해당 인증 코드를 Redis에서 삭제합니다.
+     *
+     * @param email 인증할 이메일 주소
+     * @param code 사용자가 입력한 인증 코드
+     * @throws AuthException 인증 실패 시 예외 발생
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    Optional<String> verifyCode(String email, String code);
+
+    /**
+     * 임시 토큰의 유효성을 검사합니다.
+     *
+     * @param tempToken 클라이언트가 제출한 임시 토큰
+     * @throws AuthException 토큰이 없거나 만료된 경우 발생
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    void saveTempToken(String tempToken);
+
+    /**
+     * 임시 토큰 삭제 처리를 합니다.
+     *
+     * @param tempToken 임시 토큰
+     * @throws AuthException 토큰이 없거나 만료된 경우 발생
+     * @author 박찬병
+     * @since 2025-05-23
+     */
+    void deleteTempToken(String tempToken);
+
+    /**
+     * 임시 토큰의 유효성을 검사하고, 검증 후 Redis에서 삭제합니다.
+     *
+     * @param tempToken 클라이언트가 제출한 임시 토큰
+     * @throws AuthException 토큰이 없거나 만료된 경우 발생
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    void verifyTempToken(String tempToken);
 }

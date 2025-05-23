@@ -1,12 +1,13 @@
 package com.likelion.backendplus4.talkpick.backend.auth.application.port.in;
 
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
+import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.res.TokenResDto;
 
 /**
  * 인증 관련 비즈니스 로직을 수행하는 유스케이스
  * @since 2025-05-12
- * @modified 2025-05-12
+ * @modified 2025-05-20
  */
 public interface AuthServiceUseCase {
 
@@ -42,7 +43,7 @@ public interface AuthServiceUseCase {
 	 * @since 2025-05-18
 	 * @modified 2025-05-18
 	 */
-	void checkDuplicateEmail(String email);
+	void checkEmailDuplicationAndSendCode(String email);
 
 	/**
 	 * 닉네임의 중복 검사를 수행합니다.
@@ -92,4 +93,76 @@ public interface AuthServiceUseCase {
 	 */
 	void logout(String accessToken);
 
+	/**
+	 * 이메일 인증 코드를 검증합니다.
+	 *
+	 * @param email 인증할 이메일 주소
+	 * @param code 사용자가 입력한 인증 코드
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	void verifyEmailCode(String email,String code);
+
+	/**
+	 * 사용자의 이름과 이메일을 기반으로 계정을 조회한 후,
+	 * 복구용 인증 코드를 이메일로 발송하고, 인증 코드와 계정을 함께 저장합니다.
+	 *
+	 * @param name 사용자의 이름
+	 * @param email 계정 복구를 요청한 이메일 주소
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	void storeAccountAndSendRecoveryCode(String name, String email);
+
+	/**
+	 * 이메일과 인증 코드를 검증하여 계정을 복구합니다.
+	 *
+	 * @param email 인증할 이메일 주소
+	 * @param code 사용자에게 발송된 인증 코드
+	 * @return 복구된 계정 아이디
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	String recoveryAccount(String email, String code);
+
+	/**
+	 * 사용자 존재 여부를 확인하고 계정 복구를 위한 이메일 인증 코드를 전송합니다.
+	 *
+	 * 인증 코드는 Redis에 저장되며, 사용자 입력과의 검증에 사용됩니다.
+	 *
+	 * @param name 사용자 이름
+	 * @param email 사용자 이메일
+	 * @param account 사용자 계정 ID
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	void findUserAndSendRecoveryCode(String name, String email, String account);
+
+	/**
+	 * 이메일 인증 코드를 검증한 후, 임시 토큰을 발급하여 반환합니다.
+	 *
+	 * 인증에 성공하면, 해당 이메일을 기반으로 임시 토큰을 생성하고 Redis에 저장합니다.
+	 * 이 토큰은 이후 비밀번호 재설정 시 사용됩니다.
+	 *
+	 * @param email 인증할 이메일 주소
+	 * @param code 사용자에게 발송된 인증 코드
+	 * @return tempToken 임시 비밀번호 재설정에 사용할 임시 토큰
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	String verifyEmailCodeAndGenerateTempToken(String email, String code);
+
+	/**
+	 * 임시 토큰 검증 후, 새 비밀번호로 사용자 비밀번호를 재설정합니다.
+	 *
+	 * 인증 코드가 올바를 경우 비밀번호를 인코딩하여 업데이트합니다.
+	 *
+	 * @param email 사용자 이메일
+	 * @param tempToken 임시토큰
+	 * @param newPassword 새 비밀번호 (인코딩 전)
+	 * @throws AuthException 인증 코드가 잘못되었을 경우
+	 * @author 박찬병
+	 * @since 2025-05-20
+	 */
+	void recoveryPassword(String email, String tempToken, String newPassword);
 }

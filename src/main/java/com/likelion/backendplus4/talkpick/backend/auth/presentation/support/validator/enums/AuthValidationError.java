@@ -29,13 +29,17 @@ public enum AuthValidationError {
 	EMAIL_WHITESPACE("email", "email.whitespace", "이메일에 공백은 허용되지 않습니다."),
 	EMAIL_PATTERN("email", "email.pattern", "올바른 이메일 형식이 아닙니다."),
 
+	CODE_EMPTY("code", "code.empty", "인증 코드는 필수입니다."),
+	CODE_INVALID_FORMAT("code", "code.invalid.format", "인증 코드는 숫자 6자리여야 합니다."),
+
 	GENDER_EMPTY("gender", "gender.empty", "성별은 필수입니다."),
 
 	BIRTHDAY_EMPTY("birthDay", "birthDay.empty", "생년월일은 필수입니다."),
 	BIRTHDAY_FUTURE("birthDay", "birthDay.future", "생년월일은 현재 날짜 이전이어야 합니다."),
 
 	ACCESS_TOKEN_EMPTY("accessToken", "accessToken.empty", "accessToken은 필수입니다."),
-	REFRESH_TOKEN_EMPTY("refreshToken", "refreshToken.empty", "refreshToken은 필수합니다.");
+	REFRESH_TOKEN_EMPTY("refreshToken", "refreshToken.empty", "refreshToken은 필수합니다."),
+	TEMP_TOKEN_EMPTY("tempToken", "tempToken.empty", "tempToken은 필수입니다.");
 
 
 	private final String field;

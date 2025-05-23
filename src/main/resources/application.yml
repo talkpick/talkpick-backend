@@ -34,6 +34,17 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    username: talkpick.verify@gmail.com
+    password: ${MAIL_APP_KEY}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl.enable: true
+          starttls.enable: false
 
   quartz:
     view-count-sync:
@@ -76,3 +87,15 @@ validator:
 news:
   index:
     name: news_index
+
+auth:
+  redis:
+    refresh-token-key: refreshToken
+    blacklist-indicator: blacklisted
+    authorities-key: authorities
+    email-prefix: "mail:"
+    verify-email-code-ttl: PT5M
+    refresh-token-expiration-days: 7
+    field:
+      email-auth-code: emailAuthCode
+      account: account

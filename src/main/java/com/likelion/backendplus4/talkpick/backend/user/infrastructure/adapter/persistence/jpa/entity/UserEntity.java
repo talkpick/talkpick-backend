@@ -81,4 +81,17 @@ public class UserEntity extends BaseSoftDeleteEntity {
         this.nickName = user.getNickName();
         this.email = user.getEmail();
     }
+
+    /**
+     * 사용자 비밀번호를 업데이트합니다.
+     *
+     * 인코딩된 비밀번호를 현재 사용자 엔터티에 반영합니다.
+     *
+     * @param encodePassword 인코딩된 새 비밀번호
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    public void updatePassword(String encodePassword) {
+        this.password = encodePassword;
+    }
 }

@@ -11,11 +11,16 @@ public enum AuthErrorCode implements ErrorCode {
     AUTHORIZATION_FAILED(HttpStatus.FORBIDDEN, 220002, "권한이 없습니다."),
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, 220003, "유효한 액세스 토큰이 필요합니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, 220004, "유효하지 않은 리프레시 토큰입니다."),
-    AUTHENTICATION_REQUIRED(HttpStatus.UNAUTHORIZED, 220005, "사용자 인증 정보가 필요합니다."),
-    INVALID_USER_ID_FORMAT(HttpStatus.BAD_REQUEST,    220006, "ID 값이 Long으로 변환할 수 없습니다."),
+    INVALID_TEMP_TOKEN(HttpStatus.UNAUTHORIZED, 220005, "유효하지 않은 임시 토큰입니다."),
+    AUTHENTICATION_REQUIRED(HttpStatus.UNAUTHORIZED, 220006, "사용자 인증 정보가 필요합니다."),
+    INVALID_USER_ID_FORMAT(HttpStatus.BAD_REQUEST,    220007, "ID 값이 Long으로 변환할 수 없습니다."),
+
+    VERIFY_CODE_NOT_FOUND(HttpStatus.BAD_REQUEST, 220008, "인증 코드가 존재하지 않거나 만료되었습니다."),
+    VERIFY_CODE_MISMATCH(HttpStatus.BAD_REQUEST, 22009, "인증 코드가 일치하지 않습니다."),
+    ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, 2200010, "계정 정보가 비어있습니다."),
 
     REDIS_STORE_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, 430001, "Redis에 리프레시 토큰 저장에 실패했습니다."),
-    REDIS_RETRIEVE_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, 430002, "Redis에서 리프레시 토큰 조회에 실패했습니다."),
+    REDIS_RETRIEVE_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, 430002, "Redis에서 토큰 조회에 실패했습니다."),
     REDIS_BLACKLIST_CHECK_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, 430003, "Redis에서 블랙리스트 토큰 조회에 실패했습니다."),
     REDIS_LOGOUT_PROCESS_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, 430004, "Redis 로그아웃 처리에 실패했습니다."),
     REDIS_AUTHORITIES_RETRIEVE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, 430005, "Redis에서 권한 정보 조회에 실패했습니다.");
