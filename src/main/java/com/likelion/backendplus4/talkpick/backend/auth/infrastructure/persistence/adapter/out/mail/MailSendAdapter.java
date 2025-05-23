@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.MailSendPort;
 
-import lombok.RequiredArgsConstructor;
 
 /**
  * Spring의 JavaMailSender를 사용하여 인증 코드를 이메일로 전송하는 어댑터입니다.
@@ -16,13 +15,16 @@ import lombok.RequiredArgsConstructor;
  * @since 2025-05-20
  */
 @Component
-@RequiredArgsConstructor
 public class MailSendAdapter implements MailSendPort {
 
 	private final JavaMailSender mailSender;
+	private final String FROM;
 
-	@Value("${spring.mail.username}")
-	private String FROM;
+	public MailSendAdapter(JavaMailSender mailSender, @Value("${spring.mail.username}")
+		String FROM) {
+		this.mailSender = mailSender;
+		this.FROM = FROM;
+	}
 
 	/**
 	 * 지정된 이메일 주소로 인증 코드를 포함한 메일을 전송합니다.
