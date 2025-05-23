@@ -26,7 +26,7 @@ public class RedisChatMessageCacheAdapter implements ChatMessageCachePort {
 
 	private static final String LIST_KEY_PREFIX = "chat:list:";
 	private static final Duration CACHE_TTL = Duration.ofDays(3);
-	private static final int MAX_CACHE_SIZE = 100;
+	private static final int DEFAULT_MAX_CACHE_SIZE = 100;
 
 	private final RedisTemplate<String, String> redisTemplate;
 	private final ObjectMapper objectMapper;
@@ -39,13 +39,33 @@ public class RedisChatMessageCacheAdapter implements ChatMessageCachePort {
 	 * @since 2025-05-22
 	 */
 	@Override
-	public void cache(ChatMessage message) {
+	public void cache(ChatMessage message, int maxCacheSize) {
 		String key = buildKey(message.getArticleId());
 		String json = toJson(message);
 
 		redisTemplate.opsForList().leftPush(key, json);
-		redisTemplate.opsForList().trim(key, 0, MAX_CACHE_SIZE - 1);
+		redisTemplate.opsForList().trim(key, 0, maxCacheSize - 1);
 		redisTemplate.expire(key, CACHE_TTL);
+	}
+
+	@Override
+	public void cacheMessages(String articleId, List<ChatMessage> recentMessages) {
+		if (recentMessages == null || recentMessages.isEmpty()) {
+			return;
+		}
+
+		String key = buildKey(articleId);
+		Long size = redisTemplate.opsForList().size(key);
+
+		List<String> jsonList = recentMessages.stream()
+			.map(this::toJson)
+			.toList();
+
+		if (size == null || size == 0L) {
+			pushInitialMessages(key, jsonList);
+			return;
+		}
+		appendOldMessages(key, jsonList);
 	}
 
 	/**
@@ -57,9 +77,9 @@ public class RedisChatMessageCacheAdapter implements ChatMessageCachePort {
 	 * @since 2025-05-22
 	 */
 	@Override
-	public List<ChatMessage> getRecentMessages(String articleId) {
+	public List<ChatMessage> getRecentMessages(String articleId, int maxCacheSize) {
 		String key = buildKey(articleId);
-		List<String> rawMessages = redisTemplate.opsForList().range(key, 0, MAX_CACHE_SIZE - 1);
+		List<String> rawMessages = redisTemplate.opsForList().range(key, 0, maxCacheSize - 1);
 
 		if (rawMessages == null) {
 			return List.of();
@@ -111,5 +131,24 @@ public class RedisChatMessageCacheAdapter implements ChatMessageCachePort {
 		} catch (JsonProcessingException e) {
 			return null;
 		}
+	}
+
+	/**
+	 * 캐시가 비어 있을 때 최초로 메시지 100개를 채운다.
+	 * 최신 메시지가 인덱스 0이 되도록 역순으로 LPUSH 후 트림한다.
+	 */
+	private void pushInitialMessages(String key, List<String> jsons) {
+		List<String> reversed = jsons.reversed();
+		redisTemplate.opsForList().leftPushAll(key, reversed.toArray(new String[0]));
+		redisTemplate.opsForList().trim(key, 0, DEFAULT_MAX_CACHE_SIZE - 1);
+		redisTemplate.expire(key, CACHE_TTL);
+	}
+
+	/**
+	 * 이미 새 메시지가 존재할 때 과거 메시지를 꼬리에 붙인다.
+	 */
+	private void appendOldMessages(String key, List<String> jsons) {
+		redisTemplate.opsForList().rightPushAll(key, jsons.toArray(new String[0]));
+		redisTemplate.opsForList().trim(key, 0, DEFAULT_MAX_CACHE_SIZE - 1);
 	}
 }

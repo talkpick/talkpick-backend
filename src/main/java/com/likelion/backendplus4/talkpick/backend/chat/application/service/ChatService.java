@@ -5,6 +5,7 @@ import java.util.List;
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.in.ChatUseCase;
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatMessageBrokerPort;
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatMessageCachePort;
+import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatMessageDbPort;
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatMessageStreamPort;
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.ChatMessage;
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.MessageType;
@@ -22,16 +23,24 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ChatService implements ChatUseCase {
 
+    private static final int MAX_CACHE_SIZE = 100;
+
     private final ChatMessageBrokerPort brokerPort;
     private final ChatMessageCachePort cachePort;
     private final ChatMessageStreamPort streamPort;
+    private final ChatMessageDbPort dbPort;
 
     @Override
     public SliceResponse<ChatMessageResponse> getChatMessage(String articleId) {
-        List<ChatMessageResponse> response = cachePort.getRecentMessages(articleId).stream()
+        List<ChatMessage> chatMessage = cachePort.getRecentMessages(articleId, MAX_CACHE_SIZE);
+        if (chatMessage.isEmpty()) {
+            chatMessage = dbPort.findRecentMessages(articleId, MAX_CACHE_SIZE);
+            cachePort.cacheMessages(articleId, chatMessage);
+        }
+        List<ChatMessageResponse> result = chatMessage.stream()
             .map(ChatMessageResponseMapper::toResponseFromDomain)
             .toList();
-        return new SliceResponse<>(response,true);
+        return new SliceResponse<>(result,true);
     }
 
     /**
@@ -47,7 +56,7 @@ public class ChatService implements ChatUseCase {
     @Override
     public void sendMessage(ChatMessage message) {
         if (message.getMessageType() == MessageType.CHAT) {
-            cachePort.cache(message);
+            cachePort.cache(message, MAX_CACHE_SIZE);
             streamPort.cacheToStream(message);
         }
         brokerPort.publishMessage(message);
