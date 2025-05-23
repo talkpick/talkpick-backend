@@ -256,6 +256,7 @@ public class AuthService implements AuthServiceUseCase {
 		authStorePort.verifyTempToken(tempToken);
 		String encodePassword = securityPort.encodePassword(newPassword);
 		userRepositoryPort.updateUserPassword(email, encodePassword);
+		authStorePort.deleteTempToken(tempToken);
 	}
 
 	/**

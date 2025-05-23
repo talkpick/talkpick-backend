@@ -192,7 +192,7 @@ public class RedisAuthStoreAdapter implements AuthStorePort {
     }
 
     /**
-     * 임시 토큰의 유효성을 검사하고, 검증 후 Redis에서 삭제합니다.
+     * 임시 토큰의 유효성을 검사합니다.
      *
      * @param tempToken 클라이언트가 제출한 임시 토큰
      * @throws AuthException 토큰이 없거나 만료된 경우 발생
@@ -203,6 +203,20 @@ public class RedisAuthStoreAdapter implements AuthStorePort {
     @EntryExitLog
     public void verifyTempToken(String tempToken) {
         verifyTempTokenInternal(tempToken);
+    }
+
+    /**
+     * 임시 토큰 삭제 처리를 합니다.
+     *
+     * @param tempToken 임시 토큰
+     * @throws AuthException 토큰이 없거나 만료된 경우 발생
+     * @author 박찬병
+     * @since 2025-05-23
+     */
+    @Override
+    @EntryExitLog
+    public void deleteTempToken(String tempToken) {
+        deleteTempTokenInternal(tempToken);
     }
 
 
@@ -373,7 +387,7 @@ public class RedisAuthStoreAdapter implements AuthStorePort {
     }
 
     /**
-     * 임시 토큰 검증 및 삭제 로직의 내부 구현.
+     * 임시 토큰 검증의 내부 구현.
      *
      * @param tempToken 검증할 임시 토큰
      * @throws AuthException 검증 실패 시 예외 발생
@@ -391,4 +405,21 @@ public class RedisAuthStoreAdapter implements AuthStorePort {
         }
     }
 
+
+    /**
+     * 임시 토큰 삭제의 내부 구현.
+     *
+     * @param tempToken 임시 토큰
+     * @throws AuthException 토큰이 없거나 만료된 경우 발생
+     * @author 박찬병
+     * @since 2025-05-23
+     */
+    @EntryExitLog
+    private void deleteTempTokenInternal(String tempToken) {
+        try {
+            redisTemplate.delete(tempToken);
+        } catch (DataAccessException dae) {
+            throw new AuthException(AuthErrorCode.REDIS_RETRIEVE_FAILURE, dae);
+        }
+    }
 }

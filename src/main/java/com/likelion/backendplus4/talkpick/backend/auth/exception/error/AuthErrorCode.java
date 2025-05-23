@@ -20,7 +20,7 @@ public enum AuthErrorCode implements ErrorCode {
     ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, 2200010, "계정 정보가 비어있습니다."),
 
     REDIS_STORE_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, 430001, "Redis에 리프레시 토큰 저장에 실패했습니다."),
-    REDIS_RETRIEVE_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, 430002, "Redis에서 리프레시 토큰 조회에 실패했습니다."),
+    REDIS_RETRIEVE_FAILURE(HttpStatus.INTERNAL_SERVER_ERROR, 430002, "Redis에서 토큰 조회에 실패했습니다."),
     REDIS_BLACKLIST_CHECK_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, 430003, "Redis에서 블랙리스트 토큰 조회에 실패했습니다."),
     REDIS_LOGOUT_PROCESS_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, 430004, "Redis 로그아웃 처리에 실패했습니다."),
     REDIS_AUTHORITIES_RETRIEVE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, 430005, "Redis에서 권한 정보 조회에 실패했습니다.");

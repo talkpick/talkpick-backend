@@ -118,7 +118,25 @@ public interface AuthStorePort {
      */
     Optional<String> verifyCode(String email, String code);
 
+    /**
+     * 임시 토큰의 유효성을 검사합니다.
+     *
+     * @param tempToken 클라이언트가 제출한 임시 토큰
+     * @throws AuthException 토큰이 없거나 만료된 경우 발생
+     * @author 박찬병
+     * @since 2025-05-20
+     */
     void saveTempToken(String tempToken);
+
+    /**
+     * 임시 토큰 삭제 처리를 합니다.
+     *
+     * @param tempToken 임시 토큰
+     * @throws AuthException 토큰이 없거나 만료된 경우 발생
+     * @author 박찬병
+     * @since 2025-05-23
+     */
+    void deleteTempToken(String tempToken);
 
     /**
      * 임시 토큰의 유효성을 검사하고, 검증 후 Redis에서 삭제합니다.
