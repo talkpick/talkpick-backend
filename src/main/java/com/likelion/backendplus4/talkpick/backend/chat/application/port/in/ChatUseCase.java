@@ -13,4 +13,5 @@ public interface ChatUseCase {
     void sendMessage(ChatMessage message);
     SliceResponse<ChatMessageResponse> getChatMessage(String articleId);
 
+    SliceResponse<ChatMessageResponse> loadOlderMessages(String articleId, Long beforeId, int limit);
 }

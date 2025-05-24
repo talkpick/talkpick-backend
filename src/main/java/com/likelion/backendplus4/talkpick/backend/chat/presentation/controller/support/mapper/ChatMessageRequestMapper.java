@@ -17,13 +17,13 @@ import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.d
  */
 public class ChatMessageRequestMapper {
     public static ChatMessage toDomain(ChatMessageRequest request) {
-        return new ChatMessage(
-                request.getArticleId(),
-                request.getSender(),
-                request.getContent(),
-                LocalDateTime.now(),
-                stringToMessageType(request.getMessageType())
-        );
+        return ChatMessage.builder()
+            .articleId(request.getArticleId())
+            .sender(request.getSender())
+            .content(request.getContent())
+            .timestamp(LocalDateTime.now())
+            .messageType(stringToMessageType(request.getMessageType()))
+            .build();
     }
 
     private static MessageType stringToMessageType(String type) {

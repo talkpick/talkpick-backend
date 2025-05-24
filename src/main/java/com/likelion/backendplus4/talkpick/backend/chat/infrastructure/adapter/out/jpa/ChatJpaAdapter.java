@@ -2,6 +2,8 @@ package com.likelion.backendplus4.talkpick.backend.chat.infrastructure.adapter.o
 
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Component;
 
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatMessageDbPort;
@@ -53,5 +55,12 @@ public class ChatJpaAdapter implements ChatMessageDbPort {
 			.stream()
 			.map(ChatMessageMapper::toDomainFromEntity)
 			.toList();
+	}
+
+	@Override
+	public Slice<ChatMessage> findBeforeMessages(String articleId, Long beforeId, PageRequest of) {
+		Slice<ChatMessageEntity> entitySlice = repository.findByArticleIdAndIdLessThanOrderByIdDesc(
+			articleId, beforeId, of);
+		return entitySlice.map(ChatMessageMapper::toDomainFromEntity);
 	}
 }

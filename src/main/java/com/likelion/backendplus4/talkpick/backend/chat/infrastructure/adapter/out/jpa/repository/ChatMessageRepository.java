@@ -2,6 +2,8 @@ package com.likelion.backendplus4.talkpick.backend.chat.infrastructure.adapter.o
 
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +21,13 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessageEntity, 
 		   LIMIT :limit
 		   """)
 	List<ChatMessageEntity> findTopNByArticleIdOrderByIdDesc(@Param("articleId") String articleId, @Param("limit") int maxCacheSize);
+
+
+	// beforeId 이전 메시지
+	Slice<ChatMessageEntity> findByArticleIdAndIdLessThanOrderByIdDesc(
+		String articleId,
+		Long beforeId,
+		Pageable pageable
+	);
+
 }

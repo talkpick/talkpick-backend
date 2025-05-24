@@ -15,6 +15,9 @@ import com.likelion.backendplus4.talkpick.backend.common.response.SliceResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 
@@ -37,10 +40,23 @@ public class ChatService implements ChatUseCase {
             chatMessage = dbPort.findRecentMessages(articleId, MAX_CACHE_SIZE);
             cachePort.cacheMessages(articleId, chatMessage);
         }
-        List<ChatMessageResponse> result = chatMessage.stream()
+        List<ChatMessageResponse> result = chatMessage
+            .stream()
             .map(ChatMessageResponseMapper::toResponseFromDomain)
             .toList();
         return new SliceResponse<>(result,true);
+    }
+
+    @Override
+    public SliceResponse<ChatMessageResponse> loadOlderMessages(String articleId, Long beforeId, int limit) {
+        Slice<ChatMessage> chatMessage = dbPort.findBeforeMessages(articleId, beforeId, PageRequest.of(0, limit));
+
+        List<ChatMessageResponse> result = chatMessage
+            .stream()
+            .map(ChatMessageResponseMapper::toResponseFromDomain)
+            .toList();
+
+        return new SliceResponse<>(result, chatMessage.hasNext());
     }
 
     /**

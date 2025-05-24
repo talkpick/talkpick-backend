@@ -2,6 +2,9 @@ package com.likelion.backendplus4.talkpick.backend.chat.application.port.out;
 
 import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.ChatMessage;
 
 /**
@@ -30,4 +33,6 @@ public interface ChatMessageDbPort {
 	 * @since 2025-05-23
 	 */
 	List<ChatMessage> findRecentMessages(String articleId, int maxCacheSize);
+
+	Slice<ChatMessage> findBeforeMessages(String articleId, Long beforeId, PageRequest of);
 }

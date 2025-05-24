@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -32,9 +33,14 @@ public class ChatMessageEntity {
 			@Parameter(name = "increment_size",  value = "50")
 		}
 	)
+	@Column(name = "chat_message_id")
 	private Long id;
+	@Column(name = "article_id")
 	private String articleId;
+	@Column(name = "sender")
 	private String sender;
+	@Column(name = "content")
 	private String content;
+	@Column(name = "timestamp")
 	private LocalDateTime timestamp;
 }
