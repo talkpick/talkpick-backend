@@ -67,8 +67,29 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-reactor-netty'
 
+    //Test
+    testImplementation 'com.h2database:h2'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+test {
+    useJUnitPlatform()
+
+    systemProperty 'file.encoding', 'UTF-8'
+    systemProperty 'user.timezone', 'Asia/Seoul'
+
+    jvmArgs '-Dfile.encoding=UTF-8', '-Duser.country=KR', '-Duser.language=ko'
+
+    testLogging {
+        events "passed", "skipped", "failed"
+        exceptionFormat "full"
+        showStandardStreams = false
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
