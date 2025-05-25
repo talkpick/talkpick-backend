@@ -25,6 +25,8 @@ import lombok.RequiredArgsConstructor;
 public class RedisChatMessageCacheAdapter implements ChatMessageCachePort {
 
 	private static final String LIST_KEY_PREFIX = "chat:list:";
+	private static final String MESSAGE_KEY_SUFFIX = ":messages";
+	private static final String HAS_NEXT_KEY_SUFFIX = ":hasNext";
 	private static final Duration CACHE_TTL = Duration.ofDays(3);
 	private static final int DEFAULT_MAX_CACHE_SIZE = 100;
 
@@ -40,21 +42,29 @@ public class RedisChatMessageCacheAdapter implements ChatMessageCachePort {
 	 */
 	@Override
 	public void cache(ChatMessage message, int maxCacheSize) {
-		String key = buildKey(message.getArticleId());
+		String key = buildKey(message.getArticleId(), MESSAGE_KEY_SUFFIX);
 		String json = toJson(message);
 
-		redisTemplate.opsForList().leftPush(key, json);
+		Long currentSize = redisTemplate.opsForList().leftPush(key, json);
+
 		redisTemplate.opsForList().trim(key, 0, maxCacheSize - 1);
 		redisTemplate.expire(key, CACHE_TTL);
+
+		String flagKey = buildKey(message.getArticleId(), HAS_NEXT_KEY_SUFFIX);
+		boolean existingHasNext = Boolean.parseBoolean(redisTemplate.opsForValue().get(flagKey));
+
+		if (!existingHasNext && currentSize != null && currentSize > maxCacheSize) {
+			updateHasNextFlag(message.getArticleId(), true);
+		}
 	}
 
 	@Override
-	public void cacheMessages(String articleId, List<ChatMessage> recentMessages) {
+	public void cacheMessages(String articleId, List<ChatMessage> recentMessages, boolean hasNext) {
 		if (recentMessages == null || recentMessages.isEmpty()) {
 			return;
 		}
 
-		String key = buildKey(articleId);
+		String key = buildKey(articleId, MESSAGE_KEY_SUFFIX);
 		Long size = redisTemplate.opsForList().size(key);
 
 		List<String> jsonList = recentMessages.stream()
@@ -63,9 +73,11 @@ public class RedisChatMessageCacheAdapter implements ChatMessageCachePort {
 
 		if (size == null || size == 0L) {
 			pushInitialMessages(key, jsonList);
-			return;
+		} else {
+			appendOldMessages(key, jsonList);
 		}
-		appendOldMessages(key, jsonList);
+
+		updateHasNextFlag(articleId, hasNext);
 	}
 
 	/**
@@ -78,7 +90,7 @@ public class RedisChatMessageCacheAdapter implements ChatMessageCachePort {
 	 */
 	@Override
 	public List<ChatMessage> getRecentMessages(String articleId, int maxCacheSize) {
-		String key = buildKey(articleId);
+		String key = buildKey(articleId, MESSAGE_KEY_SUFFIX);
 		List<String> rawMessages = redisTemplate.opsForList().range(key, 0, maxCacheSize - 1);
 
 		if (rawMessages == null) {
@@ -91,15 +103,34 @@ public class RedisChatMessageCacheAdapter implements ChatMessageCachePort {
 			.toList();
 	}
 
+	@Override
+	public boolean getHasNextFlag(String articleId) {
+		String flagKey = buildKey(articleId, HAS_NEXT_KEY_SUFFIX);
+		String val = redisTemplate.opsForValue().get(flagKey);
+		return Boolean.parseBoolean(val == null ? "false" : val);
+	}
+
 	/**
 	 * Redis 캐시 키를 생성한다.
 	 *
 	 * @param articleId 채팅방 식별자
+	 * @param suffix    키 접미사 (메시지 목록 또는 hasNext 플래그)
 	 * @return Redis 캐시 키
 	 * @since 2025-05-22
 	 */
-	private String buildKey(String articleId) {
-		return LIST_KEY_PREFIX + articleId + ":messages";
+	private String buildKey(String articleId, String suffix) {
+		return LIST_KEY_PREFIX + articleId + suffix;
+	}
+
+	/**
+	 * hasNext 플래그를 갱신하고 TTL을 설정한다.
+	 *
+	 * @param articleId 채팅방 식별자
+	 * @param hasNext   다음 페이지 존재 여부
+	 */
+	private void updateHasNextFlag(String articleId, boolean hasNext) {
+		String flagKey = buildKey(articleId, HAS_NEXT_KEY_SUFFIX);
+		redisTemplate.opsForValue().set(flagKey, Boolean.toString(hasNext), CACHE_TTL);
 	}
 
 	/**

@@ -1,6 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.chat.application.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.in.ChatUseCase;
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatMessageBrokerPort;
@@ -9,6 +10,7 @@ import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.Chat
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatMessageStreamPort;
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.ChatMessage;
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.MessageType;
+import com.likelion.backendplus4.talkpick.backend.chat.infrastructure.support.mapper.SliceResponseChatMapper;
 import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.dto.response.ChatMessageResponse;
 import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.support.mapper.ChatMessageResponseMapper;
 import com.likelion.backendplus4.talkpick.backend.common.response.SliceResponse;
@@ -36,27 +38,19 @@ public class ChatService implements ChatUseCase {
     @Override
     public SliceResponse<ChatMessageResponse> getChatMessage(String articleId) {
         List<ChatMessage> chatMessage = cachePort.getRecentMessages(articleId, MAX_CACHE_SIZE);
+
         if (chatMessage.isEmpty()) {
-            chatMessage = dbPort.findRecentMessages(articleId, MAX_CACHE_SIZE);
-            cachePort.cacheMessages(articleId, chatMessage);
+            chatMessage = loadFromDbAndCache(articleId);
         }
-        List<ChatMessageResponse> result = chatMessage
-            .stream()
-            .map(ChatMessageResponseMapper::toResponseFromDomain)
-            .toList();
-        return new SliceResponse<>(result,true);
+
+        boolean hasNext = cachePort.getHasNextFlag(articleId);
+        return SliceResponseChatMapper.toSliceResponse(chatMessage, hasNext);
     }
 
     @Override
     public SliceResponse<ChatMessageResponse> loadOlderMessages(String articleId, Long beforeId, int limit) {
         Slice<ChatMessage> chatMessage = dbPort.findBeforeMessages(articleId, beforeId, PageRequest.of(0, limit));
-
-        List<ChatMessageResponse> result = chatMessage
-            .stream()
-            .map(ChatMessageResponseMapper::toResponseFromDomain)
-            .toList();
-
-        return new SliceResponse<>(result, chatMessage.hasNext());
+        return SliceResponseChatMapper.toSliceResponse(chatMessage.stream().toList(), chatMessage.hasNext());
     }
 
     /**
@@ -76,5 +70,12 @@ public class ChatService implements ChatUseCase {
             streamPort.cacheToStream(message);
         }
         brokerPort.publishMessage(message);
+    }
+
+    private List<ChatMessage> loadFromDbAndCache(String articleId) {
+        Slice<ChatMessage> slice = dbPort.findRecentMessages(articleId, PageRequest.of(0, MAX_CACHE_SIZE));
+        List<ChatMessage> messages = slice.getContent();
+        cachePort.cacheMessages(articleId, messages, slice.hasNext());
+        return messages;
     }
 }

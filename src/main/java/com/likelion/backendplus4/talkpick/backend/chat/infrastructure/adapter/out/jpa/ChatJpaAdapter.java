@@ -44,17 +44,16 @@ public class ChatJpaAdapter implements ChatMessageDbPort {
 	 * 지정한 게시글 ID에 대한 최신 채팅 메시지를 ID 역순으로 최대 N개 조회합니다.
 	 *
 	 * @param articleId 게시글 식별자
-	 * @param maxCacheSize 조회할 최대 메시지 수
+	 * @param pageRequest
 	 * @return 조회된 최신 채팅 메시지 리스트
 	 * @author 박찬병
 	 * @since 2025-05-23
 	 */
 	@Override
-	public List<ChatMessage> findRecentMessages(String articleId, int maxCacheSize) {
-		return repository.findTopNByArticleIdOrderByIdDesc(articleId, maxCacheSize)
-			.stream()
-			.map(ChatMessageMapper::toDomainFromEntity)
-			.toList();
+	public Slice<ChatMessage> findRecentMessages(String articleId, PageRequest pageRequest) {
+		return repository.findByArticleIdOrderByIdDesc(articleId, pageRequest)
+			.map(ChatMessageMapper::toDomainFromEntity);
+
 	}
 
 	@Override

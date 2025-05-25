@@ -32,7 +32,7 @@ public interface ChatMessageDbPort {
 	 * @author 박찬병
 	 * @since 2025-05-23
 	 */
-	List<ChatMessage> findRecentMessages(String articleId, int maxCacheSize);
+	Slice<ChatMessage> findRecentMessages(String articleId, PageRequest pageRequest);
 
 	Slice<ChatMessage> findBeforeMessages(String articleId, Long beforeId, PageRequest of);
 }

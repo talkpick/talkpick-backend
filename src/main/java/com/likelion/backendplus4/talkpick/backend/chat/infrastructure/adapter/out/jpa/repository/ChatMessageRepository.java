@@ -13,15 +13,10 @@ import com.likelion.backendplus4.talkpick.backend.chat.infrastructure.adapter.ou
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessageEntity, Long> {
 
-	@Query("""
-		   SELECT m
-		   FROM ChatMessageEntity m
-		   WHERE m.articleId = :artricleId
-		   ORDER BY m.id DESC
-		   LIMIT :limit
-		   """)
-	List<ChatMessageEntity> findTopNByArticleIdOrderByIdDesc(@Param("articleId") String articleId, @Param("limit") int maxCacheSize);
-
+	Slice<ChatMessageEntity> findByArticleIdOrderByIdDesc(
+		String articleId,
+		Pageable pageable
+	);
 
 	// beforeId 이전 메시지
 	Slice<ChatMessageEntity> findByArticleIdAndIdLessThanOrderByIdDesc(
