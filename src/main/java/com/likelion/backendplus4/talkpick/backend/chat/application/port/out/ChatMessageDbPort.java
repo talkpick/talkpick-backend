@@ -1,5 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.chat.application.port.out;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.PageRequest;
@@ -34,5 +35,5 @@ public interface ChatMessageDbPort {
 	 */
 	Slice<ChatMessage> findRecentMessages(String articleId, PageRequest pageRequest);
 
-	Slice<ChatMessage> findBeforeMessages(String articleId, Long beforeId, PageRequest of);
+	Slice<ChatMessage> findBeforeMessages(String articleId, LocalDateTime before, PageRequest of);
 }

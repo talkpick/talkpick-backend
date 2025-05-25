@@ -78,18 +78,11 @@ public class RedisChatMessageCacheAdapter implements ChatMessageCachePort {
 		}
 
 		String key = buildKey(articleId, MESSAGE_KEY_SUFFIX);
-		Long size = redisTemplate.opsForList().size(key);
-
 		List<String> jsonList = recentMessages.stream()
 			.map(this::toJson)
 			.toList();
 
-		if (size == null || size == 0L) {
-			pushInitialMessages(key, jsonList);
-		} else {
-			appendOldMessages(key, jsonList);
-		}
-
+		pushInitialMessages(key, jsonList);
 		updateHasNextFlag(articleId, hasNext);
 	}
 
@@ -196,11 +189,4 @@ public class RedisChatMessageCacheAdapter implements ChatMessageCachePort {
 		redisTemplate.expire(key, CACHE_TTL);
 	}
 
-	/**
-	 * 이미 새 메시지가 존재할 때 과거 메시지를 꼬리에 붙인다.
-	 */
-	private void appendOldMessages(String key, List<String> jsons) {
-		redisTemplate.opsForList().rightPushAll(key, jsons.toArray(new String[0]));
-		redisTemplate.opsForList().trim(key, 0, DEFAULT_MAX_CACHE_SIZE - 1);
-	}
 }

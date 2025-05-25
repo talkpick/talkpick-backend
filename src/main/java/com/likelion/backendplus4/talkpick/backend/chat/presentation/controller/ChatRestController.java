@@ -1,6 +1,9 @@
 package com.likelion.backendplus4.talkpick.backend.chat.presentation.controller;
 
 
+import java.time.LocalDateTime;
+
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,21 +34,22 @@ public class ChatRestController {
 	}
 
 	/**
-	 * “더 보기” 요청: beforeId 이전의 과거 메시지 페이징 조회
+	 * before 이전의 과거 메시지 페이징 조회
 	 *
 	 * @param articleId 채팅방 식별자
-	 * @param chatId  기준 메시지 ID (이 ID 미만의 메시지만)
+	 * @param before  기준 메시지 ID (이 ID 미만의 메시지만)
 	 * @param limit     최대 조회 개수 (기본 20)
 	 * @return ChatMessageResponse 리스트 + more flag
 	 */
 	@GetMapping("/{articleId}/messages/older")
 	public ResponseEntity<ApiResponse<SliceResponse<ChatMessageResponse>>> loadOlderMessages(
 		@PathVariable String articleId,
-		@RequestParam Long chatId,
+		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+		@RequestParam LocalDateTime before,
 		@RequestParam(defaultValue = "100") int limit
 	) {
 		SliceResponse<ChatMessageResponse> chatMessage = chatUseCase.loadOlderMessages(articleId,
-			chatId, limit);
+			before, limit);
 		return ApiResponse.success(chatMessage);
 	}
 

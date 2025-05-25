@@ -1,5 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.chat.application.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.in.ChatUseCase;
@@ -57,15 +58,15 @@ public class ChatService implements ChatUseCase {
      * 지정된 기준 ID(beforeId) 이전의 채팅 메시지를 DB에서 조회하여 반환합니다.
      *
      * @param articleId 게시글 식별자
-     * @param beforeId  이 ID 이전의 메시지들을 조회
+     * @param before  이 시간 이전의 메시지들을 조회
      * @param limit     조회할 메시지 개수
      * @return 채팅 메시지 슬라이스 응답 (메시지 목록과 다음 페이지 여부)
      * @author 박찬병
      * @since 2025-05-25
      */
     @Override
-    public SliceResponse<ChatMessageResponse> loadOlderMessages(String articleId, Long beforeId, int limit) {
-        Slice<ChatMessage> chatMessage = dbPort.findBeforeMessages(articleId, beforeId, PageRequest.of(0, limit));
+    public SliceResponse<ChatMessageResponse> loadOlderMessages(String articleId, LocalDateTime before, int limit) {
+        Slice<ChatMessage> chatMessage = dbPort.findBeforeMessages(articleId, before, PageRequest.of(0, limit));
         return SliceResponseChatMapper.toSliceResponse(chatMessage.stream().toList(), chatMessage.hasNext());
     }
 

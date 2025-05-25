@@ -12,7 +12,6 @@ public class ChatMessageResponseMapper {
 
 	public static ChatMessageResponse toResponseFromDomain(ChatMessage message) {
 		return ChatMessageResponse.builder()
-			.chatId(message.getChatId())
 			.content(message.getContent())
 			.sender(message.getSender())
 			.timestamp(message.getTimestamp().format(ISO_FORMATTER))
