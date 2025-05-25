@@ -66,9 +66,6 @@ dependencies {
     //WebSocket
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-reactor-netty'
-
-    //Test
-    testImplementation 'com.h2database:h2'
 }
 
 tasks.named('test') {
