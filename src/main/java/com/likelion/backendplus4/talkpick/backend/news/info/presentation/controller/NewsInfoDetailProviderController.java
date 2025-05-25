@@ -42,8 +42,11 @@ public class NewsInfoDetailProviderController {
 		, HttpServletRequest request) {
 
 		String ipAddress = request.getRemoteAddr();
-		newsViewCountIncreaseUseCase.increaseViewCount(id, ipAddress);
 
-		return success(newsInfoDetailProviderUseCase.getNewsInfoDetailByNewsId(id));
+		NewsInfoDetailResponse newsDetail = newsInfoDetailProviderUseCase.getNewsInfoDetailByNewsId(id);
+
+		newsViewCountIncreaseUseCase.increaseViewCount(id, ipAddress, newsDetail.category(), newsDetail.publishDate());
+
+		return success(newsDetail);
 	}
 }

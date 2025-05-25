@@ -2,14 +2,17 @@ package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.redi
 
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoException;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
-import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.application.port.out.NewsViewCountPort;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsViewCountPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.repository.NewsInfoJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -18,6 +21,8 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
 
     private static final String VIEW_COUNT_KEY_PREFIX = "news:viewCount:";
     private static final String VIEW_HISTORY_KEY_PREFIX = "news:viewHistory:";
+    private static final String RANKING_KEY_PREFIX = "news:ranking:";
+    private static final int RECENT_NEWS_DAYS = 3;
     private static final int VIEW_HISTORY_EXPIRE_DAYS = 1;
     private static final int VIEW_COUNT_EXPIRE_DAYS = 30;
 
@@ -32,18 +37,85 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
      * @throws NewsInfoException Redis 작업 실패 시
      */
     @Override
-    public Long increaseViewCount(String newsId, String ipAddress) {
+    public Long increaseViewCount(String newsId, String ipAddress, String category, LocalDateTime publishDate) {
         try {
             String key = createViewCountKey(newsId);
             String currentCount = redisTemplate.opsForValue().get(key);
 
             Long newCount = currentCount == null
-                    ? handleColdData(key, newsId)
-                    : handleHotData(key, newsId);
+                ? handleColdData(key, newsId)
+                : handleHotData(key, newsId);
 
             saveViewHistory(newsId, ipAddress);
 
+            // 새로 추가: SortedSet 업데이트
+            if (isRecentNews(publishDate)) {
+                updateRankingScore(category, newsId, newCount);
+                updateRankingScore("전체", newsId, newCount);
+            }
+
             return newCount;
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
+        }
+    }
+
+    /**
+     * 최근 3일 뉴스인지 확인
+     */
+    private boolean isRecentNews(LocalDateTime publishDate) {
+        LocalDateTime threeDaysAgo = LocalDateTime.now().minusDays(RECENT_NEWS_DAYS);
+        return publishDate.isAfter(threeDaysAgo);
+    }
+
+    /**
+     * SortedSet 랭킹 점수 업데이트
+     */
+    private void updateRankingScore(String category, String newsId, Long viewCount) {
+        try {
+            String rankingKey = createRankingKey(category);
+            redisTemplate.opsForZSet().add(rankingKey, newsId, viewCount.doubleValue());
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
+        }
+    }
+
+    /**
+     * 랭킹 키 생성
+     */
+    private String createRankingKey(String category) {
+        return RANKING_KEY_PREFIX + category;
+    }
+
+    /**
+     * 특정 카테고리의 Top1 뉴스 ID 조회
+     */
+    public String getTop1NewsId(String category) {
+        try {
+            String rankingKey = createRankingKey(category);
+            Set<String> top1 = redisTemplate.opsForZSet().reverseRange(rankingKey, 0, 0);
+
+            return top1.isEmpty() ? null : top1.iterator().next();
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
+        }
+    }
+
+    /**
+     * 특정 카테고리의 Top1 뉴스와 점수 조회 (해시 계산용)
+     */
+    public String getTop1NewsWithScore(String category) {
+        try {
+            String rankingKey = createRankingKey(category);
+            Set<ZSetOperations.TypedTuple<String>> top1WithScore =
+                redisTemplate.opsForZSet().reverseRangeWithScores(rankingKey, 0, 0);
+
+            if (top1WithScore.isEmpty()) {
+                return "empty";
+            }
+
+            ZSetOperations.TypedTuple<String> tuple = top1WithScore.iterator().next();
+            return tuple.getValue() + ":" + tuple.getScore().longValue();
         } catch (Exception e) {
             throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
         }
