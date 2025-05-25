@@ -3,9 +3,12 @@ package com.likelion.backendplus4.talkpick.backend.chat.presentation.controller;
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.in.ChatUseCase;
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.in.mapper.ChatMessageRequestMapper;
 import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.dto.request.ChatMessageRequest;
+import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.dto.response.ChatCountResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
 
 @Controller
@@ -22,6 +25,12 @@ public class ChatController {
     @MessageMapping("/chat.send")
     public void handleChatSend(@Payload ChatMessageRequest request) {
         chatUseCase.sendMessage(ChatMessageRequestMapper.toDomain(request));
+    }
+
+    @SubscribeMapping("/topic/chat.{articleId}.count")
+    public ChatCountResponse userCount(@DestinationVariable String articleId) {
+        int count = chatUseCase.getInitialCount(articleId);
+        return new ChatCountResponse(count);
     }
 
 }
