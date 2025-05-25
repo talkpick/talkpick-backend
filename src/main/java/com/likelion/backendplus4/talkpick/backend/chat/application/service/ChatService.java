@@ -35,6 +35,14 @@ public class ChatService implements ChatUseCase {
     private final ChatMessageStreamPort streamPort;
     private final ChatMessageDbPort dbPort;
 
+    /**
+     * 캐시에서 최근 채팅 메시지를 조회하고, 메시지가 없으면 DB에서 로드하여 캐시에 저장한 뒤 반환합니다.
+     *
+     * @param articleId 게시글 식별자
+     * @return 채팅 메시지 슬라이스 응답 (메시지 목록과 다음 페이지 여부)
+     * @author 박찬병
+     * @since 2025-05-25
+     */
     @Override
     public SliceResponse<ChatMessageResponse> getChatMessage(String articleId) {
         List<ChatMessage> chatMessage = cachePort.getRecentMessages(articleId, MAX_CACHE_SIZE);
@@ -47,6 +55,16 @@ public class ChatService implements ChatUseCase {
         return SliceResponseChatMapper.toSliceResponse(chatMessage, hasNext);
     }
 
+    /**
+     * 지정된 기준 ID(beforeId) 이전의 채팅 메시지를 DB에서 조회하여 반환합니다.
+     *
+     * @param articleId 게시글 식별자
+     * @param beforeId  이 ID 이전의 메시지들을 조회
+     * @param limit     조회할 메시지 개수
+     * @return 채팅 메시지 슬라이스 응답 (메시지 목록과 다음 페이지 여부)
+     * @author 박찬병
+     * @since 2025-05-25
+     */
     @Override
     public SliceResponse<ChatMessageResponse> loadOlderMessages(String articleId, Long beforeId, int limit) {
         Slice<ChatMessage> chatMessage = dbPort.findBeforeMessages(articleId, beforeId, PageRequest.of(0, limit));
@@ -72,6 +90,14 @@ public class ChatService implements ChatUseCase {
         brokerPort.publishMessage(message);
     }
 
+    /**
+     * DB에서 최근 채팅 메시지를 조회하고, 조회된 메시지를 캐시에 저장한 뒤 반환합니다.
+     *
+     * @param articleId 게시글 식별자
+     * @return 조회된 채팅 메시지 리스트
+     * @author 박찬병
+     * @since 2025-05-25
+     */
     private List<ChatMessage> loadFromDbAndCache(String articleId) {
         Slice<ChatMessage> slice = dbPort.findRecentMessages(articleId, PageRequest.of(0, MAX_CACHE_SIZE));
         List<ChatMessage> messages = slice.getContent();
