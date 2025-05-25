@@ -1,12 +1,15 @@
 package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.persistence.adapter.out.redis;
 
-import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.AuthTokenStorePort;
+import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.AuthStorePort;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
+import com.likelion.backendplus4.talkpick.backend.common.configuration.redis.properties.RedisAuthProperties;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,19 +23,15 @@ import org.springframework.stereotype.Component;
  * Redis를 이용해 리프레시 토큰 및 로그아웃 블랙리스트를 관리하는 어댑터 구현체.
  *
  * @since 2025-05-12
- * @modified 2025-05-12
+ * @modified 2025-05-20
  * @author 박찬병
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class AuthTokenStoreAdapter implements AuthTokenStorePort {
+public class RedisAuthStoreAdapter implements AuthStorePort {
 
-    private static final String REFRESH_TOKEN_KEY = "refreshToken";
-    private static final String AUTHORITIES_KEY = "authorities";
-    private static final String BLACKLIST = "blacklisted";
-    private static final int REFRESH_TOKEN_EXPIRATION_DAYS = 7;
-
+    private final RedisAuthProperties redisProps;
     private final RedisTemplate<String, String> redisTemplate;
 
     /**
@@ -97,6 +96,57 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
     }
 
     /**
+     * 이메일 인증 코드를 Redis에 저장합니다.
+     * 만약 계정 찾기를 하는 경우 계정 정보도 같이 저장합니다.
+     *
+     * @param email 인증 코드를 저장할 이메일 주소
+     * @param emailAuthCode 저장할 인증 코드
+     * @param account (Nullable) 계정
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    @Override
+    @EntryExitLog
+    public void saveEmailAuthData(String email, String emailAuthCode, String account) {
+        String key = redisProps.getEmailPrefix() + email;
+        Map<String,String> map = new HashMap<>();
+        map.put(redisProps.getField().getEmailAuthCode(), emailAuthCode);
+        if (account != null) map.put(redisProps.getField().getAccount(), account);
+        redisTemplate.opsForHash().putAll(key, map);
+        redisTemplate.expire(key, redisProps.getVerifyEmailCodeTtl());
+    }
+
+    /**
+     * 이메일 인증 코드를 검증합니다.
+     *
+     * Redis에서 저장된 인증 코드가 존재하는지 확인하고,
+     * 사용자가 입력한 코드와 일치하는지 검증합니다.
+     * 검증에 성공하면 해당 인증 코드를 Redis에서 삭제합니다.
+     *
+     * @param email 인증할 이메일 주소
+     * @param inputCode 사용자가 입력한 인증 코드
+     * @throws AuthException 인증 실패 시 예외 발생
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    @Override
+    @EntryExitLog
+    public Optional<String> verifyCode(String email, String inputCode) {
+        String key = redisProps.getEmailPrefix() + email;
+        String saved = (String)redisTemplate.opsForHash()
+            .get(key, redisProps.getField().getEmailAuthCode());
+
+        checkSaveCodeNull(saved);
+        checkSaveCodeNotEqual(inputCode, saved);
+
+        String account = (String)redisTemplate.opsForHash()
+            .get(key, redisProps.getField().getAccount());
+
+        redisTemplate.delete(key);
+        return Optional.ofNullable(account);
+    }
+
+    /**
      * 로그아웃 시 액세스 토큰을 블랙리스트에 추가하고 리프레시 토큰을 삭제합니다.
      *
      * 1. 블랙리스트에 액세스 토큰 저장
@@ -135,6 +185,40 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
         return getAuthoritiesInternal(userId);
     }
 
+    @Override
+    @EntryExitLog
+    public void saveTempToken(String tempToken) {
+        saveTempTokenInternal(tempToken);
+    }
+
+    /**
+     * 임시 토큰의 유효성을 검사합니다.
+     *
+     * @param tempToken 클라이언트가 제출한 임시 토큰
+     * @throws AuthException 토큰이 없거나 만료된 경우 발생
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    @Override
+    @EntryExitLog
+    public void verifyTempToken(String tempToken) {
+        verifyTempTokenInternal(tempToken);
+    }
+
+    /**
+     * 임시 토큰 삭제 처리를 합니다.
+     *
+     * @param tempToken 임시 토큰
+     * @throws AuthException 토큰이 없거나 만료된 경우 발생
+     * @author 박찬병
+     * @since 2025-05-23
+     */
+    @Override
+    @EntryExitLog
+    public void deleteTempToken(String tempToken) {
+        deleteTempTokenInternal(tempToken);
+    }
+
 
     /**
      * 1. 기존 데이터 삭제
@@ -151,7 +235,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
             redisTemplate.delete(userId);
             HashOperations<String, String, String> hashOps = redisTemplate.opsForHash();
             hashOps.putAll(userId, createTokenDataMap(refreshToken, roles));
-            redisTemplate.expire(userId, REFRESH_TOKEN_EXPIRATION_DAYS, TimeUnit.DAYS);
+            redisTemplate.expire(userId, redisProps.getRefreshTokenExpirationDays(), TimeUnit.DAYS);
         } catch (DataAccessException dae) {
             throw new AuthException(AuthErrorCode.REDIS_STORE_FAILURE, dae);
         }
@@ -172,7 +256,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
     private boolean isValidRefreshTokenInternal(String userId, String refreshToken) {
         try {
             String stored = Objects.requireNonNull(redisTemplate.opsForHash()
-				.get(userId, REFRESH_TOKEN_KEY)).toString();
+				.get(userId, redisProps.getRefreshTokenKey())).toString();
             return Objects.requireNonNull(stored).equals(refreshToken);
         } catch (DataAccessException dae) {
             throw new AuthException(AuthErrorCode.REDIS_RETRIEVE_FAILURE, dae);
@@ -199,6 +283,35 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
     }
 
     /**
+     * 저장된 인증 코드가 존재하지 않는 경우 예외를 발생시킵니다.
+     *
+     * @param savedCode Redis에 저장된 인증 코드
+     * @throws AuthException 인증 코드가 존재하지 않을 경우
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    private void checkSaveCodeNull(String savedCode) {
+        if (savedCode == null) {
+            throw new AuthException(AuthErrorCode.VERIFY_CODE_NOT_FOUND);
+        }
+    }
+
+    /**
+     * 저장된 인증 코드가 입력값과 일치하지 않는 경우 예외를 발생시킵니다.
+     *
+     * @param code 사용자가 입력한 인증 코드
+     * @param savedCode Redis에 저장된 인증 코드
+     * @throws AuthException 인증 코드가 일치하지 않을 경우
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    private void checkSaveCodeNotEqual(String code, String savedCode) {
+        if (!savedCode.equals(code)) {
+            throw new AuthException(AuthErrorCode.VERIFY_CODE_MISMATCH);
+        }
+    }
+
+    /**
      * 1. 블랙리스트에 액세스 토큰 저장
      * 2. 리프레시 토큰 키 삭제
      *
@@ -211,7 +324,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
         try {
             redisTemplate.opsForValue().set(
                 accessToken,
-                BLACKLIST,
+                redisProps.getBlacklistIndicator(),
                 accessTokenExpiration,
                 TimeUnit.MILLISECONDS);
             redisTemplate.delete(userId);
@@ -234,7 +347,7 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
     private String getAuthoritiesInternal(String userId) {
         try {
             return Objects.requireNonNull(redisTemplate.opsForHash()
-				.get(userId, AUTHORITIES_KEY)).toString();
+				.get(userId, redisProps.getAuthoritiesKey())).toString();
         } catch (DataAccessException dae) {
             throw new AuthException(AuthErrorCode.REDIS_AUTHORITIES_RETRIEVE_FAIL, dae);
         }
@@ -252,9 +365,61 @@ public class AuthTokenStoreAdapter implements AuthTokenStorePort {
     @EntryExitLog
     private HashMap<String, String> createTokenDataMap(String refreshToken, String authorities) {
         HashMap<String, String> map = new HashMap<>();
-        map.put(REFRESH_TOKEN_KEY, refreshToken);
-        map.put(AUTHORITIES_KEY, authorities);
+        map.put(redisProps.getRefreshTokenKey(), refreshToken);
+        map.put(redisProps.getAuthoritiesKey(), authorities);
         return map;
     }
 
+    /**
+     * 임시 토큰을 Redis에 저장하는 내부 구현.
+     *
+     * @param tempToken 저장할 임시 토큰
+     * @throws AuthException 저장 실패 시 예외 발생
+     */
+    @EntryExitLog
+    private void saveTempTokenInternal(String tempToken) {
+        try {
+            redisTemplate.opsForValue()
+                .set(tempToken, "", redisProps.getVerifyEmailCodeTtl().toMillis(), TimeUnit.MILLISECONDS);
+        } catch (DataAccessException dae) {
+            throw new AuthException(AuthErrorCode.REDIS_STORE_FAILURE, dae);
+        }
+    }
+
+    /**
+     * 임시 토큰 검증의 내부 구현.
+     *
+     * @param tempToken 검증할 임시 토큰
+     * @throws AuthException 검증 실패 시 예외 발생
+     */
+    @EntryExitLog
+    private void verifyTempTokenInternal(String tempToken) {
+        try {
+            Boolean exists = redisTemplate.hasKey(tempToken);
+            if (!exists) {
+                throw new AuthException(AuthErrorCode.INVALID_TEMP_TOKEN);
+            }
+            redisTemplate.delete(tempToken);
+        } catch (DataAccessException dae) {
+            throw new AuthException(AuthErrorCode.REDIS_RETRIEVE_FAILURE, dae);
+        }
+    }
+
+
+    /**
+     * 임시 토큰 삭제의 내부 구현.
+     *
+     * @param tempToken 임시 토큰
+     * @throws AuthException 토큰이 없거나 만료된 경우 발생
+     * @author 박찬병
+     * @since 2025-05-23
+     */
+    @EntryExitLog
+    private void deleteTempTokenInternal(String tempToken) {
+        try {
+            redisTemplate.delete(tempToken);
+        } catch (DataAccessException dae) {
+            throw new AuthException(AuthErrorCode.REDIS_RETRIEVE_FAILURE, dae);
+        }
+    }
 }
