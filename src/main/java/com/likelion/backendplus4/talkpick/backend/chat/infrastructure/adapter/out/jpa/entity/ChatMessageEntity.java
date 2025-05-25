@@ -33,7 +33,7 @@ public class ChatMessageEntity {
 			@Parameter(name = "increment_size",  value = "50")
 		}
 	)
-	@Column(name = "chat_message_id")
+	// @Column(name = "chat_message_id")
 	private Long id;
 	@Column(name = "article_id")
 	private String articleId;
