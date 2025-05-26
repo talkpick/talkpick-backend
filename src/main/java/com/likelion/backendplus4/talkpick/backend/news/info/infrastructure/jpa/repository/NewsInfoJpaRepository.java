@@ -29,4 +29,6 @@ public interface NewsInfoJpaRepository extends JpaRepository<ArticleEntity, Long
 	 */
 	List<ArticleEntity> findByGuid(String guid);
 
+	Slice<ArticleEntity> findAllByCategory(String category, Pageable pageable);
+
 }

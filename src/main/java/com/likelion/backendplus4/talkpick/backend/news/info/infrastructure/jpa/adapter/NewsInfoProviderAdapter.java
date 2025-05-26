@@ -26,6 +26,10 @@ public class NewsInfoProviderAdapter implements NewsInfoProviderPort {
 		return getArticles(createPageable(page, limit));
 	}
 
+	public SliceResult<NewsInfo> getLatestNesInfoByCategory(String category, int page, int limit){
+		return getArticlesByCategory(category, createPageable(page, limit));
+	}
+
 	private SliceResult<NewsInfo> getArticles(Pageable pageable) {
 		Slice<NewsInfo> slice = newsInfoJpaRepository.findAll(pageable)
 			.map(ArticleEntityMapper::toInfoFromEntity);
@@ -35,5 +39,12 @@ public class NewsInfoProviderAdapter implements NewsInfoProviderPort {
 	private Pageable createPageable(int page, int limit) {
 		Sort sortType = SortBuilder.createSortByIdDesc();
 		return PageableBuilder.createPageable(page, limit, sortType);
+	}
+
+	private SliceResult<NewsInfo> getArticlesByCategory(String category, Pageable pageable) {
+		Slice<NewsInfo> slice =
+			newsInfoJpaRepository.findAllByCategory(category, pageable)
+			.map(ArticleEntityMapper::toInfoFromEntity);
+		return SliceResultBuilder.createSliceResult(slice);
 	}
 }
