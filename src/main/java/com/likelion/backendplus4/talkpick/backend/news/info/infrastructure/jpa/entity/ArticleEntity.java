@@ -21,6 +21,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * RSS 피드에서 수집한 뉴스 기사를 저장하는 JPA 엔티티 클래스입니다.
@@ -28,10 +30,11 @@ import lombok.ToString;
  *
  * @author 양병학
  * @since 2025-05-10 최초 작성
- * @modified 2025-05-10
+ * @modified 2025-05-26
  */
 @Entity
 @Table(name = "article", uniqueConstraints = @UniqueConstraint(columnNames = {"link"}))
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
