@@ -29,22 +29,47 @@ public interface NewsInfoJpaRepository extends JpaRepository<ArticleEntity, Long
 	 */
 	List<ArticleEntity> findByGuid(String guid);
 
+	/**
+	 * 전체 뉴스 목록을 ID 내림차순으로 페이지네이션하여 조회합니다.
+	 *
+	 * @param pageable 페이지 정보
+	 * @return 뉴스 엔티티 슬라이스
+	 * @author 함예정
+	 * @since 2025-05-26
+	 */
 	Slice<ArticleEntity> findAllByOrderByIdDesc(Pageable pageable);
 
+	/**
+	 * 특정 카테고리의 뉴스 목록을 ID 내림차순으로 페이지네이션하여 조회합니다.
+	 *
+	 * @param category 뉴스 카테고리
+	 * @param pageable 페이지 정보
+	 * @return 뉴스 엔티티 슬라이스
+	 * @author 함예정
+	 * @since 2025-05-26
+	 */
 	Slice<ArticleEntity> findAllByCategoryOrderByIdDesc(String category, Pageable pageable);
 
+	/**
+	 * 지정된 ID보다 작은 ID를 가진 뉴스 목록을 ID 내림차순으로 조회합니다.
+	 *
+	 * @param id 기준이 되는 ID (미포함)
+	 * @param pageable 페이지 정보
+	 * @return 뉴스 엔티티 슬라이스
+	 * @author 함예정
+	 * @since 2025-05-26
+	 */
 	Slice<ArticleEntity> findAllByIdLessThanOrderByIdDesc(long id, Pageable pageable);
 
-	Slice<ArticleEntity> findAllByCategoryAndIdLessThanOrderByIdDesc(String category, Long id, Pageable pageable);
 	/**
-	 * 지정된 ID보다 작은 ID를 가진 ArticleEntity들을 ID 내림차순으로 조회합니다.
+	 * 특정 카테고리 내에서 지정된 ID보다 작은 ID를 가진 뉴스 목록을 ID 내림차순으로 조회합니다.
 	 *
-	 * @param lastId 기준이 되는 마지막 Article ID (미포함)
-	 * @param pageable 페이지 정보 (페이지 크기 및 정렬 정보 포함)
-	 * @return 조건에 맞는 ArticleEntity 목록의 슬라이스
+	 * @param category 뉴스 카테고리
+	 * @param id 기준이 되는 ID (미포함)
+	 * @param pageable 페이지 정보
+	 * @return 뉴스 엔티티 슬라이스
 	 * @author 함예정
-	 * @since 2025-05-19
+	 * @since 2025-05-26
 	 */
-	Slice<ArticleEntity> findByIdLessThanOrderByIdDesc(Long lastId, Pageable pageable);
-
+	Slice<ArticleEntity> findAllByCategoryAndIdLessThanOrderByIdDesc(String category, Long id, Pageable pageable);
 }

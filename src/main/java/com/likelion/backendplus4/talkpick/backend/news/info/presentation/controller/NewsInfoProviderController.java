@@ -18,12 +18,26 @@ import com.likelion.backendplus4.talkpick.backend.news.info.presentation.mapper.
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 뉴스 정보를 조회하는 공개 API 컨트롤러
+ * 최신 뉴스 및 카테고리별 최신 뉴스 리스트를 제공한다.
+ *
+ * @since 2025-05-16
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/public/news")
 public class NewsInfoProviderController {
 	private final NewsInfoProviderUseCase newsInfoProviderUsecase;
 
+	/**
+	 * 최신 뉴스 정보를 조회합니다.
+	 *
+	 * @param newsInfoRequest 마지막 뉴스 ID 및 조회 개수를 포함한 요청 파라미터
+	 * @return 뉴스 정보 목록을 포함한 응답
+	 * @author 함예정
+	 * @since 2025-05-16
+	 */
 	@GetMapping("/latest")
 	public ResponseEntity<ApiResponse<SliceResponse>> getLatestNewsInfo(
 		NewsInfoRequest newsInfoRequest) {
@@ -33,6 +47,14 @@ public class NewsInfoProviderController {
 		return success(NewsInfoResponseMapper.toSliceResponse(latestNewsInfos));
 	}
 
+	/**
+	 * 특정 카테고리의 최신 뉴스 정보를 조회합니다.
+	 *
+	 * @param newsInfoRequestByCategory 카테고리, 마지막 뉴스 ID, 조회 개수를 포함한 요청 파라미터
+	 * @return 카테고리별 뉴스 정보 목록을 포함한 응답
+	 * @author 함예정
+	 * @since 2025-05-26
+	 */
 	@GetMapping("/latest/category")
 	public ResponseEntity<ApiResponse<SliceResponse>> getLatestNewsInfoByCategory(
 		NewsInfoRequestByCategory newsInfoRequestByCategory) {
