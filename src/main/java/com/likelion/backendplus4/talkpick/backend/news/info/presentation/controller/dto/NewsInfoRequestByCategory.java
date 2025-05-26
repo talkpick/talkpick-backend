@@ -1,10 +1,11 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto;
 
-public record NewsInfoRequest(
+public record NewsInfoRequestByCategory(
 	String lastId,
-	Integer size) {
+	Integer size,
+	String category) {
 
-	public NewsInfoRequest {
+	public NewsInfoRequestByCategory {
 		if (size == null) {
 			size = 10;
 		}

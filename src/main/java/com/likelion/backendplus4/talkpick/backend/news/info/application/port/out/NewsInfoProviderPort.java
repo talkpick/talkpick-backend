@@ -4,5 +4,7 @@ import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInf
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.adapter.dto.SliceResult;
 
 public interface NewsInfoProviderPort {
-	SliceResult<NewsInfo> getLatestNewsInfo(int page, int limit);
+	SliceResult<NewsInfo> getLatestNewsInfo(String lastNewsId, int limit);
+
+	SliceResult<NewsInfo> getLatestNewsInfoByCategory(String category, String lastNewsId, int limit);
 }

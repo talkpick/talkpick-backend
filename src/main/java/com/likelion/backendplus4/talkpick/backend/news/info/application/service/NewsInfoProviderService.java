@@ -13,10 +13,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NewsInfoProviderService implements NewsInfoProviderUseCase {
 	private final NewsInfoProviderPort newsInfoProviderPort;
-	private static final int FIRST_PAGE_INDEX = -1;
 
 	@Override
-	public SliceResult<NewsInfo> getLatestNewsInfo(int page, int pageSize) {
-		return newsInfoProviderPort.getLatestNewsInfo(page, pageSize);
+	public SliceResult<NewsInfo> getLatestNewsInfo(String lastId, int pageSize) {
+		return newsInfoProviderPort.getLatestNewsInfo(lastId, pageSize);
+	}
+
+	@Override
+	public SliceResult<NewsInfo> getLatestNewsInfoByCategory(String category, String lastId, int pageSize) {
+		return newsInfoProviderPort.getLatestNewsInfoByCategory(category, lastId, pageSize);
 	}
 }
