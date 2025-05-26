@@ -18,6 +18,7 @@ public class ChatController {
 
     /**
      * 클라이언트가 '/app/chat.send'로 전송한 ChatMessage를 처리합니다.
+     *
      * @param request 클라이언트로부터 수신한 메시지
      * @author 이해창
      * @since 2025-05-18
@@ -27,6 +28,17 @@ public class ChatController {
         chatUseCase.sendMessage(ChatMessageRequestMapper.toDomain(request));
     }
 
+    /**
+     * 초기 채팅방 접속 인원 수를 반환한다.
+     * <p>
+     * 클라이언트가 특정 채팅방의 인원 수를 구독할 때 호출되며, 현재 접속 중인 세션 수를 응답한다.
+     * </p>
+     *
+     * @param articleId 채팅 대상 뉴스 식별자
+     * @return 해당 뉴스 채팅방의 현재 세션 수 정보
+     * @author 이해창
+     * @since 2025-05-26
+     */
     @SubscribeMapping("/topic/chat.{articleId}.count")
     public ChatCountResponse userCount(@DestinationVariable String articleId) {
         int count = chatUseCase.getInitialCount(articleId);

@@ -12,7 +12,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 인메모리 채팅 세션을 관리 클래스
+ * 인메모리 기반으로 채팅 세션을 관리하는 어댑터 클래스
+ * <p>
+ * 채팅방 별로 연결된 세션을 관리하며, 세션 입장/퇴장 시 사용자 수를 실시간으로 브로드캐스팅한다.
+ * <p>
+ * 내부적으로 두 개의 맵을 사용하여 세션을 관리한다:<br/>
+ * - sessions: 뉴스(articleId) 기준으로 연결된 세션 ID들을 저장하여 채팅방 인원수를 추적<br/>
+ * - reverse: 세션 ID 기준으로 어떤 뉴스에 연결되어 있는지 역추적하여 빠르게 제거 처리 가능
  *
  * @since 2025-05-24
  */
@@ -28,10 +34,11 @@ public class InMemoryChatSessionAdapter implements ChatSessionPort {
     private static final String CHAT_TOPIC_PREFIX = "/topic/chat.";
 
     /**
-     * 지정된 뉴스ID에 채팅 세션을 추가한다.
+     * 사용자가 특정 뉴스 채팅방에 입장했을 때 세션을 등록하고,
+     * 전체 접속 인원 수를 해당 뉴스의 .count 토픽으로 실시간 전송한다.
      *
      * @param articleId 뉴스 식별자
-     * @param sessionId 세션 식별자
+     * @param sessionId 사용자의 웹소켓 세션 ID
      * @author 이해창
      * @since 2025-05-24
      */
@@ -50,9 +57,11 @@ public class InMemoryChatSessionAdapter implements ChatSessionPort {
     }
 
     /**
-     * 주어진 세션 ID를 기반으로 채팅 세션을 제거한다.
+     * 사용자가 채팅방에서 퇴장하거나 연결이 종료되었을 때 세션을 제거하고,
+     * 남은 접속 인원 수를 .count 토픽으로 실시간 전송한다.
+     * 모든 사용자가 퇴장하면 해당 채팅방에 대한 메모리 정보도 제거한다.
      *
-     * @param sessionId 세션 식별자
+     * @param sessionId 사용자의 웹소켓 세션 ID
      * @author 이해창
      * @since 2025-05-24
      */
@@ -79,10 +88,10 @@ public class InMemoryChatSessionAdapter implements ChatSessionPort {
     }
 
     /**
-     * 특정 뉴스에 연결된 채팅 세션 수를 반환한다.
+     * 현재 특정 뉴스에 연결된 사용자 세션 수를 반환한다.
      *
      * @param articleId 뉴스 식별자
-     * @return 연결된 세션 수
+     * @return 현재 채팅방에 연결된 세션 수
      * @author 이해창
      * @since 2025-05-24
      */
