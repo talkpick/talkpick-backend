@@ -5,6 +5,8 @@ import org.springframework.stereotype.Component;
 
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatMessageBrokerPort;
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.ChatMessage;
+import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.dto.response.ChatMessageResponse;
+import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.support.mapper.ChatMessageResponseMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,10 +25,11 @@ public class RabbitChatMessageBrokerAdapter implements ChatMessageBrokerPort {
 	 */
 	@Override
 	public void publishMessage(ChatMessage message) {
+		ChatMessageResponse chatResponse = ChatMessageResponseMapper.toResponseFromDomain(message);
 		rabbitTemplate.convertAndSend(
 			"chat.exchange",
-			"chat.article." + message.getArticleId(),
-			message
+			"chat.article." + chatResponse.articleId(),
+			chatResponse
 		);
 	}
 }

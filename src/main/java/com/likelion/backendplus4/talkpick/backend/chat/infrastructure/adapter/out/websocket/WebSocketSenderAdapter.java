@@ -4,7 +4,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatSocketSenderPort;
-import com.likelion.backendplus4.talkpick.backend.chat.domain.model.ChatMessage;
+import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.dto.response.ChatMessageResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,7 +23,7 @@ public class WebSocketSenderAdapter implements ChatSocketSenderPort {
 	 * @modified 2025-05-20
 	 */
 	@Override
-	public void sendToWebSocket(String articleId, ChatMessage message) {
+	public void sendToWebSocket(String articleId, ChatMessageResponse message) {
 		String destination = "/topic/chat." + articleId;
 		wsTemplate.convertAndSend(destination, message);
 	}

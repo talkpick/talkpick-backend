@@ -4,7 +4,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatSocketSenderPort;
-import com.likelion.backendplus4.talkpick.backend.chat.domain.model.ChatMessage;
+import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.dto.response.ChatMessageResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,8 +24,8 @@ public class RabbitMessageListener {
 	 * 2025-05-20 핵사고날 구조에 맞게 분리
 	 */
 	@RabbitListener(queues = "chat.queue.default")
-	public void receiveMessage(ChatMessage message) {
-		socketSenderPort.sendToWebSocket(message.getArticleId(), message);
+	public void receiveMessage(ChatMessageResponse message) {
+		socketSenderPort.sendToWebSocket(message.articleId(), message);
 	}
 
 }

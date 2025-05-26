@@ -1,6 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.chat.application.port.out;
 
-import com.likelion.backendplus4.talkpick.backend.chat.domain.model.ChatMessage;
+import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.dto.response.ChatMessageResponse;
 
 public interface ChatSocketSenderPort {
 
@@ -12,5 +12,5 @@ public interface ChatSocketSenderPort {
 	 * @since 2025-05-18
 	 * @modified 2025-05-20
 	 */
-	void sendToWebSocket(String articleId, ChatMessage message);
+	void sendToWebSocket(String articleId, ChatMessageResponse message);
 }
