@@ -1,9 +1,11 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.redis.adapter;
 
+import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.PopularNewsPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoException;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsViewCountPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.repository.NewsInfoJpaRepository;
+import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.redis.util.HashUtility;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -17,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
-public class NewsViewCountRedisAdapter implements NewsViewCountPort {
+public class NewsViewCountRedisAdapter implements NewsViewCountPort, PopularNewsPort {
 
     private static final String VIEW_COUNT_KEY_PREFIX = "news:viewCount:";
     private static final String VIEW_HISTORY_KEY_PREFIX = "news:viewHistory:";
@@ -25,6 +27,7 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
     private static final int RECENT_NEWS_DAYS = 3;
     private static final int VIEW_HISTORY_EXPIRE_DAYS = 1;
     private static final int VIEW_COUNT_EXPIRE_DAYS = 30;
+    private static final String HASH_KEY_PREFIX = "news:hash:";
 
     private final RedisTemplate<String, String> redisTemplate;
     private final NewsInfoJpaRepository newsInfoJpaRepository;
@@ -61,6 +64,39 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
     }
 
     /**
+     * 해시값 저장
+     */
+    @Override
+    public void saveRankingHash(String category, String hashValue) {
+        try {
+            String hashKey = createHashKey(category);
+            redisTemplate.opsForValue().set(hashKey, hashValue);
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
+        }
+    }
+
+    /**
+     * 저장된 해시값 조회
+     */
+    @Override
+    public String getSavedRankingHash(String category) {
+        try {
+            String hashKey = createHashKey(category);
+            return redisTemplate.opsForValue().get(hashKey);
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
+        }
+    }
+
+    /**
+     * 해시 키 생성
+     */
+    private String createHashKey(String category) {
+        return HASH_KEY_PREFIX + category;
+    }
+
+    /**
      * 최근 3일 뉴스인지 확인
      */
     private boolean isRecentNews(LocalDateTime publishDate) {
@@ -85,6 +121,11 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
      */
     private String createRankingKey(String category) {
         return RANKING_KEY_PREFIX + category;
+    }
+
+    private String calculateCurrentRankingHash(String category) {
+        String top1Data = getTop1NewsWithScore(category);
+        return HashUtility.calculateRankingHash(top1Data);
     }
 
     /**
