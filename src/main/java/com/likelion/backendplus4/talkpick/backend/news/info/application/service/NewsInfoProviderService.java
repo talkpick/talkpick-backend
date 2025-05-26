@@ -16,10 +16,7 @@ public class NewsInfoProviderService implements NewsInfoProviderUseCase {
 	private static final int FIRST_PAGE_INDEX = -1;
 
 	@Override
-	public SliceResult<NewsInfo> getLatestNewsInfo(Long lastIndex, int pageSize) {
-		if(lastIndex == FIRST_PAGE_INDEX) {
-			return newsInfoProviderPort.getLatestNewsInfo(pageSize);
-		}
-		return newsInfoProviderPort.getLatestNewsInfo(lastIndex, pageSize);
+	public SliceResult<NewsInfo> getLatestNewsInfo(int page, int pageSize) {
+		return newsInfoProviderPort.getLatestNewsInfo(page, pageSize);
 	}
 }
