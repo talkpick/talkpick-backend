@@ -74,7 +74,7 @@ public class RedisChatMessageCacheAdapter implements ChatMessageCachePort {
 	 */
 	@Override
 	public void cacheMessages(String articleId, List<ChatMessage> recentMessages, boolean hasNext) {
-		if (recentMessages == null || recentMessages.isEmpty()) {
+		if (null == recentMessages || recentMessages.isEmpty()) {
 			return;
 		}
 
@@ -100,7 +100,7 @@ public class RedisChatMessageCacheAdapter implements ChatMessageCachePort {
 		String key = buildKey(articleId, MESSAGE_KEY_SUFFIX);
 		List<String> rawMessages = redisTemplate.opsForList().range(key, 0, maxCacheSize - 1);
 
-		if (rawMessages == null) {
+		if (null == rawMessages || rawMessages.isEmpty()) {
 			return List.of();
 		}
 
