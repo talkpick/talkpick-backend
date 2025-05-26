@@ -6,9 +6,9 @@ import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.d
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
 public class ChatController {
     private final ChatUseCase chatUseCase;
