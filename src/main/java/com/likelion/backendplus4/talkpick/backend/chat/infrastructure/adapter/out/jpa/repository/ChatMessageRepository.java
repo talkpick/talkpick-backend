@@ -15,7 +15,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessageEntity, 
 		Pageable pageable
 	);
 
-	// before 시간 이전 메시지 조회
 	Slice<ChatMessageEntity> findByArticleIdAndTimestampBeforeOrderByTimestampDesc(
 		String articleId,
 		LocalDateTime before,
