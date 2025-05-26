@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class WebSockerSenderAdapter implements ChatSocketSenderPort {
+public class WebSocketSenderAdapter implements ChatSocketSenderPort {
 
 	private final SimpMessagingTemplate wsTemplate;
 
