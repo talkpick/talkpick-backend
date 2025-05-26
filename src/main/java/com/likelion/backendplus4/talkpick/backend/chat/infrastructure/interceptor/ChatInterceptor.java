@@ -2,6 +2,7 @@ package com.likelion.backendplus4.talkpick.backend.chat.infrastructure.intercept
 
 import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
+import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.JwtAuthentication;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -20,6 +21,8 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class ChatInterceptor implements ChannelInterceptor {
+
+    private final JwtAuthentication jwtAuthentication;
 
     /**
      * 웹소켓 메시지 전송 전 헤더 정보를 확인하고 인증 검사를 수행한다.
@@ -43,9 +46,12 @@ public class ChatInterceptor implements ChannelInterceptor {
             return message;
         }
         if (StompCommand.CONNECT == command) {
-            if (accessor.getFirstNativeHeader("Authorization") == null) {
+            String authHeader = accessor.getFirstNativeHeader("Authorization");
+            if (authHeader == null) {
                 throw new AuthException(AuthErrorCode.AUTHENTICATION_REQUIRED);
             }
+            String accessToken = authHeader.substring(7);
+            jwtAuthentication.validateAndGetAuthentication(accessToken);
         }
 
         return message;
