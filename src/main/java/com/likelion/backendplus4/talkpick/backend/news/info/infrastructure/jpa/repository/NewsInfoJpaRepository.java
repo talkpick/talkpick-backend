@@ -29,14 +29,4 @@ public interface NewsInfoJpaRepository extends JpaRepository<ArticleEntity, Long
 	 */
 	List<ArticleEntity> findByGuid(String guid);
 
-	/**
-	 * 지정된 ID보다 작은 ID를 가진 ArticleEntity들을 ID 내림차순으로 조회합니다.
-	 *
-	 * @param lastId 기준이 되는 마지막 Article ID (미포함)
-	 * @param pageable 페이지 정보 (페이지 크기 및 정렬 정보 포함)
-	 * @return 조건에 맞는 ArticleEntity 목록의 슬라이스
-	 * @author 함예정
-	 * @since 2025-05-19
-	 */
-	Slice<ArticleEntity> findByIdLessThanOrderByIdDesc(Long lastId, Pageable pageable);
 }
