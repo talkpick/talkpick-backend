@@ -31,7 +31,7 @@ public class NewsInfoProviderController {
 	public ResponseEntity<ApiResponse<SliceResponse>> getLatestNewsInfo(
 		NewsInfoRequest newsInfoRequest) {
 		SliceResult<NewsInfo> latestNewsInfos =
-			newsInfoProviderUsecase.getLatestNewsInfo(newsInfoRequest.page()-1, newsInfoRequest.size());
+			newsInfoProviderUsecase.getLatestNewsInfo(newsInfoRequest.page(), newsInfoRequest.size());
 
 		return success(NewsInfoResponseMapper.toSliceResponse(latestNewsInfos));
 	}
