@@ -26,6 +26,10 @@ spring:
       hibernate:
         format_sql: true
     open-in-view: false
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=24h
   web:
     resources:
       add-mappings: false
