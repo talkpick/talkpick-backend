@@ -23,7 +23,15 @@ public enum NewsInfoErrorCode implements ErrorCode {
 	VIEW_COUNT_INVALID_FORMAT(HttpStatus.BAD_REQUEST, 450011, "조회수 값의 형식이 올바르지 않습니다"),
 	VIEW_COUNT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450012, "조회수 업데이트 처리 중 오류가 발생했습니다"),
 	VIEW_COUNT_CLEANUP_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450013, "오래된 조회수 데이터 정리 중 오류가 발생했습니다"),
-	VIEW_COUNT_SYNC_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450014, "조회수 동기화 처리 중 오류가 발생했습니다");
+	VIEW_COUNT_SYNC_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450014, "조회수 동기화 처리 중 오류가 발생했습니다"),
+
+	// 인기뉴스 관련 에러 코드
+	POPULAR_NEWS_TOP1_NOT_FOUND(HttpStatus.NOT_FOUND, 450021, "카테고리별 1위 뉴스 데이터를 찾을 수 없습니다"),
+	RANKING_HASH_CALCULATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450022, "순위 해시값 계산 중 오류가 발생했습니다"),
+	RANKING_HASH_RETRIEVAL_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450023, "저장된 순위 해시값 조회 중 오류가 발생했습니다"),
+	RANKING_HASH_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450024, "순위 해시값 저장 중 오류가 발생했습니다"),
+	POPULAR_NEWS_CACHE_EVICTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450025, "인기뉴스 캐시 무효화 처리 중 오류가 발생했습니다"),
+	POPULAR_NEWS_CATEGORY_PROCESSING_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450026, "카테고리별 인기뉴스 처리 중 오류가 발생했습니다");
 
 	private final HttpStatus status;
 	private final int code;

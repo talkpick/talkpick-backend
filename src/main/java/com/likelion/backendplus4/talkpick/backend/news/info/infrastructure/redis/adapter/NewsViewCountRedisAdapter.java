@@ -1,5 +1,8 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.redis.adapter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.PopularNewsResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.PopularNewsPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoException;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
@@ -24,13 +27,17 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort, PopularNews
     private static final String VIEW_COUNT_KEY_PREFIX = "news:viewCount:";
     private static final String VIEW_HISTORY_KEY_PREFIX = "news:viewHistory:";
     private static final String RANKING_KEY_PREFIX = "news:ranking:";
+    private static final String HASH_KEY_PREFIX = "news:hash:";
+    private static final String TOP_NEWS_KEY_PREFIX = "news:topNews:";
+
     private static final int RECENT_NEWS_DAYS = 3;
     private static final int VIEW_HISTORY_EXPIRE_DAYS = 1;
     private static final int VIEW_COUNT_EXPIRE_DAYS = 30;
-    private static final String HASH_KEY_PREFIX = "news:hash:";
+
 
     private final RedisTemplate<String, String> redisTemplate;
     private final NewsInfoJpaRepository newsInfoJpaRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * 뉴스 조회수를 증가시키는 메서드입니다.
@@ -346,5 +353,68 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort, PopularNews
      */
     private String createViewHistoryKey(String newsId, String ipAddress) {
         return VIEW_HISTORY_KEY_PREFIX + newsId + ":" + ipAddress;
+    }
+
+    /**
+     * 카테고리별 Top1 뉴스 결과 저장 (2차 캐싱)
+     */
+    @Override
+    public void saveTopNews(String category, PopularNewsResponse topNews) {
+        try {
+            String topNewsKey = createTopNewsKey(category);
+            String jsonValue = convertToJson(topNews);
+            redisTemplate.opsForValue().set(topNewsKey, jsonValue);
+            redisTemplate.expire(topNewsKey, 1, TimeUnit.HOURS);
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
+        }
+    }
+
+    /**
+     * 카테고리별 Top1 뉴스 결과 조회 (2차 캐싱)
+     */
+    @Override
+    public PopularNewsResponse getTopNews(String category) {
+        try {
+            String topNewsKey = createTopNewsKey(category);
+            String jsonValue = redisTemplate.opsForValue().get(topNewsKey);
+
+            if (jsonValue == null) {
+                return null;
+            }
+
+            return convertFromJson(jsonValue);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Top1 뉴스 캐시 키 생성
+     */
+    private String createTopNewsKey(String category) {
+        return TOP_NEWS_KEY_PREFIX + category;
+    }
+
+    /**
+     * PopularNewsResponse를 JSON으로 변환
+     */
+    private String convertToJson(PopularNewsResponse topNews) {
+        try {
+            return objectMapper.writeValueAsString(topNews);
+        } catch (JsonProcessingException e) {
+            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
+        }
+    }
+
+    /**
+     * JSON을 PopularNewsResponse로 변환
+     */
+    private PopularNewsResponse convertFromJson(String jsonValue) {
+        try {
+            return objectMapper.readValue(jsonValue, PopularNewsResponse.class);
+        } catch (JsonProcessingException e) {
+            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
+        }
     }
 }
