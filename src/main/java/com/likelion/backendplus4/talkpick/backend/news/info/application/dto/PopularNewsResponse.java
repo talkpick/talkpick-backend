@@ -11,7 +11,7 @@ package com.likelion.backendplus4.talkpick.backend.news.info.application.dto;
  * @param description 뉴스 본문 요약
  * @param imageUrl    뉴스 대표 이미지 URL
  * @param category    뉴스 카테고리
- * @author 개발자
+ * @author 양병학
  * @since 2025-05-27 최초 작성
  */
 public record PopularNewsResponse(

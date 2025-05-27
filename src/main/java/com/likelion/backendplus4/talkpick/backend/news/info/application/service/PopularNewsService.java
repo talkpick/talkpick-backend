@@ -27,7 +27,7 @@ public class PopularNewsService implements PopularNewsUseCase {
 
     /**
      * 전체 카테고리의 인기뉴스를 조회합니다.
-     * <p>
+     *
      * 1. 각 카테고리별로 순위 변화 감지
      * 2. 변화가 감지되면 캐시 무효화 처리
      * 3. 캐시 서비스를 통해 카테고리별 인기뉴스 조회
@@ -35,7 +35,7 @@ public class PopularNewsService implements PopularNewsUseCase {
      *
      * @return 전체 카테고리의 인기뉴스 목록
      * @throws NewsInfoException 뉴스 정보 조회 중 오류가 발생한 경우
-     * @author 개발자
+     * @author 양병학
      * @since 2025-05-27 최초 작성
      */
     @Override
