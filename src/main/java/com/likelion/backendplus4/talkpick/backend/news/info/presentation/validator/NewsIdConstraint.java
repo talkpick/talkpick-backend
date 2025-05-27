@@ -14,7 +14,6 @@ import jakarta.validation.Payload;
  * 유효한 접두사(KM, DA, KH)로 시작하고 숫자가 뒤따르는 형식만 허용합니다.
  *
  * @since 2025-05-25
- * @author 양병학
  */
 @Documented
 @Constraint(validatedBy = NewsIdValidator.class)

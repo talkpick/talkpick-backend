@@ -1,14 +1,15 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.domain.enums;
 
+import static org.assertj.core.api.Assertions.*;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
- * NewsIdPrefix enum의 단위 테스트 클래스
+ * NewsIdPrefix enum의 단위 테스트 클래스입니다.
+ * 접두사 검증 및 enum 기능의 정확성을 확인합니다.
  *
  * @since 2025-05-25
  * @author 양병학
@@ -16,6 +17,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("뉴스 ID 접두사 Enum 테스트")
 class NewsIdPrefixTest {
 
+	/**
+	 * 유효한 접두사에 대한 검증 성공 테스트입니다.
+	 *
+	 * @param validPrefix 유효한 접두사
+	 */
 	@DisplayName("유효한 접두사 검증 성공")
 	@ParameterizedTest
 	@ValueSource(strings = {"KM", "DA", "KH"})
@@ -25,6 +31,11 @@ class NewsIdPrefixTest {
 		assertThat(result).isTrue();
 	}
 
+	/**
+	 * 유효하지 않은 접두사에 대한 검증 실패 테스트입니다.
+	 *
+	 * @param invalidPrefix 유효하지 않은 접두사
+	 */
 	@DisplayName("유효하지 않은 접두사 검증 실패")
 	@ParameterizedTest
 	@ValueSource(strings = {"AB", "XX", "km", "da", "kh", "", "KMA"})
@@ -34,6 +45,9 @@ class NewsIdPrefixTest {
 		assertThat(result).isFalse();
 	}
 
+	/**
+	 * 모든 접두사 배열 반환 기능 테스트입니다.
+	 */
 	@Test
 	@DisplayName("모든 접두사 배열 반환 확인")
 	void 모든_접두사_배열_반환_확인() {
@@ -43,6 +57,9 @@ class NewsIdPrefixTest {
 		assertThat(allPrefixes).containsExactlyInAnyOrder("KM", "DA", "KH");
 	}
 
+	/**
+	 * 각 Enum 값의 속성 정확성 테스트입니다.
+	 */
 	@Test
 	@DisplayName("각 Enum 값의 속성 확인")
 	void 각_Enum_값의_속성_확인() {
