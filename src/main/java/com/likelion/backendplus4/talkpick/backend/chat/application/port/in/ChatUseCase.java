@@ -43,6 +43,6 @@ public interface ChatUseCase {
      * @since 2025-05-25
      */
     SliceResponse<ChatMessageResponse> loadOlderMessages(String articleId, LocalDateTime before, int limit);
-    void receiveMessage(ChatMessage message);
+
     int getInitialCount(String articleId);
 }

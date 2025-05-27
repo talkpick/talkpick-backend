@@ -15,14 +15,6 @@ import com.likelion.backendplus4.talkpick.backend.chat.domain.model.ChatMessage;
  */
 public interface ChatMessageDbPort {
 
-	/**
-	 * 채팅 메시지 리스트를 엔티티로 변환하여 DB에 일괄 저장합니다.
-	 *
-	 * @param chatMessage 저장할 채팅 메시지 리스트
-	 * @author 박찬병
-	 * @since 2025-05-23
-	 */
-	void saveAll(List<ChatMessage> chatMessage);
 
 	/**
 	 * 지정한 게시글 ID에 대한 최신 채팅 메시지를 ID 역순으로 최대 N개 조회합니다.

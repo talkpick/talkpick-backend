@@ -27,21 +27,6 @@ public class ChatJpaAdapter implements ChatMessageDbPort {
 	private final ChatMessageRepository repository;
 
 	/**
-	 * 채팅 메시지 리스트를 엔티티로 변환하여 DB에 일괄 저장합니다.
-	 *
-	 * @param chatMessage 저장할 채팅 메시지 리스트
-	 * @author 박찬병
-	 * @since 2025-05-23
-	 */
-	@Override
-	public void saveAll(List<ChatMessage> chatMessage) {
-		List<ChatMessageEntity> chatEntity = chatMessage.stream()
-			.map(ChatMessageMapper::toEntityFromDomain)
-			.toList();
-		repository.saveAll(chatEntity);
-	}
-
-	/**
 	 * 지정한 게시글 ID에 대한 최신 채팅 메시지를 ID 역순으로 최대 N개 조회합니다.
 	 *
 	 * @param articleId 게시글 식별자

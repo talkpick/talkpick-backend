@@ -14,6 +14,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RabbitChatMessageBrokerAdapter implements ChatMessageBrokerPort {
 
+	private static final String CHAT_EXCHANGE = "chat.exchange";
+	private static final String ARTICLE_ROUTING_KEY = "chat.article.";
+
 	private final RabbitTemplate rabbitTemplate;
 
 	/**
@@ -22,13 +25,15 @@ public class RabbitChatMessageBrokerAdapter implements ChatMessageBrokerPort {
 	 * @param message 클라이언트에서 전송된 ChatMessage
 	 * @author 이해창
 	 * @since 2025-05-18
+	 * @modified 2025.05.27 박찬병
+	 * 2025.05.27 - 폴더 위치 이동
 	 */
 	@Override
 	public void publishMessage(ChatMessage message) {
 		ChatMessageResponse chatResponse = ChatMessageResponseMapper.toResponseFromDomain(message);
 		rabbitTemplate.convertAndSend(
-			"chat.exchange",
-			"chat.article." + chatResponse.articleId(),
+			CHAT_EXCHANGE,
+			ARTICLE_ROUTING_KEY + chatResponse.articleId(),
 			chatResponse
 		);
 	}

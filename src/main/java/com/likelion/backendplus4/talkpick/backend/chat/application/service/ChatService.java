@@ -8,6 +8,7 @@ import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.Chat
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatMessageCachePort;
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatMessageDbPort;
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatMessageStreamPort;
+import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatSessionPort;
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.ChatMessage;
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.MessageType;
 import com.likelion.backendplus4.talkpick.backend.chat.infrastructure.support.mapper.SliceResponseChatMapper;
@@ -26,20 +27,13 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ChatService implements ChatUseCase {
-    private final RabbitTemplate rabbitTemplate;
-    private final SimpMessagingTemplate wsTemplate;
-    private final ChatSessionPort chatSessionPort;
-
-    private static final String CHAT_EXCHANGE = "chat.exchange";
-    private static final String ARTICLE_ROUTING_KEY = "chat.article.";
-    private static final String CHAT_QUEUE = "chat.queue.default";
-    private static final String CHAT_TOPIC_PREFIX = "/topic/chat.";
 
     private static final int MAX_CACHE_SIZE = 100;
 
     private final ChatMessageBrokerPort brokerPort;
     private final ChatMessageCachePort cachePort;
     private final ChatMessageStreamPort streamPort;
+    private final ChatSessionPort chatSessionPort;
     private final ChatMessageDbPort dbPort;
 
     /**
@@ -90,16 +84,17 @@ public class ChatService implements ChatUseCase {
      */
     @Override
     public void sendMessage(ChatMessage message) {
-        rabbitTemplate.convertAndSend(
-                CHAT_EXCHANGE,
-                ARTICLE_ROUTING_KEY + message.getArticleId(),
-                message
-        );
         if (message.getMessageType() == MessageType.CHAT) {
             cachePort.cache(message, MAX_CACHE_SIZE);
             streamPort.cacheToStream(message);
         }
         brokerPort.publishMessage(message);
+    }
+
+
+    @Override
+    public int getInitialCount(String articleId) {
+        return chatSessionPort.getSessionCount(articleId);
     }
 
     /**
@@ -115,15 +110,6 @@ public class ChatService implements ChatUseCase {
         List<ChatMessage> messages = slice.getContent();
         cachePort.cacheMessages(articleId, messages, slice.hasNext());
         return messages;
-    @Override
-    @RabbitListener(queues = CHAT_QUEUE)
-    public void receiveMessage(ChatMessage message) {
-        String destination = CHAT_TOPIC_PREFIX + message.getArticleId();
-        wsTemplate.convertAndSend(destination, message);
     }
 
-    @Override
-    public int getInitialCount(String articleId) {
-        return chatSessionPort.getSessionCount(articleId);
-    }
 }

@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RabbitMessageListener {
 
+	private static final String CHAT_QUEUE = "chat.queue.default";
+
+
 	private final ChatSocketSenderPort socketSenderPort;
 
 	/**
@@ -20,10 +23,10 @@ public class RabbitMessageListener {
 	 * @param message RabbitListener가 수신한 ChatMessage
 	 * @author 이해창
 	 * @since 2025-05-18
-	 * @modified 2025-05-20
-	 * 2025-05-20 핵사고날 구조에 맞게 분리
+	 * @modified 2025-05-27 박찬병
+	 * 2025-05-27 폴더 위치 이동
 	 */
-	@RabbitListener(queues = "chat.queue.default")
+	@RabbitListener(queues = CHAT_QUEUE)
 	public void receiveMessage(ChatMessageResponse message) {
 		socketSenderPort.sendToWebSocket(message.articleId(), message);
 	}

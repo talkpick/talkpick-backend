@@ -25,10 +25,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        jdbc:  #TODO 삭제
-          batch_size: 50    #TODO 삭제
-        order_inserts: true #TODO 삭제
-        order_updates: true #TODO 삭제
     open-in-view: false
   web:
     resources:

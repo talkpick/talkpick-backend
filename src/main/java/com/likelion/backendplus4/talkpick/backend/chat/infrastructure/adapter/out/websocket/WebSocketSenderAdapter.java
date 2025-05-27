@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class WebSocketSenderAdapter implements ChatSocketSenderPort {
 
+	private static final String CHAT_TOPIC_PREFIX = "/topic/chat.";
 	private final SimpMessagingTemplate wsTemplate;
 
 	/**
@@ -24,7 +25,7 @@ public class WebSocketSenderAdapter implements ChatSocketSenderPort {
 	 */
 	@Override
 	public void sendToWebSocket(String articleId, ChatMessageResponse message) {
-		String destination = "/topic/chat." + articleId;
+		String destination = CHAT_TOPIC_PREFIX + articleId;
 		wsTemplate.convertAndSend(destination, message);
 	}
 }
