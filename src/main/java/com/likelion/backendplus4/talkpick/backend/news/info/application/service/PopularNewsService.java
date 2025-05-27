@@ -49,15 +49,15 @@ public class PopularNewsService implements PopularNewsUseCase {
      * 3. 캐시 서비스를 통해 인기뉴스 조회
      * 4. 조회된 결과를 반환
      *
-     * @param koreanCategoryName 조회할 카테고리 한글명
+     * @param categoryName 조회할 카테고리 한글명
      * @return 해당 카테고리의 Top1 인기뉴스
      * @throws NewsInfoException 뉴스 정보 조회 중 오류가 발생한 경우
      * @since 2025-05-27
      * @author 양병학
      */
     @Override
-    public PopularNewsResponse getTopNewsByCategory(String koreanCategoryName) {
-        return processCategory(koreanCategoryName);
+    public PopularNewsResponse getTopNewsByCategory(String categoryName) {
+        return processCategory(categoryName);
     }
 
     /**

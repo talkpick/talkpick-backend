@@ -19,13 +19,13 @@ public enum NewsCategory {
 	INTERNATIONAL("국제"),
 	ENTERTAINMENT("연예");
 
-	private final String koreanName;
+	private final String categoryName;
 
-	NewsCategory(String koreanName) {
-		this.koreanName = koreanName;
+	NewsCategory(String categoryName) {
+		this.categoryName = categoryName;
 	}
 
-	public String getKoreanName() {
-		return koreanName;
+	public String getcategoryName() {
+		return categoryName;
 	}
 }

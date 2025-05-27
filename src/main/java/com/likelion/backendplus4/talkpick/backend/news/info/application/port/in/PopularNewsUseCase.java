@@ -25,10 +25,10 @@ public interface PopularNewsUseCase {
 	 *
 	 * 단일 카테고리에 대해서만 캐싱 및 조회 로직을 수행합니다.
 	 *
-	 * @param koreanCategoryName 조회할 카테고리 한글명 (Redis/DB 조회용)
+	 * @param categoryName 조회할 카테고리 한글명 (Redis/DB 조회용)
 	 * @return 해당 카테고리의 Top1 인기뉴스
 	 * @since 2025-05-27
 	 * @author 양병학
 	 */
-	PopularNewsResponse getTopNewsByCategory(String koreanCategoryName);
+	PopularNewsResponse getTopNewsByCategory(String categoryName);
 }
