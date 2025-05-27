@@ -1,4 +1,3 @@
-// 🗄️ 캐시 전담 서비스
 package com.likelion.backendplus4.talkpick.backend.news.info.application.service;
 
 import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.PopularNewsResponse;
@@ -6,13 +5,15 @@ import com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.P
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.PopularNewsPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
+import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoException;
+import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-@Slf4j
+import java.util.Objects;
+
 @Service
 @RequiredArgsConstructor
 public class PopularNewsCacheService {
@@ -21,66 +22,164 @@ public class PopularNewsCacheService {
     private final NewsDetailProviderPort newsDetailProviderPort;
 
     /**
-     * Spring Cache를 통한 카테고리별 Top1 뉴스 조회
-     * 캐시 HIT: 즉시 반환
-     * 캐시 MISS: Redis → DB 순으로 조회 후 캐시 저장
+     * Spring Cache를 통한 카테고리별 Top1 뉴스를 조회합니다.
+     * <p>
+     * 1. Spring 캐시에서 조회 시도 (캐시 HIT 시 즉시 반환)
+     * 2. 캐시 MISS 시 데이터 소스에서 조회
+     * 3. Redis → DB 순으로 조회 후 캐시 저장
+     * 4. 조회된 결과 반환
+     *
+     * @param category 조회할 카테고리명
+     * @return 해당 카테고리의 최고 인기뉴스, 조회 실패 시 null
+     * @throws NewsInfoException 뉴스 조회 중 오류가 발생한 경우
+     * @author 개발자
+     * @since 2025-05-27 최초 작성
      */
     @Cacheable(value = "popularNews", key = "#category")
     public PopularNewsResponse getTopNewsByCategory(String category) {
-        log.info("📋 Spring 캐시 MISS - 새로 조회 시작: {}", category);
-
-        PopularNewsResponse result = fetchFromDataSource(category);
-
-        log.info("💾 Spring 캐시 저장 완료: {}", category);
-        return result;
+        return fetchTopNewsFromDataSource(category);
     }
 
     /**
-     * 특정 카테고리의 Spring 캐시 삭제
+     * 특정 카테고리의 Spring 캐시를 삭제합니다.
+     *
+     * @param category 캐시를 삭제할 카테고리명
+     * @throws NewsInfoException 캐시 삭제 중 오류가 발생한 경우
+     * @author 개발자
+     * @since 2025-05-27 최초 작성
      */
     @CacheEvict(value = "popularNews", key = "#category")
     public void evictCache(String category) {
-        log.info("🗑️ Spring 캐시 삭제 - 카테고리: {}", category);
     }
 
     /**
-     * 데이터 소스에서 뉴스 조회 (Redis → DB 순서)
-     * 3단계 캐싱 구조의 2, 3단계 담당
+     * 데이터 소스에서 뉴스를 조회합니다.
+     *
+     * @param category 조회할 카테고리명
+     * @return 조회된 인기뉴스, 없으면 null
+     * @throws NewsInfoException 뉴스 조회 중 오류가 발생한 경우
      */
-    private PopularNewsResponse fetchFromDataSource(String category) {
+    private PopularNewsResponse fetchTopNewsFromDataSource(String category) {
+        String topNewsId = getTop1NewsId(category);
+        if (topNewsId == null) {
+            return null;
+        }
+
+        PopularNewsResponse cachedNews = checkRedisCache(category, topNewsId);
+        if (cachedNews != null) {
+            return cachedNews;
+        }
+
+        return fetchFromDatabaseAndCache(category, topNewsId);
+    }
+
+    /**
+     * 카테고리별 Top1 뉴스 ID를 조회합니다.
+     *
+     * @param category 조회할 카테고리명
+     * @return Top1 뉴스 ID, 없으면 null
+     * @throws NewsInfoException Top1 뉴스 ID 조회 중 오류가 발생한 경우
+     */
+    private String getTop1NewsId(String category) {
         try {
-            // SortedSet에서 Top1 뉴스 ID 조회
-            String topNewsId = popularNewsPort.getTop1NewsId(category);
-            if (topNewsId == null) {
-                log.debug("❌ Top1 뉴스 없음 - 카테고리: {}", category);
-                return null;
-            }
+            return popularNewsPort.getTop1NewsId(category);
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.POPULAR_NEWS_TOP1_NOT_FOUND, e);
+        }
+    }
 
-            log.info("🔍 Top1 뉴스 ID: {} (카테고리: {})", topNewsId, category);
-
-            // 2단계: Redis topNews 캐시 확인
+    /**
+     * Redis 캐시에서 뉴스를 확인합니다.
+     *
+     * @param category  조회할 카테고리명
+     * @param topNewsId 확인할 뉴스 ID
+     * @return 캐시된 뉴스 데이터, 캐시 미스 시 null
+     * @throws NewsInfoException Redis 캐시 조회 중 오류가 발생한 경우
+     */
+    private PopularNewsResponse checkRedisCache(String category, String topNewsId) {
+        try {
             PopularNewsResponse cachedNews = popularNewsPort.getTopNews(category);
-            if (cachedNews != null && topNewsId.equals(cachedNews.guid())) {
-                log.info("⚡ Redis topNews 캐시 HIT - 카테고리: {}", category);
+            if (isCacheValid(cachedNews, topNewsId)) {
                 return cachedNews;
             }
-
-            // 3단계: Redis MISS → DB 조회
-            log.info("🔍 Redis topNews 캐시 MISS - DB 조회 시작: {}", category);
-            NewsInfoDetail newsDetail = newsDetailProviderPort.getNewsInfoDetailsByArticleId(topNewsId);
-            PopularNewsResponse freshNews = PopularNewsResponseMapper.toResponse(newsDetail);
-
-            // Redis 캐시에 저장
-            if (freshNews != null) {
-                popularNewsPort.saveTopNews(category, freshNews);
-                log.info("💾 Redis topNews 캐시 저장 완료 - 카테고리: {}", category);
-            }
-
-            return freshNews;
-
-        } catch (Exception e) {
-            log.error("❌ 뉴스 조회 실패 - 카테고리: {}, 에러: {}", category, e.getMessage());
             return null;
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.POPULAR_NEWS_CACHE_EVICTION_FAILED, e);
+        }
+    }
+
+    /**
+     * 캐시된 뉴스의 유효성을 검증합니다.
+     *
+     * @param cachedNews 캐시된 뉴스 데이터
+     * @param topNewsId  현재 Top1 뉴스 ID
+     * @return 유효하면 true, 그렇지 않으면 false
+     */
+    private boolean isCacheValid(PopularNewsResponse cachedNews, String topNewsId) {
+        return cachedNews != null && Objects.equals(topNewsId, cachedNews.guid());
+    }
+
+    /**
+     * 데이터베이스에서 뉴스를 조회하고 Redis 캐시에 저장합니다.
+     *
+     * @param category  조회할 카테고리명
+     * @param topNewsId 조회할 뉴스 ID
+     * @return 조회된 뉴스 데이터
+     * @throws NewsInfoException 데이터베이스 조회 또는 캐시 저장 중 오류가 발생한 경우
+     */
+    private PopularNewsResponse fetchFromDatabaseAndCache(String category, String topNewsId) {
+        NewsInfoDetail newsDetail = getNewsDetailFromDatabase(topNewsId);
+        PopularNewsResponse freshNews = convertToResponse(newsDetail);
+
+        if (freshNews != null) {
+            saveToRedisCache(category, freshNews);
+        }
+
+        return freshNews;
+    }
+
+    /**
+     * 데이터베이스에서 뉴스 상세 정보를 조회합니다.
+     *
+     * @param topNewsId 조회할 뉴스 ID
+     * @return 뉴스 상세 정보
+     * @throws NewsInfoException 데이터베이스 조회 중 오류가 발생한 경우
+     */
+    private NewsInfoDetail getNewsDetailFromDatabase(String topNewsId) {
+        try {
+            return newsDetailProviderPort.getNewsInfoDetailsByArticleId(topNewsId);
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.NEWS_INFO_NOT_FOUND, e);
+        }
+    }
+
+    /**
+     * 뉴스 상세 정보를 응답 DTO로 변환합니다.
+     *
+     * @param newsDetail 뉴스 상세 정보
+     * @return 변환된 응답 DTO
+     * @throws NewsInfoException DTO 변환 중 오류가 발생한 경우
+     */
+    private PopularNewsResponse convertToResponse(NewsInfoDetail newsDetail) {
+        try {
+            return PopularNewsResponseMapper.toResponse(newsDetail);
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.NEWS_INFO_NOT_FOUND, e);
+        }
+    }
+
+    /**
+     * Redis 캐시에 뉴스 데이터를 저장합니다.
+     *
+     * @param category  저장할 카테고리명
+     * @param freshNews 저장할 뉴스 데이터
+     * @throws NewsInfoException Redis 캐시 저장 중 오류가 발생한 경우
+     */
+    private void saveToRedisCache(String category, PopularNewsResponse freshNews) {
+        try {
+            popularNewsPort.saveTopNews(category, freshNews);
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.POPULAR_NEWS_CACHE_EVICTION_FAILED, e);
         }
     }
 }

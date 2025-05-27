@@ -1,209 +1,67 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.redis.adapter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.PopularNewsResponse;
-import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.PopularNewsPort;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsViewCountPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoException;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
-import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsViewCountPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.repository.NewsInfoJpaRepository;
-import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.redis.util.HashUtility;
+import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.redis.util.RedisKeyGenerator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 뉴스 조회수 관리를 담당하는 Redis 어댑터입니다.
+ *
+ * 조회수 증가, 조회, 조회 이력 관리 등의 기능을 제공합니다.
+ *
+ * @author 양병학
+ * @since 2025-05-27 최초 작성
+ */
 @Component
 @RequiredArgsConstructor
-public class NewsViewCountRedisAdapter implements NewsViewCountPort, PopularNewsPort {
-
-    private static final String VIEW_COUNT_KEY_PREFIX = "news:viewCount:";
-    private static final String VIEW_HISTORY_KEY_PREFIX = "news:viewHistory:";
-    private static final String RANKING_KEY_PREFIX = "news:ranking:";
-    private static final String HASH_KEY_PREFIX = "news:hash:";
-    private static final String TOP_NEWS_KEY_PREFIX = "news:topNews:";
+public class NewsViewCountRedisAdapter implements NewsViewCountPort {
 
     private static final int RECENT_NEWS_DAYS = 3;
     private static final int VIEW_HISTORY_EXPIRE_DAYS = 1;
     private static final int VIEW_COUNT_EXPIRE_DAYS = 30;
 
-
     private final RedisTemplate<String, String> redisTemplate;
     private final NewsInfoJpaRepository newsInfoJpaRepository;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final RedisKeyGenerator keyGenerator;
+    private final PopularNewsRedisAdapter popularNewsAdapter;
 
     /**
-     * 뉴스 조회수를 증가시키는 메서드입니다.
+     * 뉴스 조회수를 증가시킵니다.
      *
-     * @param newsId 조회수를 증가시킬 뉴스의 ID
+     * 1. 현재 조회수 확인 (Redis → DB 순서)
+     * 2. 조회수 증가 처리
+     * 3. 조회 이력 저장
+     * 4. 최근 뉴스인 경우 랭킹 업데이트
+     *
+     * @param newsId      조회수를 증가시킬 뉴스의 ID
+     * @param ipAddress   사용자 IP 주소
+     * @param category    뉴스 카테고리
+     * @param publishDate 뉴스 발행일
      * @return 증가된 후의 조회수 값
-     * @throws NewsInfoException Redis 작업 실패 시
+     * @throws NewsInfoException 조회수 증가 처리 중 오류가 발생한 경우
+     * @author 양병학
+     * @since 2025-05-27 최초 작성
      */
     @Override
     public Long increaseViewCount(String newsId, String ipAddress, String category, LocalDateTime publishDate) {
-        try {
-            String key = createViewCountKey(newsId);
-            String currentCount = redisTemplate.opsForValue().get(key);
+        Long newViewCount = processViewCountIncrease(newsId);
+        saveUserViewHistory(newsId, ipAddress);
 
-            Long newCount = currentCount == null
-                ? handleColdData(key, newsId)
-                : handleHotData(key, newsId);
-
-            saveViewHistory(newsId, ipAddress);
-
-            // 새로 추가: SortedSet 업데이트
-            if (isRecentNews(publishDate)) {
-                updateRankingScore(category, newsId, newCount);
-                updateRankingScore("전체", newsId, newCount);
-            }
-
-            return newCount;
-        } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
+        if (isRecentNews(publishDate)) {
+            updateRankingIfNeeded(category, newsId, newViewCount);
         }
-    }
 
-    /**
-     * 해시값 저장
-     */
-    @Override
-    public void saveRankingHash(String category, String hashValue) {
-        try {
-            String hashKey = createHashKey(category);
-            redisTemplate.opsForValue().set(hashKey, hashValue);
-        } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
-        }
-    }
-
-    /**
-     * 저장된 해시값 조회
-     */
-    @Override
-    public String getSavedRankingHash(String category) {
-        try {
-            String hashKey = createHashKey(category);
-            return redisTemplate.opsForValue().get(hashKey);
-        } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
-        }
-    }
-
-    /**
-     * 해시 키 생성
-     */
-    private String createHashKey(String category) {
-        return HASH_KEY_PREFIX + category;
-    }
-
-    /**
-     * 최근 3일 뉴스인지 확인
-     */
-    private boolean isRecentNews(LocalDateTime publishDate) {
-        LocalDateTime threeDaysAgo = LocalDateTime.now().minusDays(RECENT_NEWS_DAYS);
-        return publishDate.isAfter(threeDaysAgo);
-    }
-
-    /**
-     * SortedSet 랭킹 점수 업데이트
-     */
-    private void updateRankingScore(String category, String newsId, Long viewCount) {
-        try {
-            String rankingKey = createRankingKey(category);
-            redisTemplate.opsForZSet().add(rankingKey, newsId, viewCount.doubleValue());
-        } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
-        }
-    }
-
-    /**
-     * 랭킹 키 생성
-     */
-    private String createRankingKey(String category) {
-        return RANKING_KEY_PREFIX + category;
-    }
-
-    private String calculateCurrentRankingHash(String category) {
-        String top1Data = getTop1NewsWithScore(category);
-        return HashUtility.calculateRankingHash(top1Data);
-    }
-
-    /**
-     * 특정 카테고리의 Top1 뉴스 ID 조회
-     */
-    public String getTop1NewsId(String category) {
-        try {
-            String rankingKey = createRankingKey(category);
-            Set<String> top1 = redisTemplate.opsForZSet().reverseRange(rankingKey, 0, 0);
-
-            return top1.isEmpty() ? null : top1.iterator().next();
-        } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
-        }
-    }
-
-    /**
-     * 특정 카테고리의 Top1 뉴스와 점수 조회 (해시 계산용)
-     */
-    public String getTop1NewsWithScore(String category) {
-        try {
-            String rankingKey = createRankingKey(category);
-            Set<ZSetOperations.TypedTuple<String>> top1WithScore =
-                redisTemplate.opsForZSet().reverseRangeWithScores(rankingKey, 0, 0);
-
-            if (top1WithScore.isEmpty()) {
-                return "empty";
-            }
-
-            ZSetOperations.TypedTuple<String> tuple = top1WithScore.iterator().next();
-            return tuple.getValue() + ":" + tuple.getScore().longValue();
-        } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
-        }
-    }
-
-    /**
-     * Redis에 뉴스 조회수 정보가 없을 때 초기화하는 메서드입니다.
-     *
-     * @param key    Redis에 저장할 키 값
-     * @param newsId 뉴스 ID
-     * @return 증가된 후의 조회수 값
-     * @throws NewsInfoException DB 조회 또는 Redis 저장 실패 시
-     */
-    private Long handleColdData(String key, String newsId) {
-        try {
-            Long dbCount = getViewCountFromDb(newsId);
-            Long newCount = dbCount + 1;
-
-            saveViewCountToRedis(key, newCount);
-
-            return newCount;
-        } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
-        }
-    }
-
-    /**
-     * Redis에서 조회수 직접 증가
-     *
-     * @param key    Redis에 저장된 키 값
-     * @param newsId 뉴스 ID (미사용 파라미터이지만 일관성을 위해 유지)
-     * @return 증가된 후의 조회수 값
-     * @throws NewsInfoException Redis 증가 작업 실패 시
-     */
-    private Long handleHotData(String key, String newsId) {
-        try {
-            return redisTemplate.opsForValue().increment(key);
-        } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
-        }
+        return newViewCount;
     }
 
     /**
@@ -213,17 +71,12 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort, PopularNews
      * @param ipAddress 사용자 IP 주소
      * @return 저장 성공 여부
      * @throws NewsInfoException Redis 저장 실패 시
+     * @author 양병학
+     * @since 2025-05-27 최초 작성
      */
     @Override
     public boolean saveViewHistory(String newsId, String ipAddress) {
-        try {
-            String key = createViewHistoryKey(newsId, ipAddress);
-            redisTemplate.opsForValue().set(key, "1");
-            redisTemplate.expire(key, VIEW_HISTORY_EXPIRE_DAYS, TimeUnit.DAYS);
-            return true;
-        } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
-        }
+        return saveUserViewHistory(newsId, ipAddress);
     }
 
     /**
@@ -233,15 +86,12 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort, PopularNews
      * @param ipAddress 사용자 IP 주소
      * @return 조회 이력 존재 여부
      * @throws NewsInfoException Redis 조회 실패 시
+     * @author 양병학
+     * @since 2025-05-27 최초 작성
      */
     @Override
     public boolean hasViewHistory(String newsId, String ipAddress) {
-        try {
-            String key = createViewHistoryKey(newsId, ipAddress);
-            return Boolean.TRUE.equals(redisTemplate.hasKey(key));
-        } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
-        }
+        return checkUserViewHistory(newsId, ipAddress);
     }
 
     /**
@@ -250,42 +100,177 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort, PopularNews
      * @param newsId 조회할 뉴스의 ID
      * @return 현재 조회수
      * @throws NewsInfoException 조회 실패 시
+     * @author 양병학
+     * @since 2025-05-27 최초 작성
      */
     @Override
     public Long getCurrentViewCount(String newsId) {
-        try {
-            return getViewCountFromRedis(newsId)
-                    .orElseGet(() -> getViewCountFromDb(newsId));
-        } catch (NewsInfoException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
+        return retrieveCurrentViewCount(newsId);
+    }
+
+    /**
+     * 조회수 증가 처리를 수행합니다.
+     *
+     * @param newsId 뉴스 ID
+     * @return 증가된 조회수
+     * @throws NewsInfoException 조회수 증가 처리 중 오류가 발생한 경우
+     */
+    private Long processViewCountIncrease(String newsId) {
+        String key = keyGenerator.createViewCountKey(newsId);
+
+        if (isViewCountCached(key)) {
+            return incrementCachedViewCount(key);
+        } else {
+            return initializeAndIncrementViewCount(key, newsId);
         }
     }
 
     /**
-     * Redis에서 뉴스의 현재 조회수를 조회합니다.
+     * Redis에 조회수가 캐시되어 있는지 확인합니다.
+     *
+     * @param key Redis 키
+     * @return 캐시 존재 여부
+     */
+    private boolean isViewCountCached(String key) {
+        try {
+            return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_REDIS_RETRIEVE_FAILED, e);
+        }
+    }
+
+    /**
+     * 캐시된 조회수를 증가시킵니다.
+     *
+     * @param key Redis 키
+     * @return 증가된 조회수
+     * @throws NewsInfoException Redis 증가 작업 실패 시
+     */
+    private Long incrementCachedViewCount(String key) {
+        try {
+            return redisTemplate.opsForValue().increment(key);
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_REDIS_SAVE_FAILED, e);
+        }
+    }
+
+    /**
+     * 조회수를 초기화하고 증가시킵니다.
+     *
+     * @param key    Redis 키
+     * @param newsId 뉴스 ID
+     * @return 증가된 조회수
+     * @throws NewsInfoException 초기화 또는 증가 처리 중 오류가 발생한 경우
+     */
+    private Long initializeAndIncrementViewCount(String key, String newsId) {
+        Long dbViewCount = getViewCountFromDatabase(newsId);
+        Long newViewCount = dbViewCount + 1;
+        saveViewCountToRedis(key, newViewCount);
+        return newViewCount;
+    }
+
+    /**
+     * 데이터베이스에서 조회수를 조회합니다.
      *
      * @param newsId 뉴스 ID
-     * @return 조회수를 담은 Optional (Redis에 없거나 파싱 오류 시 빈 Optional)
+     * @return 조회수 (없을 경우 0)
+     * @throws NewsInfoException DB 조회 실패 시
+     */
+    private Long getViewCountFromDatabase(String newsId) {
+        try {
+            return newsInfoJpaRepository.findByGuid(newsId)
+                    .stream()
+                    .findFirst()
+                    .map(article -> Objects.requireNonNullElse(article.getViewCount(), 0L))
+                    .orElse(0L);
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_DB_QUERY_FAILED, e);
+        }
+    }
+
+    /**
+     * Redis에 조회수를 저장합니다.
+     *
+     * @param key       Redis 키
+     * @param viewCount 저장할 조회수
+     * @throws NewsInfoException Redis 저장 실패 시
+     */
+    private void saveViewCountToRedis(String key, Long viewCount) {
+        try {
+            redisTemplate.opsForValue().set(key, String.valueOf(viewCount));
+            redisTemplate.expire(key, VIEW_COUNT_EXPIRE_DAYS, TimeUnit.DAYS);
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_REDIS_SAVE_FAILED, e);
+        }
+    }
+
+    /**
+     * 사용자 조회 이력을 저장합니다.
+     *
+     * @param newsId    뉴스 ID
+     * @param ipAddress 사용자 IP 주소
+     * @return 저장 성공 여부
+     * @throws NewsInfoException 이력 저장 실패 시
+     */
+    private boolean saveUserViewHistory(String newsId, String ipAddress) {
+        try {
+            String key = keyGenerator.createViewHistoryKey(newsId, ipAddress);
+            redisTemplate.opsForValue().set(key, "1");
+            redisTemplate.expire(key, VIEW_HISTORY_EXPIRE_DAYS, TimeUnit.DAYS);
+            return true;
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_HISTORY_SAVE_FAILED, e);
+        }
+    }
+
+    /**
+     * 사용자 조회 이력을 확인합니다.
+     *
+     * @param newsId    뉴스 ID
+     * @param ipAddress 사용자 IP 주소
+     * @return 조회 이력 존재 여부
+     * @throws NewsInfoException 이력 조회 실패 시
+     */
+    private boolean checkUserViewHistory(String newsId, String ipAddress) {
+        try {
+            String key = keyGenerator.createViewHistoryKey(newsId, ipAddress);
+            return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_HISTORY_RETRIEVE_FAILED, e);
+        }
+    }
+
+    /**
+     * 현재 조회수를 조회합니다.
+     *
+     * @param newsId 뉴스 ID
+     * @return 현재 조회수
+     * @throws NewsInfoException 조회 실패 시
+     */
+    private Long retrieveCurrentViewCount(String newsId) {
+        Optional<Long> redisViewCount = getViewCountFromRedis(newsId);
+        return redisViewCount.orElseGet(() -> getViewCountFromDatabase(newsId));
+    }
+
+    /**
+     * Redis에서 조회수를 조회합니다.
+     *
+     * @param newsId 뉴스 ID
+     * @return 조회수 Optional
      * @throws NewsInfoException Redis 조회 실패 시
      */
     private Optional<Long> getViewCountFromRedis(String newsId) {
         try {
-            String key = createViewCountKey(newsId);
-            String countFromRedis = redisTemplate.opsForValue().get(key);
-
-            return Optional.ofNullable(countFromRedis)
-                    .map(this::parseViewCount);
-        } catch (NewsInfoException e) {
-            throw e;
+            String key = keyGenerator.createViewCountKey(newsId);
+            String countValue = redisTemplate.opsForValue().get(key);
+            return Optional.ofNullable(countValue).map(this::parseViewCount);
         } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
+            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_REDIS_RETRIEVE_FAILED, e);
         }
     }
 
     /**
-     * 조회수 문자열을 Long 타입으로 파싱합니다.
+     * 조회수 문자열을 Long으로 파싱합니다.
      *
      * @param countValue 파싱할 문자열
      * @return 파싱된 조회수
@@ -300,121 +285,30 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort, PopularNews
     }
 
     /**
-     * DB에서 뉴스의 현재 조회수를 조회합니다.
+     * 최근 뉴스인지 확인합니다.
      *
-     * @param newsId 뉴스 ID (GUID)
-     * @return 현재 조회수 (없을 경우 0)
-     * @throws NewsInfoException DB 조회 실패 시
+     * @param publishDate 발행일
+     * @return 최근 뉴스 여부
      */
-    private Long getViewCountFromDb(String newsId) {
-        try {
-            return newsInfoJpaRepository.findByGuid(newsId)
-                    .stream()
-                    .findFirst()
-                    .map(article -> Objects.requireNonNullElse(article.getViewCount(), 0L))
-                    .orElse(0L);
-        } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.NEWS_INFO_NOT_FOUND, e);
-        }
+    private boolean isRecentNews(LocalDateTime publishDate) {
+        LocalDateTime threeDaysAgo = LocalDateTime.now().minusDays(RECENT_NEWS_DAYS);
+        return publishDate.isAfter(threeDaysAgo);
     }
 
     /**
-     * Redis에 조회수를 저장하고 만료 시간을 설정합니다.
+     * 필요시 랭킹을 업데이트합니다.
      *
-     * @param key   Redis 키
-     * @param count 저장할 조회수
-     * @throws NewsInfoException Redis 저장 실패 시
-     */
-    private void saveViewCountToRedis(String key, Long count) {
-        try {
-            redisTemplate.opsForValue().set(key, String.valueOf(count));
-            redisTemplate.expire(key, VIEW_COUNT_EXPIRE_DAYS, TimeUnit.DAYS);
-        } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
-        }
-    }
-
-    /**
-     * 뉴스 ID로 Redis 조회수 키를 생성합니다.
-     *
-     * @param newsId 뉴스 ID
-     * @return Redis 키
-     */
-    private String createViewCountKey(String newsId) {
-        return VIEW_COUNT_KEY_PREFIX + newsId;
-    }
-
-    /**
-     * 뉴스 ID와 IP 주소로 조회 이력 키를 생성합니다.
-     *
+     * @param category  카테고리
      * @param newsId    뉴스 ID
-     * @param ipAddress 사용자 IP 주소
-     * @return Redis 키
+     * @param viewCount 조회수
+     * @throws NewsInfoException 랭킹 업데이트 실패 시
      */
-    private String createViewHistoryKey(String newsId, String ipAddress) {
-        return VIEW_HISTORY_KEY_PREFIX + newsId + ":" + ipAddress;
-    }
-
-    /**
-     * 카테고리별 Top1 뉴스 결과 저장 (2차 캐싱)
-     */
-    @Override
-    public void saveTopNews(String category, PopularNewsResponse topNews) {
+    private void updateRankingIfNeeded(String category, String newsId, Long viewCount) {
         try {
-            String topNewsKey = createTopNewsKey(category);
-            String jsonValue = convertToJson(topNews);
-            redisTemplate.opsForValue().set(topNewsKey, jsonValue);
-            redisTemplate.expire(topNewsKey, 1, TimeUnit.HOURS);
+            popularNewsAdapter.updateRankingScore(category, newsId, viewCount);
+            popularNewsAdapter.updateRankingScore("전체", newsId, viewCount);
         } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
-        }
-    }
-
-    /**
-     * 카테고리별 Top1 뉴스 결과 조회 (2차 캐싱)
-     */
-    @Override
-    public PopularNewsResponse getTopNews(String category) {
-        try {
-            String topNewsKey = createTopNewsKey(category);
-            String jsonValue = redisTemplate.opsForValue().get(topNewsKey);
-
-            if (jsonValue == null) {
-                return null;
-            }
-
-            return convertFromJson(jsonValue);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    /**
-     * Top1 뉴스 캐시 키 생성
-     */
-    private String createTopNewsKey(String category) {
-        return TOP_NEWS_KEY_PREFIX + category;
-    }
-
-    /**
-     * PopularNewsResponse를 JSON으로 변환
-     */
-    private String convertToJson(PopularNewsResponse topNews) {
-        try {
-            return objectMapper.writeValueAsString(topNews);
-        } catch (JsonProcessingException e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
-        }
-    }
-
-    /**
-     * JSON을 PopularNewsResponse로 변환
-     */
-    private PopularNewsResponse convertFromJson(String jsonValue) {
-        try {
-            return objectMapper.readValue(jsonValue, PopularNewsResponse.class);
-        } catch (JsonProcessingException e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_UPDATE_FAILED, e);
+            throw new NewsInfoException(NewsInfoErrorCode.RANKING_SCORE_UPDATE_FAILED, e);
         }
     }
 }
