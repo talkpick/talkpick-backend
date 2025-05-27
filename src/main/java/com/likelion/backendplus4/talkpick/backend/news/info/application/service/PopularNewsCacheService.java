@@ -1,8 +1,10 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.application.service;
 
 import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.PopularNewsResponse;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.PopularNewsResponseMapper;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.PopularNewsPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoException;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -126,7 +128,8 @@ public class PopularNewsCacheService {
      * @throws NewsInfoException 데이터베이스 조회 또는 캐시 저장 중 오류가 발생한 경우
      */
     private PopularNewsResponse fetchFromDatabaseAndCache(String category, String topNewsId) {
-        PopularNewsResponse freshNews = getPopularNewsFromDatabase(topNewsId);
+        NewsInfoDetail newsDetail = getNewsDetailFromDatabase(topNewsId);
+        PopularNewsResponse freshNews = convertToResponse(newsDetail);
 
         if (freshNews != null) {
             saveToRedisCache(category, freshNews);
@@ -135,9 +138,17 @@ public class PopularNewsCacheService {
         return freshNews;
     }
 
-    private PopularNewsResponse getPopularNewsFromDatabase(String topNewsId) {
+    private NewsInfoDetail getNewsDetailFromDatabase(String topNewsId) {
         try {
-            return newsDetailProviderPort.getPopularNewsByArticleId(topNewsId);
+            return newsDetailProviderPort.getNewsInfoDetailsByArticleId(topNewsId);
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.NEWS_INFO_NOT_FOUND, e);
+        }
+    }
+
+    private PopularNewsResponse convertToResponse(NewsInfoDetail newsDetail) {
+        try {
+            return PopularNewsResponseMapper.toResponse(newsDetail);
         } catch (Exception e) {
             throw new NewsInfoException(NewsInfoErrorCode.NEWS_INFO_NOT_FOUND, e);
         }
