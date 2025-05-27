@@ -2,8 +2,10 @@ package com.likelion.backendplus4.talkpick.backend.chat.config;
 
 
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.JwtAuthentication;
+import com.likelion.backendplus4.talkpick.backend.chat.infrastructure.interceptor.ChatInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -23,6 +25,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final int relayPort;
     private final String username;
     private final String password;
+    private final ChatInterceptor chatInterceptor;
 
     /**
      * 생성자 주입을 통해 프로퍼티 값을 받습니다.
@@ -38,12 +41,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             @Value("${spring.rabbitmq.host}") String relayHost,
             @Value("${spring.rabbitmq.stomp-port}") int relayPort,
             @Value("${spring.rabbitmq.username}") String username,
-            @Value("${spring.rabbitmq.password}") String password
+            @Value("${spring.rabbitmq.password}") String password,
+            ChatInterceptor chatInterceptor
     ) {
         this.relayHost = relayHost;
         this.relayPort = relayPort;
         this.username = username;
         this.password = password;
+        this.chatInterceptor = chatInterceptor;
     }
 
     /**
@@ -56,8 +61,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-chat")
-            .setAllowedOrigins("https://talkpick.techlog.dev")
-            .withSockJS();
+                .setAllowedOrigins("https://talkpick.techlog.dev")
+                .withSockJS();
     }
 
     /**
@@ -84,5 +89,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         config.setApplicationDestinationPrefixes("/app");
     }
 
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(chatInterceptor);
+    }
 
 }
