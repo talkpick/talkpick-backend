@@ -1,5 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.application.service;
 
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.CachePerformanceTracker;
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.TimeTracker;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.PopularNewsResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.PopularNewsResponseMapper;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.PopularNewsPort;
@@ -35,6 +37,7 @@ public class PopularNewsCacheService {
      * @author 양병학
      * @since 2025-05-27 최초 작성
      */
+    @CachePerformanceTracker
     @Cacheable(value = "popularNews", key = "#category")
     public PopularNewsResponse getTopNewsByCategory(String category) {
         return fetchTopNewsFromDataSource(category);
