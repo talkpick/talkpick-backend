@@ -11,7 +11,7 @@ import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.Chat
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatSessionPort;
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.ChatMessage;
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.MessageType;
-import com.likelion.backendplus4.talkpick.backend.chat.infrastructure.support.mapper.SliceResponseChatMapper;
+import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.support.mapper.SliceResponseChatMapper;
 import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.dto.response.ChatMessageResponse;
 import com.likelion.backendplus4.talkpick.backend.common.response.SliceResponse;
 

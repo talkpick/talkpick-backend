@@ -1,10 +1,9 @@
-package com.likelion.backendplus4.talkpick.backend.chat.infrastructure.support.mapper;
+package com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.support.mapper;
 
 import java.util.List;
 
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.ChatMessage;
 import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.dto.response.ChatMessageResponse;
-import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.support.mapper.ChatMessageResponseMapper;
 import com.likelion.backendplus4.talkpick.backend.common.response.SliceResponse;
 
 
