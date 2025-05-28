@@ -1,6 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -27,7 +28,7 @@ public interface NewsInfoJpaRepository extends JpaRepository<ArticleEntity, Long
 	 * @author 함예정
 	 * @since 2025-05-14
 	 */
-	List<ArticleEntity> findByGuid(String guid);
+	Optional<ArticleEntity> findByGuid(String guid);
 
 	/**
 	 * 지정된 ID보다 작은 ID를 가진 ArticleEntity들을 ID 내림차순으로 조회합니다.

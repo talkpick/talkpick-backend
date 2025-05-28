@@ -31,7 +31,7 @@ import lombok.ToString;
  * @modified 2025-05-10
  */
 @Entity
-@Table(name = "article", uniqueConstraints = @UniqueConstraint(columnNames = {"link"}))
+@Table(name = "article", uniqueConstraints = @UniqueConstraint(columnNames = {"guid"}))
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -47,7 +47,7 @@ public class ArticleEntity {
 	@Column(nullable = false)
 	private String title;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false)
 	private String link;
 
 	@Column(name = "pub_date")
@@ -56,7 +56,7 @@ public class ArticleEntity {
 	@Column
 	private String category;
 
-	@Column
+	@Column(nullable = false, unique = true)
 	private String guid;
 
 	@Column(columnDefinition = "TEXT")
