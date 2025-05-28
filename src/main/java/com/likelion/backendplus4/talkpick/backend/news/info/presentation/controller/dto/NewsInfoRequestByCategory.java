@@ -1,14 +1,15 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto;
 /**
- * 뉴스 조회 요청 DTO
+ * 카테고리별 뉴스 조회 요청 DTO
  *
  * @since 2025-05-26
  */
-public record NewsInfoRequest(
+public record NewsInfoRequestByCategory(
 	String lastId,
-	Integer size) {
+	Integer size,
+	String category) {
 
-	public NewsInfoRequest {
+	public NewsInfoRequestByCategory {
 		if (size == null) {
 			size = 10;
 		}
