@@ -1,4 +1,6 @@
-package com.likelion.backendplus4.talkpick.backend.chat.application.port.in.mapper;
+package com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.support.mapper;
+
+import java.time.LocalDateTime;
 
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.ChatMessage;
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.MessageType;
@@ -10,16 +12,18 @@ import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.d
  * 요청 DTO를 도메인 모델로 변환하는 매퍼 클래스
  *
  * @since 2025-05-18
+ * @modified 2025-05-20
+ * 2025-05-20 - 폴더 위치 이동
  */
 public class ChatMessageRequestMapper {
     public static ChatMessage toDomain(ChatMessageRequest request) {
-        return new ChatMessage(
-                request.getArticleId(),
-                request.getSender(),
-                request.getContent(),
-                request.getTimestamp(),
-                stringToMessageType(request.getMessageType())
-        );
+        return ChatMessage.builder()
+            .articleId(request.getArticleId())
+            .sender(request.getSender())
+            .content(request.getContent())
+            .timestamp(LocalDateTime.now())
+            .messageType(stringToMessageType(request.getMessageType()))
+            .build();
     }
 
     private static MessageType stringToMessageType(String type) {

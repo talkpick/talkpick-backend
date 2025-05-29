@@ -33,7 +33,7 @@ public class ArticleEntityMapper {
 			.scrapInfos(scrapInfos)
 			.build();
 	}
-	
+
 	public static NewsInfo toInfoFromEntity(ArticleEntity e) {
 		return NewsInfo.builder()
 			.id(e.getGuid())

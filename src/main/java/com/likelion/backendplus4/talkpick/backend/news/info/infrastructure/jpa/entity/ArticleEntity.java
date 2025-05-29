@@ -78,9 +78,9 @@ public class ArticleEntity {
 	@Column(name = "summary_vector", columnDefinition = "JSON")
 	private float[] summaryVector;
 
-	@Setter
-	@Column(name = "view_count", nullable = false)
-	private Long viewCount;
+  @Setter
+  @Column(name = "view_count", nullable = false)
+  private Long viewCount;
 
 	@OneToMany(fetch = FetchType.LAZY)
 	@JoinColumn(name = "news_id", referencedColumnName = "guid")
