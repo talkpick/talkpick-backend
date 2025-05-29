@@ -69,7 +69,7 @@ public class ChatService implements ChatUseCase {
      */
     @Override
     public SliceResponse<ChatMessageResponse> loadOlderMessages(String articleId, LocalDateTime before, int limit) {
-        Slice<ChatMessage> chatMessage = dbPort.findBeforeMessages(articleId, before, PageRequest.of(0, limit));
+        Slice<ChatMessage> chatMessage = dbPort.findBeforeMessages(articleId, before, PageRequest.of(DEFAULT_PAGE_NUMBER, limit));
         return SliceResponseChatMapper.toSliceResponse(chatMessage.stream().toList(), chatMessage.hasNext());
     }
 
