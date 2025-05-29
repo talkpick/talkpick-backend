@@ -78,9 +78,12 @@ public class ChatService implements ChatUseCase {
      *   - Redis 캐시에 저장
      *   - Redis 스트림에 저장
      * - RabbitMQ에 발행
+     *
      * @param message 채팅 메시지
      * @author 박찬병
      * @since 2025-05-20
+     * @modified 2025-05-29
+     * 2025-05-29 내부 메서드 이름 변경
      */
     @Override
     public void sendMessage(ChatMessage message) {
@@ -88,7 +91,7 @@ public class ChatService implements ChatUseCase {
             cachePort.cache(message, MAX_CACHE_SIZE);
             streamPort.cacheToStream(message);
         }
-        brokerPort.publishMessage(message);
+        brokerPort.deliverChatToArticle(message.getArticleId(), message);
     }
 
 
