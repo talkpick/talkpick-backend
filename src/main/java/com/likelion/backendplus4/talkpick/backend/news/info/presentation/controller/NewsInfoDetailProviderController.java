@@ -1,6 +1,8 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller;
 
 import static com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse.*;
+import static com.likelion.backendplus4.talkpick.backend.news.info.presentation.mapper.NewsInfoDetailResponseMapper.*;
+import static com.likelion.backendplus4.talkpick.backend.news.info.presentation.mapper.ScrapCommandMapper.*;
 
 import javax.validation.Valid;
 
@@ -19,11 +21,6 @@ import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsViewCountIncreaseUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.dto.ScrapRequest;
-import com.likelion.backendplus4.talkpick.backend.news.info.presentation.mapper.NewsInfoDetailResponseMapper;
-
-import static com.likelion.backendplus4.talkpick.backend.news.info.presentation.mapper.NewsInfoDetailResponseMapper.toResponse;
-
-import static com.likelion.backendplus4.talkpick.backend.news.info.presentation.mapper.ScrapCommandMapper.toCommand;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.validator.NewsIdConstraint;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,14 +54,15 @@ public class NewsInfoDetailProviderController {
 	 */
 	@GetMapping("/{id}")
 	public ResponseEntity<ApiResponse<NewsInfoDetailResponse>> getNewsInfoDetailsByArticleId(
-		@PathVariable @NewsIdConstraint String id,  // @NewsIdConstraint 추가
+		@PathVariable @NewsIdConstraint String id,
 		HttpServletRequest request) {
 
 		String ipAddress = request.getRemoteAddr();
 
 		NewsInfoComplete newsInfoComplete = newsInfoDetailProviderUseCase.getNewsInfoDetailByNewsId(id);
 
-		newsViewCountIncreaseUseCase.increaseViewCount(id, ipAddress, newsInfoComplete.getCategory(), newsInfoComplete.getPublishDate());
+		newsViewCountIncreaseUseCase.increaseViewCount(id, ipAddress, newsInfoComplete.getCategory(),
+			newsInfoComplete.getPublishDate());
 
 		return success(toResponse(newsInfoDetailProviderUseCase.getNewsInfoDetailByNewsId(id)));
 	}
