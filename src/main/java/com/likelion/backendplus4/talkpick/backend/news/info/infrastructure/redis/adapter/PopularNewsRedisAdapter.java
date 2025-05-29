@@ -262,14 +262,4 @@ public class PopularNewsRedisAdapter implements PopularNewsPort {
             throw new NewsInfoException(NewsInfoErrorCode.RANKING_SCORE_UPDATE_FAILED, e);
         }
     }
-
-    @Override
-    public PopularNewsResponse getPopularNewsResponseById(String newsId) {
-        try {
-            NewsInfoDetail newsDetail = newsDetailProviderPort.getNewsInfoDetailsByArticleId(newsId);
-            return PopularNewsResponseMapper.toResponse(newsDetail);
-        } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.NEWS_INFO_NOT_FOUND, e);
-        }
-    }
 }

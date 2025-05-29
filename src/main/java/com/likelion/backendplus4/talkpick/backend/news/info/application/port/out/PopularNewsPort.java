@@ -74,13 +74,4 @@ public interface PopularNewsPort {
      */
     PopularNewsResponse getTopNews(String category);
 
-    /**
-     * 뉴스 ID로 PopularNewsResponse를 조회합니다.
-     *
-     * @param newsId 조회할 뉴스 ID
-     * @return 변환된 PopularNewsResponse
-     * @author 양병학
-     * @since 2025-05-27 최초 작성
-     */
-    PopularNewsResponse getPopularNewsResponseById(String newsId);
 }
