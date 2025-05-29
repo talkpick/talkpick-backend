@@ -1,7 +1,8 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.domain.model;
 
 import java.time.LocalDateTime;
-
+import java.util.List;
+import java.util.Optional;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -23,4 +24,5 @@ public class NewsInfoDetail {
 	private String imageUrl;
 	private String summary;
 	private Long viewCount;
+	private List<ScrapInfo> scrapInfos;
 }

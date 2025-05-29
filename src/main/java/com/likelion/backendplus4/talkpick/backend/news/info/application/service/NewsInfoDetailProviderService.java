@@ -1,11 +1,18 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.application.service;
 
-import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.NewsInfoDetailResponse;
-import com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoDetailResponseMapper;
+import java.util.List;
+
+import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
+import static com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoCompleteMapper.toNewsInfoComplete;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoDetailProviderUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsViewCountIncreaseUseCase;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.support.HighlightCalculator;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.HighlightSegment;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
+import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoException;
+import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,7 +29,7 @@ import org.springframework.stereotype.Service;
 public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseCase {
 	private final NewsDetailProviderPort newsDetailProviderPort;
 	private final NewsViewCountIncreaseUseCase newsViewCountIncreaseUseCase;
-
+	private final HighlightCalculator highlightCalculator;
 	/**
 	 * 뉴스 ID를 기반으로 뉴스 상세 정보와 현재 조회수를 함께 조회합니다.
 	 *
@@ -32,11 +39,19 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
 	 * @author 양병학
 	 */
 	@Override
-	public NewsInfoDetailResponse getNewsInfoDetailByNewsId(String newsId) {
-		NewsInfoDetail newsInfoDetail = fetchNewsInfoDetail(newsId);
+	public NewsInfoComplete getNewsInfoDetailByNewsId(String newsId) {
+		NewsInfoDetail detail = fetchNewsInfoDetail(newsId);
+
+		List<HighlightSegment> highlightSegments =  highlightCalculator.computeSegments(detail.getScrapInfos());
+
 		Long currentViewCount = fetchCurrentViewCount(newsId);
 
-		return createResponseWithCurrentViewCount(newsInfoDetail, currentViewCount);
+		return combineNewsInfoAndViewCount(detail, highlightSegments, currentViewCount);
+	}
+
+	@Override
+	public void saveScrap(ScrapCommand scrapCommand) {
+		newsDetailProviderPort.saveScrap(scrapCommand);
 	}
 
 	/**
@@ -46,7 +61,9 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
 	 * @return 뉴스 상세 도메인 객체
 	 */
 	private NewsInfoDetail fetchNewsInfoDetail(String newsId) {
-		return newsDetailProviderPort.getNewsInfoDetailsByArticleId(newsId);
+		return newsDetailProviderPort
+			.getNewsInfoDetailsByArticleId(newsId)
+			.orElseThrow(() -> new NewsInfoException(NewsInfoErrorCode.NEWS_NOT_FOUND));
 	}
 
 	/**
@@ -66,7 +83,8 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
 	 * @param currentViewCount 현재 조회수
 	 * @return 통합된 응답 객체
 	 */
-	private NewsInfoDetailResponse createResponseWithCurrentViewCount(NewsInfoDetail newsInfoDetail, Long currentViewCount) {
-		return NewsInfoDetailResponseMapper.toResponseWithViewCount(newsInfoDetail, currentViewCount);
+
+	private NewsInfoComplete combineNewsInfoAndViewCount(NewsInfoDetail newsInfoDetail, List<HighlightSegment> highlightSegments, Long currentViewCount) {
+		return toNewsInfoComplete(newsInfoDetail, highlightSegments, currentViewCount);
 	}
 }
