@@ -57,7 +57,7 @@ public class RedisChatMessageCacheAdapter implements ChatMessageCachePort {
 		String flagKey = buildKey(message.getArticleId(), HAS_NEXT_KEY_SUFFIX);
 		boolean existingHasNext = Boolean.parseBoolean(redisTemplate.opsForValue().get(flagKey));
 
-		if (!existingHasNext && currentSize != null && currentSize > maxCacheSize) {
+		if (!existingHasNext && null != currentSize && currentSize > maxCacheSize) {
 			updateHasNextFlag(message.getArticleId(), true);
 		}
 	}
