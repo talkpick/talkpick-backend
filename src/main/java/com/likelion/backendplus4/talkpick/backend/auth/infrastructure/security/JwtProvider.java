@@ -1,6 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security;
 
-import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.AuthTokenStorePort;
+import com.likelion.backendplus4.talkpick.backend.auth.application.port.out.AuthStorePort;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.TokenPair;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.AuthException;
 import com.likelion.backendplus4.talkpick.backend.auth.exception.error.AuthErrorCode;
@@ -33,10 +33,11 @@ public class JwtProvider {
 
     private final JwtVerifier jwtVerifier;
     private final Key jwtSigningKey;
-    private final AuthTokenStorePort authTokenStorePort;
+    private final AuthStorePort authStorePort;
 
-    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 30;
-    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7;
+    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 30;         // 30분
+    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7일
+    private static final long TEMP_TOKEN_EXPIRATION = 1000 * 60 * 5; // 5분
     private static final String CLAIMS_NICKNAME = "nickname";
     private static final String CLAIMS_ROLES = "roles";
 
@@ -67,7 +68,7 @@ public class JwtProvider {
         String accessToken = createToken(userId, roles, ACCESS_TOKEN_EXPIRATION, nickname);
         String refreshToken = createToken(userId, null, REFRESH_TOKEN_EXPIRATION, nickname);
 
-        authTokenStorePort.storeRefreshToken(userId, refreshToken, roles);
+        authStorePort.storeRefreshToken(userId, refreshToken, roles);
 
         return TokenMapper.toDomain(accessToken, refreshToken);
     }
@@ -97,7 +98,7 @@ public class JwtProvider {
 
         validateRefreshToken(userId, refreshToken);
 
-        String authorities = authTokenStorePort.getAuthorities(userId);
+        String authorities = authStorePort.getAuthorities(userId);
 
         String newAccessToken = createToken(userId, authorities, ACCESS_TOKEN_EXPIRATION, nickname);
         return TokenMapper.toDomain(newAccessToken, refreshToken);
@@ -199,6 +200,26 @@ public class JwtProvider {
     }
 
     /**
+     * 임시 토큰을 생성합니다. (예: 비밀번호 재설정용)
+     *
+     * @param email 토큰의 Subject로 사용할 이메일
+     * @return 생성된 임시 JWT 토큰 문자열
+     * @author 박찬병
+     * @since 2025-05-20
+     */
+    @EntryExitLog
+    public String generateTempToken(String email) {
+        Date now = new Date();
+        Date expiresAt = new Date(now.getTime() + TEMP_TOKEN_EXPIRATION);
+        return Jwts.builder()
+            .setSubject(email)
+            .setIssuedAt(now)
+            .setExpiration(expiresAt)
+            .signWith(jwtSigningKey, SignatureAlgorithm.HS256)
+            .compact();
+    }
+
+    /**
      * Redis에 저장된 리프레시 토큰 일치 여부를 확인하고, 유효하지 않으면 예외를 던집니다.
      *
      * 1. Redis에 저장된 토큰 조회
@@ -213,7 +234,7 @@ public class JwtProvider {
      */
     @EntryExitLog
     private void validateRefreshToken(String userId, String refreshToken) {
-        if (!authTokenStorePort.isValidRefreshToken(userId, refreshToken)) {
+        if (!authStorePort.isValidRefreshToken(userId, refreshToken)) {
             throw new AuthException(AuthErrorCode.INVALID_REFRESH_TOKEN);
         }
     }

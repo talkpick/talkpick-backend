@@ -44,6 +44,7 @@ public enum NewsInfoErrorCode implements ErrorCode {
 
 	NON_UNIQUE_NEWS_INFO(HttpStatus.INTERNAL_SERVER_ERROR, 450001, "고유한 뉴스 ID 값이 아닙니다"),
 	NEWS_INFO_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, 450002, "뉴스 정보를 찾을수 없습니다"),
+	NEWS_CATEGORY_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, 450003, "지원하지 않는 카테고리 입니다"),
 
 	VIEW_COUNT_INVALID_FORMAT(HttpStatus.BAD_REQUEST, 450011, "조회수 값의 형식이 올바르지 않습니다"),
 	VIEW_COUNT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450012, "조회수 업데이트 처리 중 오류가 발생했습니다"),
