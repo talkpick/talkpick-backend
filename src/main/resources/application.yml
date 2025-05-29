@@ -99,3 +99,7 @@ auth:
     field:
       email-auth-code: emailAuthCode
       account: account
+
+cache:
+  header: ${CACHE_HEADER:public, max-age=3600, must-revalidate}
+  prefix: ${CACHE_PREFIX:/public/}
