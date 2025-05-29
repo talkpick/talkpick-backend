@@ -1,6 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.application.port.in;
 
-import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.NewsInfoDetailResponse;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
 
 /**
  *  뉴스 상세 정보를 조회하는 UseCase입니다
@@ -17,5 +18,7 @@ public interface NewsInfoDetailProviderUseCase {
 	 * @author 함예정
 	 * @since 2025-05-14
 	 */
-	NewsInfoDetailResponse getNewsInfoDetailByNewsId(String newsId);
+	NewsInfoComplete getNewsInfoDetailByNewsId(String newsId);
+
+	void saveScrap(ScrapCommand scrapCommand);
 }
