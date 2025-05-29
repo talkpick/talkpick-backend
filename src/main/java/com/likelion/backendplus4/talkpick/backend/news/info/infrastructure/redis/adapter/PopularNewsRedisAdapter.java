@@ -15,6 +15,7 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -124,17 +125,16 @@ public class PopularNewsRedisAdapter implements PopularNewsPort {
         performRankingScoreUpdate(category, newsId, viewCount, publishDate);
     }
 
-    @Override
     public PopularNewsResponse getPopularNewsResponseById(String newsId) {
         try {
-            NewsInfoDetail newsDetail = newsDetailProviderPort.getNewsInfoDetailsByArticleId(newsId);
+            NewsInfoDetail newsDetail =
+                newsDetailProviderPort.getNewsInfoDetailsByArticleId(newsId)
+                    .orElseThrow(() -> new NewsInfoException(NewsInfoErrorCode.NEWS_NOT_FOUND));
             return PopularNewsResponseMapper.toResponse(newsDetail);
         } catch (Exception e) {
             throw new NewsInfoException(NewsInfoErrorCode.NEWS_INFO_NOT_FOUND, e);
         }
     }
-
-    // ==================== Private Methods ====================
 
     /**
      * Top1 뉴스 ID를 조회합니다.
