@@ -30,7 +30,7 @@ public interface NewsInfoJpaRepository extends JpaRepository<ArticleEntity, Long
 	 * @author 함예정
 	 * @since 2025-05-14
 	 */
-	Optional<ArticleEntity> findByGuid(String guid);
+	List<ArticleEntity> findByGuid(String guid);
 
 	@Query("""
       select distinct a

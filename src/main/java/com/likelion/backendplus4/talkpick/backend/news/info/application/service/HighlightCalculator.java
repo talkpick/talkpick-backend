@@ -3,6 +3,8 @@ package com.likelion.backendplus4.talkpick.backend.news.info.application.service
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Component;
 
@@ -11,29 +13,40 @@ import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.ScrapIn
 @Component
 public class HighlightCalculator {
 
-	/**
-	 * ScrapInfo 리스트(startOffset, endOffset)를 받아
-	 * 하이라이트 세그먼트를 계산해 반환합니다.
-	 */
 	public List<HighlightSegment> computeSegments(List<ScrapInfo> scraps) {
-		// 기존 Event 생성부만, HighlightSegment 대신 ScrapInfo 사용
-		List<Event> events = new ArrayList<>();
-		for (ScrapInfo s : scraps) {
-			events.add(new Event(s.getStartOffset(), +1));
-			events.add(new Event(s.getEndOffset(),   -1));
-		}
-		events.sort(Comparator.comparingInt(e -> e.offset));
+		return scraps.stream()
+			.collect(Collectors.groupingBy(ScrapInfo::getParagraphIndex))
+			.entrySet().stream()
+			.flatMap(entry -> computeSegmentsForParagraph(entry.getKey(), entry.getValue()).stream())
+			.toList();
+	}
+
+	private List<HighlightSegment> computeSegmentsForParagraph(int paragraphIndex, List<ScrapInfo> scraps) {
+		// 이벤트 생성 및 정렬
+		List<Event> events = scraps.stream()
+			.flatMap(s -> Stream.of(
+				new Event(s.getStartOffset(),  1),
+				new Event(s.getEndOffset(),   -1)
+			))
+			.sorted(Comparator.comparingInt(Event::offset))
+			.toList();
 
 		List<HighlightSegment> segments = new ArrayList<>();
 		int count = 0;
-		int prev = events.isEmpty() ? 0 : events.get(0).offset;
-		for (Event e : events) {
-			int curr = e.offset;
-			if (0 < count && curr > prev) {
-				segments.add(new HighlightSegment(prev, curr, count));
+		int prevOffset = events.isEmpty() ? 0 : events.get(0).offset();
+
+		for (Event event : events) {
+			int currOffset = event.offset();
+			if (currOffset > prevOffset && count > 0) {
+				segments.add(new HighlightSegment(
+					paragraphIndex,
+					prevOffset,
+					currOffset,
+					count
+				));
 			}
-			count += e.delta;
-			prev = curr;
+			count += event.delta();
+			prevOffset = currOffset;
 		}
 		return segments;
 	}
