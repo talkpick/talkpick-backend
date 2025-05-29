@@ -32,7 +32,8 @@ import org.springframework.http.HttpStatus;
 public enum ChatErrorCode implements ErrorCode {
     INVALID_MESSAGE_TYPE(HttpStatus.BAD_REQUEST, 140001, "유효하지 않은 메시지 타입입니다."),
     INVALID_ARTICLE_ID(HttpStatus.BAD_REQUEST, 140002, "article id는 비어있을 수 없습니다."),
-    INVALID_SENDER(HttpStatus.BAD_REQUEST, 140003, "sender는 비어있을 수 없습니다.");
+    INVALID_SENDER(HttpStatus.BAD_REQUEST, 140003, "sender는 비어있을 수 없습니다."),
+    MESSAGE_PARSE_ERROR(HttpStatus.BAD_REQUEST, 140004, "ChatMessage JSON 파싱에 실패했습니다.");
 
 
 
