@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.chat.config;
+package com.likelion.backendplus4.talkpick.backend.common.configuration.rabbitmq;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
@@ -18,6 +18,8 @@ import java.time.format.DateTimeFormatter;
  * TopicExchange, Queue, Binding, 및 RabbitTemplate을 빈으로 등록합니다.
  *
  * @since 2025-05-18
+ * @modified 2025-05-20
+ * 2025.05.20 - 폴더 위치 이동
  */
 @Configuration
 public class RabbitMQConfig {

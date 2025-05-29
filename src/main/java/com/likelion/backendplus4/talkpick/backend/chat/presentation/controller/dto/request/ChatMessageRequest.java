@@ -10,6 +10,5 @@ public class ChatMessageRequest {
     private final String articleId;
     private final String sender;
     private final String content;
-    private final String timestamp;
     private final String messageType;
 }

@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.chat.config;
+package com.likelion.backendplus4.talkpick.backend.common.configuration.websocket;
 
 
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.security.JwtAuthentication;
@@ -16,6 +16,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
  * RabbitMQ를 브로커로 사용하기 위해 STOMP 브로커 릴레이를 활성화합니다.
  *
  * @since 2025-05-18
+ * @modified 2025-05-20
+ * 2025.05.20 - 폴더 위치 이동
  */
 @Configuration
 @EnableWebSocketMessageBroker
