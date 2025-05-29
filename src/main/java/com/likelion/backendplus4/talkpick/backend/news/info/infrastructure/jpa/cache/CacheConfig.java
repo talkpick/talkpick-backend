@@ -3,6 +3,7 @@ package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -22,6 +23,12 @@ public class CacheConfig {
 
     private final MeterRegistry meterRegistry;
 
+    @Value("${cache.maximum-size:100}")
+    private int maximumSize;
+
+    @Value("${cache.expire-after-write:6h}")
+    private Duration expireAfterWrite;
+
     public CacheConfig(MeterRegistry meterRegistry) {
         this.meterRegistry = meterRegistry;
     }
@@ -30,8 +37,8 @@ public class CacheConfig {
     public CacheManager cacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
         cacheManager.setCaffeine(Caffeine.newBuilder()
-                .maximumSize(100)
-                .expireAfterWrite(Duration.ofHours(6))
+                .maximumSize(maximumSize)
+                .expireAfterWrite(expireAfterWrite)
                 .recordStats());
 
         cacheManager.setCacheNames(List.of("popularNews"));

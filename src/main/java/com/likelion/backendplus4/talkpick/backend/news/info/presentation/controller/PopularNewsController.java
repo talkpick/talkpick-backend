@@ -29,27 +29,6 @@ public class PopularNewsController {
 	private final CategoryMapper categoryMapper;
 
 	/**
-	 * "전체" 카테고리 Top1 인기뉴스 조회 API입니다.
-	 *
-	 * 메인 페이지에서 호출되며, 모든 뉴스 중에서 가장 인기 있는 뉴스 1개를 반환합니다.
-	 * "전체" 카테고리 Redis 랭킹(news:ranking:전체)에서 Top1을 조회합니다.
-	 *
-	 * 캐싱 흐름:
-	 * 1. "전체" 카테고리 해시값 비교로 순위 변화 감지
-	 * 2. 변화 없으면 Spring Cache에서 즉시 반환 (0.000초)
-	 * 3. 변화 감지 시 캐시 무효화 → Redis topNews:전체 조회 → DB 조회 순서
-	 *
-	 * @return "전체" 카테고리의 Top1 뉴스
-	 * @since 2025-05-27
-	 * @author 양병학
-	 */
-	@GetMapping("/top-viewed")
-	public ResponseEntity<ApiResponse<PopularNewsResponse>> getAllTopViewedNews() {
-		PopularNewsResponse topNews = popularNewsUseCase.getTopNewsFromAllCategories();
-		return success(topNews);
-	}
-
-	/**
 	 * 특정 카테고리 인기뉴스 조회 API입니다.
 	 *
 	 * 각 카테고리별 전용 페이지에서 호출되며, 해당 카테고리의 Top1 뉴스 1개를 반환합니다.

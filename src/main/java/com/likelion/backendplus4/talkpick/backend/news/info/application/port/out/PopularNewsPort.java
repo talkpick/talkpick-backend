@@ -4,7 +4,7 @@ import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.Popu
 
 /**
  * 인기뉴스 랭킹 조회를 위한 포트 인터페이스입니다.
- *
+ * 
  * 뉴스 랭킹 데이터 조회, 해시값 관리, 캐시 관리 등의 기능을 정의합니다.
  *
  * @author 양병학
@@ -24,7 +24,7 @@ public interface PopularNewsPort {
 
     /**
      * 특정 카테고리의 Top1 뉴스와 점수를 조회합니다.
-     * <p>
+     * 
      * 해시 계산에 사용되는 데이터를 반환합니다.
      *
      * @param category 조회할 카테고리명
@@ -73,4 +73,14 @@ public interface PopularNewsPort {
      * @since 2025-05-27 최초 작성
      */
     PopularNewsResponse getTopNews(String category);
+
+    /**
+     * 뉴스 ID로 PopularNewsResponse를 조회합니다.
+     *
+     * @param newsId 조회할 뉴스 ID
+     * @return 변환된 PopularNewsResponse
+     * @author 양병학
+     * @since 2025-05-27 최초 작성
+     */
+    PopularNewsResponse getPopularNewsResponseById(String newsId);
 }

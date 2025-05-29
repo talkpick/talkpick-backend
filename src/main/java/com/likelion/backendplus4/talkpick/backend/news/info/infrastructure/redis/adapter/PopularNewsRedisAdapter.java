@@ -1,7 +1,10 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.redis.adapter;
 
 import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.PopularNewsResponse;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.PopularNewsResponseMapper;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.PopularNewsPort;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoException;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.redis.util.RedisKeyGenerator;
@@ -26,6 +29,8 @@ import java.util.concurrent.TimeUnit;
 @Component
 @RequiredArgsConstructor
 public class PopularNewsRedisAdapter implements PopularNewsPort {
+
+    private final NewsDetailProviderPort newsDetailProviderPort;
 
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisKeyGenerator keyGenerator;
@@ -158,7 +163,7 @@ public class PopularNewsRedisAdapter implements PopularNewsPort {
                     redisTemplate.opsForZSet().reverseRangeWithScores(rankingKey, 0, 0);
 
             if (top1WithScore.isEmpty()) {
-                return "empty";
+                return null;
             }
 
             ZSetOperations.TypedTuple<String> tuple = top1WithScore.iterator().next();
@@ -235,8 +240,6 @@ public class PopularNewsRedisAdapter implements PopularNewsPort {
             }
 
             return jsonConverter.fromJson(jsonValue, PopularNewsResponse.class);
-        } catch (NewsInfoException e) {
-            throw e;
         } catch (Exception e) {
             throw new NewsInfoException(NewsInfoErrorCode.CACHE_RETRIEVE_FAILED, e);
         }
@@ -257,6 +260,16 @@ public class PopularNewsRedisAdapter implements PopularNewsPort {
             redisTemplate.expire(rankingKey, 3, TimeUnit.DAYS);
         } catch (Exception e) {
             throw new NewsInfoException(NewsInfoErrorCode.RANKING_SCORE_UPDATE_FAILED, e);
+        }
+    }
+
+    @Override
+    public PopularNewsResponse getPopularNewsResponseById(String newsId) {
+        try {
+            NewsInfoDetail newsDetail = newsDetailProviderPort.getNewsInfoDetailsByArticleId(newsId);
+            return PopularNewsResponseMapper.toResponse(newsDetail);
+        } catch (Exception e) {
+            throw new NewsInfoException(NewsInfoErrorCode.NEWS_INFO_NOT_FOUND, e);
         }
     }
 }

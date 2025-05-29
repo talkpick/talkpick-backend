@@ -10,17 +10,6 @@ import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.Popu
 public interface PopularNewsUseCase {
 
 	/**
-	 * "전체" 카테고리의 Top1 인기뉴스를 조회합니다.
-	 *
-	 * 메인 페이지에서 호출되며, 전체 뉴스 중 가장 인기 있는 뉴스 1개를 반환합니다.
-	 *
-	 * @return "전체" 카테고리의 Top1 인기뉴스
-	 * @since 2025-05-27
-	 * @author 양병학
-	 */
-	PopularNewsResponse getTopNewsFromAllCategories();
-
-	/**
 	 * 특정 카테고리의 Top1 뉴스를 조회합니다.
 	 *
 	 * 단일 카테고리에 대해서만 캐싱 및 조회 로직을 수행합니다.
