@@ -103,3 +103,4 @@ auth:
 cache:
   header: ${CACHE_HEADER:public, max-age=3600, must-revalidate}
   prefix: ${CACHE_PREFIX:/public/}
+  pragma: ""

@@ -41,6 +41,7 @@ public class SecurityConfig {
     private final String HOST_NAME;
     private final String PUBLIC_CACHE_HEADER;
     private final String CACHE_PREFIX;
+    private final String PRAGMA_HEADER;
 
     public SecurityConfig(
         CustomAccessDeniedHandler customAccessDeniedHandler,
@@ -48,13 +49,15 @@ public class SecurityConfig {
         JwtFilter jwtFilter,
         @Value("${host.name}") String HOST_NAME,
         @Value("${cache.header}") String PUBLIC_CACHE_HEADER,
-        @Value("${cache.prefix}") String CACHE_PREFIX) {
+        @Value("${cache.prefix}") String CACHE_PREFIX,
+        @Value("${cache.pragma}") String PRAGMA_HEADER) {
         this.customAccessDeniedHandler = customAccessDeniedHandler;
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
         this.jwtFilter = jwtFilter;
         this.HOST_NAME = HOST_NAME;
         this.PUBLIC_CACHE_HEADER = PUBLIC_CACHE_HEADER;
         this.CACHE_PREFIX = CACHE_PREFIX;
+        this.PRAGMA_HEADER = PRAGMA_HEADER;
     }
 
     /**
@@ -173,6 +176,7 @@ public class SecurityConfig {
                     HttpHeaders.CACHE_CONTROL,
                     PUBLIC_CACHE_HEADER
                 );
+                response.setHeader(HttpHeaders.PRAGMA, PRAGMA_HEADER);
             }
         };
     }
