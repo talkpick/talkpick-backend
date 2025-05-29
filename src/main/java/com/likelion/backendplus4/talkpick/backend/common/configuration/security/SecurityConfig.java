@@ -9,11 +9,10 @@ import com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.pe
 
 import java.util.Arrays;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,6 +21,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -33,16 +33,32 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
  * @modified 2025-05-19
  */
 @Configuration
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final JwtFilter jwtFilter;
+    private final String HOST_NAME;
+    private final String PUBLIC_CACHE_HEADER;
+    private final String CACHE_PREFIX;
+    private final String PRAGMA_HEADER;
 
-    @Value("${host.name}")
-    private String HOST_NAME;
-
+    public SecurityConfig(
+        CustomAccessDeniedHandler customAccessDeniedHandler,
+        CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
+        JwtFilter jwtFilter,
+        @Value("${host.name}") String HOST_NAME,
+        @Value("${cache.header}") String PUBLIC_CACHE_HEADER,
+        @Value("${cache.prefix}") String CACHE_PREFIX,
+        @Value("${cache.pragma}") String PRAGMA_HEADER) {
+        this.customAccessDeniedHandler = customAccessDeniedHandler;
+        this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
+        this.jwtFilter = jwtFilter;
+        this.HOST_NAME = HOST_NAME;
+        this.PUBLIC_CACHE_HEADER = PUBLIC_CACHE_HEADER;
+        this.CACHE_PREFIX = CACHE_PREFIX;
+        this.PRAGMA_HEADER = PRAGMA_HEADER;
+    }
 
     /**
      * AuthenticationManager를 구성합니다.
@@ -88,8 +104,9 @@ public class SecurityConfig {
      * @throws Exception 설정 중 예외 발생 시
      * @author 박찬병
      * @since 2025-05-13
-     * @modified 2025-05-19
+     * @modified 2025-05-29
      * 2025-05-19 - url 설정 추가
+     * 2025-05-29 - 캐싱 경로 설정 추가
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -112,6 +129,8 @@ public class SecurityConfig {
                 .accessDeniedHandler(customAccessDeniedHandler))
             .addFilterBefore(jwtFilter,
                 UsernamePasswordAuthenticationFilter.class)
+            .headers(headers -> headers
+                .addHeaderWriter(publicCacheWriter()))
             .build();
     }
 
@@ -141,4 +160,25 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
+    /**
+     * 요청 경로가 캐시 대상인 경우 Public Cache-Control 헤더를 설정하는 HeaderWriter를 생성합니다.
+     *
+     * @return 요청 경로가 캐시 대상인 경우 Public Cache-Control 헤더가 설정된 HeaderWriter 객체
+     * @author 박찬병
+     * @since 2025-05-29
+     */
+    private HeaderWriter publicCacheWriter() {
+        return (request, response) -> {
+            String path = request.getServletPath();
+            if (path.startsWith(CACHE_PREFIX)) {
+                response.setHeader(
+                    HttpHeaders.CACHE_CONTROL,
+                    PUBLIC_CACHE_HEADER
+                );
+                response.setHeader(HttpHeaders.PRAGMA, PRAGMA_HEADER);
+            }
+        };
+    }
+
 }
