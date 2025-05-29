@@ -58,7 +58,7 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
         saveUserViewHistory(newsId, ipAddress);
 
         if (isRecentNews(publishDate)) {
-            updateRankingIfNeeded(category, newsId, newViewCount);
+            updateRankingIfNeeded(category, newsId, newViewCount, publishDate);
         }
 
         return newViewCount;
@@ -303,10 +303,10 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
      * @param viewCount 조회수
      * @throws NewsInfoException 랭킹 업데이트 실패 시
      */
-    private void updateRankingIfNeeded(String category, String newsId, Long viewCount) {
+    private void updateRankingIfNeeded(String category, String newsId, Long viewCount, LocalDateTime publishDate) {
         try {
-            popularNewsAdapter.updateRankingScore(category, newsId, viewCount);
-            popularNewsAdapter.updateRankingScore("전체", newsId, viewCount);
+            popularNewsAdapter.updateRankingScore(category, newsId, viewCount, publishDate);
+            popularNewsAdapter.updateRankingScore("전체", newsId, viewCount, publishDate);
         } catch (Exception e) {
             throw new NewsInfoException(NewsInfoErrorCode.RANKING_SCORE_UPDATE_FAILED, e);
         }

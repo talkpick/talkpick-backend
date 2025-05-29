@@ -2,6 +2,9 @@ package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.redi
 
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * Redis 키 생성을 담당하는 유틸리티 클래스입니다.
  *
@@ -13,6 +16,8 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class RedisKeyGenerator {
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     private static final String VIEW_COUNT_KEY_PREFIX = "news:viewCount:";
     private static final String VIEW_HISTORY_KEY_PREFIX = "news:viewHistory:";
@@ -55,6 +60,11 @@ public class RedisKeyGenerator {
      */
     public String createRankingKey(String category) {
         return RANKING_KEY_PREFIX + category;
+    }
+
+    public String createRankingKey(String category, LocalDateTime publishDate) {
+        String dateStr = publishDate.toLocalDate().format(DATE_FORMATTER);
+        return RANKING_KEY_PREFIX + category + ":" + dateStr;
     }
 
     /**

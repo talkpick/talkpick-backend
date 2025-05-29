@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -122,8 +123,8 @@ public class PopularNewsRedisAdapter implements PopularNewsPort {
      * @param viewCount 조회수
      * @throws NewsInfoException 랭킹 업데이트 중 오류가 발생한 경우
      */
-    public void updateRankingScore(String category, String newsId, Long viewCount) {
-        performRankingScoreUpdate(category, newsId, viewCount);
+    public void updateRankingScore(String category, String newsId, Long viewCount, LocalDateTime publishDate) {
+        performRankingScoreUpdate(category, newsId, viewCount, publishDate);
     }
 
     /**
@@ -249,10 +250,11 @@ public class PopularNewsRedisAdapter implements PopularNewsPort {
      * @param viewCount 조회수
      * @throws NewsInfoException 업데이트 실패 시
      */
-    private void performRankingScoreUpdate(String category, String newsId, Long viewCount) {
+    private void performRankingScoreUpdate(String category, String newsId, Long viewCount, LocalDateTime publishDate) {
         try {
-            String rankingKey = keyGenerator.createRankingKey(category);
+            String rankingKey = keyGenerator.createRankingKey(category, publishDate);
             redisTemplate.opsForZSet().add(rankingKey, newsId, viewCount.doubleValue());
+            redisTemplate.expire(rankingKey, 3, TimeUnit.DAYS);
         } catch (Exception e) {
             throw new NewsInfoException(NewsInfoErrorCode.RANKING_SCORE_UPDATE_FAILED, e);
         }
