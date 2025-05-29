@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ChatService implements ChatUseCase {
 
+    private static final int DEFAULT_PAGE_NUMBER = 0;
     private static final int MAX_CACHE_SIZE = 100;
 
     private final ChatMessageBrokerPort brokerPort;
@@ -109,7 +110,7 @@ public class ChatService implements ChatUseCase {
      * @since 2025-05-25
      */
     private List<ChatMessage> loadFromDbAndCache(String articleId) {
-        Slice<ChatMessage> slice = dbPort.findRecentMessages(articleId, PageRequest.of(0, MAX_CACHE_SIZE));
+        Slice<ChatMessage> slice = dbPort.findRecentMessages(articleId, PageRequest.of(DEFAULT_PAGE_NUMBER, MAX_CACHE_SIZE));
         List<ChatMessage> messages = slice.getContent();
         cachePort.cacheMessages(articleId, messages, slice.hasNext());
         return messages;
