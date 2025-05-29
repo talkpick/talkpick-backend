@@ -2,16 +2,11 @@ package com.likelion.backendplus4.talkpick.backend.news.info.presentation.contro
 
 import static com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse.*;
 import static com.likelion.backendplus4.talkpick.backend.news.info.presentation.mapper.NewsInfoDetailResponseMapper.*;
-import static com.likelion.backendplus4.talkpick.backend.news.info.presentation.mapper.ScrapCommandMapper.*;
-
-import javax.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,14 +15,12 @@ import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.News
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoDetailProviderUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsViewCountIncreaseUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
-import com.likelion.backendplus4.talkpick.backend.news.info.presentation.dto.ScrapRequest;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.validator.NewsIdConstraint;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 
-@Validated  // 클래스 레벨에 추가 필요
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/public/news")
@@ -54,7 +47,7 @@ public class NewsInfoDetailProviderController {
 	 */
 	@GetMapping("/{id}")
 	public ResponseEntity<ApiResponse<NewsInfoDetailResponse>> getNewsInfoDetailsByArticleId(
-		@PathVariable @NewsIdConstraint String id,
+		@PathVariable @NewsIdConstraint String id,  // @NewsIdConstraint 추가
 		HttpServletRequest request) {
 
 		String ipAddress = request.getRemoteAddr();
@@ -64,16 +57,6 @@ public class NewsInfoDetailProviderController {
 		newsViewCountIncreaseUseCase.increaseViewCount(id, ipAddress, newsInfoComplete.getCategory(),
 			newsInfoComplete.getPublishDate());
 
-		return success(toResponse(newsInfoDetailProviderUseCase.getNewsInfoDetailByNewsId(id)));
-	}
-
-	@PostMapping("/{newsId}/scrap")
-	public ResponseEntity<ApiResponse<Void>> saveScrap(
-		@NotBlank(message = "newsId는 필수입니다.") @PathVariable String newsId,
-		@Valid @RequestBody ScrapRequest scrapRequest) {
-
-		newsInfoDetailProviderUseCase.saveScrap(toCommand(newsId, scrapRequest));
-
-		return success();
+		return success(toResponse(newsInfoComplete));
 	}
 }
