@@ -4,6 +4,7 @@ import static com.likelion.backendplus4.talkpick.backend.common.response.ApiResp
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,6 +17,7 @@ import com.likelion.backendplus4.talkpick.backend.news.info.presentation.control
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.NewsInfoRequestByCategory;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.mapper.NewsInfoResponseMapper;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -55,12 +57,13 @@ public class NewsInfoProviderController {
 	 * @author 함예정
 	 * @since 2025-05-26
 	 */
-	@GetMapping("/latest/category")
+	@GetMapping("/latest/{category}")
 	public ResponseEntity<ApiResponse<SliceResponse>> getLatestNewsInfoByCategory(
+		@NotBlank @PathVariable String category,
 		NewsInfoRequestByCategory newsInfoRequestByCategory) {
 		SliceResult<NewsInfo> latestNewsInfos =
 			newsInfoProviderUsecase.getLatestNewsInfoByCategory(
-				newsInfoRequestByCategory.category(),
+				category,
 				newsInfoRequestByCategory.lastId(),
 				newsInfoRequestByCategory.size());
 

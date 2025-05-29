@@ -6,8 +6,7 @@ package com.likelion.backendplus4.talkpick.backend.news.info.presentation.contro
  */
 public record NewsInfoRequestByCategory(
 	String lastId,
-	Integer size,
-	String category) {
+	Integer size) {
 
 	public NewsInfoRequestByCategory {
 		if (size == null) {

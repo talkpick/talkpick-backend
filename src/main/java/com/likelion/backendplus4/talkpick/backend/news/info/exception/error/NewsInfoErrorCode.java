@@ -45,12 +45,12 @@ public enum NewsInfoErrorCode implements ErrorCode {
 	NON_UNIQUE_NEWS_INFO(HttpStatus.INTERNAL_SERVER_ERROR, 450001, "고유한 뉴스 ID 값이 아닙니다"),
 	NEWS_INFO_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, 450002, "뉴스 정보를 찾을수 없습니다"),
 	NEWS_CATEGORY_NOT_FOUND(HttpStatus.INTERNAL_SERVER_ERROR, 450003, "지원하지 않는 카테고리 입니다"),
-
-	VIEW_COUNT_INVALID_FORMAT(HttpStatus.BAD_REQUEST, 450011, "조회수 값의 형식이 올바르지 않습니다"),
-	VIEW_COUNT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450012, "조회수 업데이트 처리 중 오류가 발생했습니다"),
-	VIEW_COUNT_CLEANUP_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450013, "오래된 조회수 데이터 정리 중 오류가 발생했습니다"),
+	VIEW_COUNT_INVALID_FORMAT(HttpStatus.BAD_REQUEST, 450004, "조회수 값의 형식이 올바르지 않습니다"),
+	VIEW_COUNT_UPDATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450005, "조회수 업데이트 처리 중 오류가 발생했습니다"),
+	VIEW_COUNT_CLEANUP_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450006, "오래된 조회수 데이터 정리 중 오류가 발생했습니다"),
 	VIEW_COUNT_SYNC_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450014, "조회수 동기화 처리 중 오류가 발생했습니다"),
-	SCRAP_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 460003, "스크랩 저장 처리 중 오류가 발생했습니다.");
+
+	SCRAP_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 460001, "스크랩 저장 처리 중 오류가 발생했습니다.");
 
 	private final HttpStatus status;
 	private final int code;
