@@ -60,8 +60,6 @@ public class NewsInfoDetailProviderController {
 		HttpServletRequest request) {
 
 		String ipAddress = request.getRemoteAddr();
-		newsViewCountIncreaseUseCase.increaseViewCount(id, ipAddress);
-
 		return success(toResponse(newsInfoDetailProviderUseCase.getNewsInfoDetailByNewsId(id)));
 	}
 

@@ -31,8 +31,8 @@ import lombok.ToString;
  * 각 기사 데이터는 데이터베이스의 "article" 테이블에 매핑됩니다.
  *
  * @author 양병학
- * @since 2025-05-10 최초 작성
  * @modified 2025-05-10
+ * @since 2025-05-10 최초 작성
  */
 @Entity
 @Table(name = "article", uniqueConstraints = @UniqueConstraint(columnNames = {"guid"}))
@@ -43,55 +43,57 @@ import lombok.ToString;
 @EqualsAndHashCode(of = "id")
 public class ArticleEntity {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Column(nullable = false)
-	private String title;
+    @Column(nullable = false)
+    private String title;
 
-	@Column(nullable = false)
-	private String link;
 
-	@Column(name = "pub_date")
-	private LocalDateTime pubDate;
+	  @Column(nullable = false)
+	  private String link;
 
-	@Column
-	private String category;
+    @Column(name = "pub_date")
+    private LocalDateTime pubDate;
 
-	@Column(nullable = false, unique = true)
-	private String guid;
+    @Column
+    private String category;
 
-	@Column(columnDefinition = "TEXT")
-	private String description;
+	  @Column(nullable = false, unique = true)
+	  private String guid;
 
-	@Column(name = "image_url")
-	private String imageUrl;
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
-	@Column(name = "created_at")
-	private LocalDateTime createdAt;
+    @Column(name = "image_url")
+    private String imageUrl;
 
-	@Column(name = "summary", columnDefinition = "TEXT")
-	private String summary;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
-	@Convert(converter = FloatArrayToJsonConverter.class)
-	@Column(name = "summary_vector", columnDefinition = "JSON")
-	private float[] summaryVector;
+    @Column(name = "summary", columnDefinition = "TEXT")
+    private String summary;
 
-	@Setter
-	@Column(name = "view_count", nullable = false)
-	private Long viewCount;
+    @Convert(converter = FloatArrayToJsonConverter.class)
+    @Column(name = "summary_vector", columnDefinition = "JSON")
+    private float[] summaryVector;
 
-	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(name = "news_id", referencedColumnName = "guid")
-	private List<ScrapEntity> scrapEntities = new ArrayList<>();
 
-	@PrePersist
-	protected void onCreate() {
-		createdAt = LocalDateTime.now();
-	}
+	  @Setter
+	  @Column(name = "view_count", nullable = false)
+	  private Long viewCount;
 
-	public String getDescription() {
-		return description != null ? description : "";
-	}
+	  @OneToMany(fetch = FetchType.LAZY)
+	  @JoinColumn(name = "news_id", referencedColumnName = "guid")
+	  private List<ScrapEntity> scrapEntities = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
+
+    public String getDescription() {
+        return description != null ? description : "";
+    }
 }
