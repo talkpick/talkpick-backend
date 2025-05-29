@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.news.info.application.service;
+package com.likelion.backendplus4.talkpick.backend.news.info.application.support;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 import org.springframework.stereotype.Component;
 
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.HighlightSegment;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.ScrapInfo;
 
 @Component

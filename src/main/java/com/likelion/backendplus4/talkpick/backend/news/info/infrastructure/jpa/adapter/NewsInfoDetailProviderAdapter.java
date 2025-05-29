@@ -5,6 +5,7 @@ import static com.likelion.backendplus4.talkpick.backend.news.info.infrastructur
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
@@ -25,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
+@Transactional
 @RequiredArgsConstructor
 public class NewsInfoDetailProviderAdapter implements NewsDetailProviderPort {
 	private final NewsInfoJpaRepository newsInfoJpaRepository;
@@ -41,6 +43,7 @@ public class NewsInfoDetailProviderAdapter implements NewsDetailProviderPort {
 	 * @modified 2025-05-19
 	 * 25-05-19 - ScrapInfo를 함께 조회하여 반환하도록 수정
 	 */
+	@Transactional(readOnly = true)
 	@Override
 	public Optional<NewsInfoDetail> getNewsInfoDetailsByArticleId(String guid) {
 		return newsInfoJpaRepository.findByGuidWithScraps(guid)

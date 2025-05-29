@@ -1,12 +1,13 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.application.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
 import static com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoCompleteMapper.toNewsInfoComplete;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoDetailProviderUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsViewCountIncreaseUseCase;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.support.HighlightCalculator;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.HighlightSegment;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;

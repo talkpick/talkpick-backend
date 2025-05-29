@@ -3,8 +3,7 @@ package com.likelion.backendplus4.talkpick.backend.news.info.application.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.likelion.backendplus4.talkpick.backend.news.info.application.service.HighlightSegment;
-import com.likelion.backendplus4.talkpick.backend.news.info.presentation.dto.ScrapInfoResponse;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.HighlightSegment;
 
 import lombok.Builder;
 

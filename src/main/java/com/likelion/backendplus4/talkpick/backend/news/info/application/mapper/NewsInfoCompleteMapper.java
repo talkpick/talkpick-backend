@@ -2,7 +2,7 @@ package com.likelion.backendplus4.talkpick.backend.news.info.application.mapper;
 
 import java.util.List;
 
-import com.likelion.backendplus4.talkpick.backend.news.info.application.service.HighlightSegment;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.HighlightSegment;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
 
@@ -17,7 +17,7 @@ public class NewsInfoCompleteMapper {
 	 * 도메인 객체를 응답 DTO로 변환합니다.
 	 *
 	 * @param newsInfoDetail 뉴스 상세 도메인 객체
-	 * @return NewsInfoDetailResponse ㅇㄴㅁㅇㄹ
+	 * @return NewsInfoDetailResponse
 	 * @author 정안식
 	 * @since 2025-05-28
 	 */

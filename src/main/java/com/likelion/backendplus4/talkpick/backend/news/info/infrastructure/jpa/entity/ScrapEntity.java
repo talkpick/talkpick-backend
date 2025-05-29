@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 public class ScrapEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+	private Long id;
 
 	@Column(name = "news_id", nullable = false, length = 100)
 	private String newsId;

@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.news.info.application.service;
+package com.likelion.backendplus4.talkpick.backend.news.info.domain.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
