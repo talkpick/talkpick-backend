@@ -101,6 +101,37 @@ auth:
       account: account
 
 cache:
+  maximum-size: 100
+  expire-after-write: 6h
   header: ${CACHE_HEADER:public, max-age=3600, must-revalidate}
   prefix: ${CACHE_PREFIX:/public/}
   pragma: ""
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,metrics
+  endpoint:
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+        step: PT1M
+    distribution:
+      percentiles:
+        method.execution.time: 0.5,0.95,0.99
+        http.server.requests: 0.5,0.95,0.99
+    tags:
+      application: talkpick-backend
+      service: popular-news
+      environment: ${SPRING_PROFILES_ACTIVE:dev}
+    enable:
+      cache: true
+      jvm: true
+      system: false
+      tomcat: true
+      jdbc: false
+

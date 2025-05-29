@@ -1,5 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.application.port.in;
 
+import java.time.LocalDateTime;
+
 public interface NewsViewCountIncreaseUseCase {
 	/**
 	 * 뉴스 조회수를 증가시킵니다.
@@ -7,7 +9,8 @@ public interface NewsViewCountIncreaseUseCase {
 	 * @param newsId 뉴스 ID
 	 * @param ipAddress 사용자 IP 주소 (중복 조회 방지용)
 	 */
-	void increaseViewCount(String newsId, String ipAddress);
+	void increaseViewCount(String newsId, String ipAddress, String category, LocalDateTime publishDate);
+
 
 	/**
 	 * 뉴스의 현재 조회수를 조회합니다.

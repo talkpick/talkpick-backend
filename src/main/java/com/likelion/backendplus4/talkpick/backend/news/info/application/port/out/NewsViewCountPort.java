@@ -1,4 +1,6 @@
-package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.application.port.out;
+package com.likelion.backendplus4.talkpick.backend.news.info.application.port.out;
+
+import java.time.LocalDateTime;
 
 public interface NewsViewCountPort {
     /**
@@ -8,7 +10,7 @@ public interface NewsViewCountPort {
      * @param ipAddress 사용자 IP 주소
      * @return 증가 후 조회수
      */
-    Long increaseViewCount(String newsId, String ipAddress);
+    Long increaseViewCount(String newsId, String ipAddress, String category, LocalDateTime publishDate);
 
     /**
      * 특정 IP의 뉴스 조회 기록을 저장합니다.

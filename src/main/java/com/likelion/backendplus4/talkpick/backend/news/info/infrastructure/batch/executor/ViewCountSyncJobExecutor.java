@@ -163,7 +163,8 @@ public class ViewCountSyncJobExecutor implements org.quartz.Job {
      * @throws NewsInfoException 뉴스 정보를 찾을 수 없거나 업데이트 실패 시
      */
     private void updateArticleViewCount(String newsId, Long viewCount) {
-        newsInfoJpaRepository.findByGuid(newsId)
+        newsInfoJpaRepository
+                .findByGuid(newsId)
                 .stream()
                 .findFirst()
                 .ifPresentOrElse(

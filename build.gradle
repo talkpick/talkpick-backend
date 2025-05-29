@@ -35,6 +35,9 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+
     // OpenAi
     implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter:1.0.0-M5'
 
@@ -69,6 +72,10 @@ dependencies {
 
     //Mail
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    //Monitoring
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 
 tasks.named('test') {

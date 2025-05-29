@@ -1,7 +1,9 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.application.service;
 
+import java.time.LocalDateTime;
+
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsViewCountIncreaseUseCase;
-import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.application.port.out.NewsViewCountPort;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsViewCountPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,9 +33,9 @@ public class NewsViewCountService implements NewsViewCountIncreaseUseCase {
      */
     @Override
     @Transactional
-    public void increaseViewCount(String newsId, String ipAddress) {
+    public void increaseViewCount(String newsId, String ipAddress, String category, LocalDateTime publishDate) {
         if (!newsViewCountPort.hasViewHistory(newsId, ipAddress)) {
-            newsViewCountPort.increaseViewCount(newsId, ipAddress);
+            newsViewCountPort.increaseViewCount(newsId, ipAddress, category, publishDate);
         }
     }
 
