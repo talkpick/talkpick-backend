@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public class ScrapInfo {
-	private final Integer id;
+	private final Long id;
 	private final String newsId;
 	private final int paragraphIndex;
 	private final String snippetText;

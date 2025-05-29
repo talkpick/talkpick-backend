@@ -43,7 +43,9 @@ public enum NewsInfoErrorCode implements ErrorCode {
     CACHE_JSON_SERIALIZE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450020, "JSON 직렬화 처리 중 오류가 발생했습니다"),
     CACHE_JSON_DESERIALIZE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450021, "JSON 역직렬화 처리 중 오류가 발생했습니다"),
     CACHE_SAVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450022, "캐시 저장 중 오류가 발생했습니다"),
-    CACHE_RETRIEVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450023, "캐시 조회 중 오류가 발생했습니다");
+    CACHE_RETRIEVE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, 450023, "캐시 조회 중 오류가 발생했습니다"),
+
+    NEWS_NOT_FOUND(HttpStatus.NOT_FOUND, 46001, "해당 뉴스 정보를 찾을 수 없습니다");
 
     private final HttpStatus status;
     private final int code;
