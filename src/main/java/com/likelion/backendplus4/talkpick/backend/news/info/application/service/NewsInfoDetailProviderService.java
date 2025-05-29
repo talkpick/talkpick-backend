@@ -1,6 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.application.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
 import static com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoCompleteMapper.toNewsInfoComplete;
@@ -9,6 +10,8 @@ import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
+import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoException;
+import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,11 +39,13 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
 	 */
 	@Override
 	public NewsInfoComplete getNewsInfoDetailByNewsId(String newsId) {
-		NewsInfoDetail newsInfoDetail = fetchNewsInfoDetail(newsId);
-		List<HighlightSegment> highlightSegments =  highlightCalculator.computeSegments(newsInfoDetail.getScrapInfos());
+		NewsInfoDetail detail = fetchNewsInfoDetail(newsId);
+
+		List<HighlightSegment> highlightSegments =  highlightCalculator.computeSegments(detail.getScrapInfos());
+
 		Long currentViewCount = fetchCurrentViewCount(newsId);
 
-		return combineNewsInfoAndViewCount(newsInfoDetail, highlightSegments, currentViewCount);
+		return combineNewsInfoAndViewCount(detail, highlightSegments, currentViewCount);
 	}
 
 	@Override
@@ -55,7 +60,9 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
 	 * @return 뉴스 상세 도메인 객체
 	 */
 	private NewsInfoDetail fetchNewsInfoDetail(String newsId) {
-		return newsDetailProviderPort.getNewsInfoDetailsByArticleId(newsId);
+		return newsDetailProviderPort
+			.getNewsInfoDetailsByArticleId(newsId)
+			.orElseThrow(() -> new NewsInfoException(NewsInfoErrorCode.NEWS_NOT_FOUND));
 	}
 
 	/**

@@ -6,6 +6,8 @@ import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.entity.ArticleEntity;
@@ -29,6 +31,14 @@ public interface NewsInfoJpaRepository extends JpaRepository<ArticleEntity, Long
 	 * @since 2025-05-14
 	 */
 	Optional<ArticleEntity> findByGuid(String guid);
+
+	@Query("""
+      select distinct a
+      from ArticleEntity a
+      left join fetch a.scrapEntities
+      where a.guid = :guid
+    """)
+	Optional<ArticleEntity> findByGuidWithScraps(@Param("guid") String guid);
 
 	/**
 	 * 지정된 ID보다 작은 ID를 가진 ArticleEntity들을 ID 내림차순으로 조회합니다.

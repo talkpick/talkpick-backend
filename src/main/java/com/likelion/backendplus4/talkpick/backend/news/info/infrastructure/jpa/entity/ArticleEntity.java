@@ -1,16 +1,20 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.converter.FloatArrayToJsonConverter;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
-import jakarta.persistence.Converter;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -35,7 +39,6 @@ import lombok.ToString;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @ToString(exclude = "description")
 @EqualsAndHashCode(of = "id")
 public class ArticleEntity {
@@ -75,9 +78,13 @@ public class ArticleEntity {
 	@Column(name = "summary_vector", columnDefinition = "JSON")
 	private float[] summaryVector;
 
-  @Setter
-  @Column(name = "view_count", nullable = false)
-  private Long viewCount;
+	@Setter
+	@Column(name = "view_count", nullable = false)
+	private Long viewCount;
+
+	@OneToMany(fetch = FetchType.LAZY)
+	@JoinColumn(name = "news_id", referencedColumnName = "guid")
+	private List<ScrapEntity> scrapEntities = new ArrayList<>();
 
 	@PrePersist
 	protected void onCreate() {

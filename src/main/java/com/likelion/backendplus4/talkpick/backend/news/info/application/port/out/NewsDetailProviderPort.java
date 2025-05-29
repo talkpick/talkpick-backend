@@ -21,6 +21,6 @@ import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.ScrapIn
 	 * @author 함예정
 	 * @since 2025-05-14
 	 */
-	NewsInfoDetail getNewsInfoDetailsByArticleId(String guid);
+	Optional<NewsInfoDetail> getNewsInfoDetailsByArticleId(String guid);
 	void saveScrap(ScrapCommand scrapCommand);
 }

@@ -15,19 +15,23 @@ import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.e
  * 25-05-27 - 도메인 객체가 ScrapInfo를 포함하도록 수정
  */
 public class ArticleEntityMapper {
-	public static NewsInfoDetail toInfoDetailFromData(ArticleEntity entity, List<ScrapInfo> scrapInfos) {
+	public static NewsInfoDetail toInfoDetailFromData(ArticleEntity entity) {
+		List<ScrapInfo> scrapInfos = entity.getScrapEntities().stream()
+			.map(ScrapEntityMapper::toDomain)
+			.toList();
+
 		return NewsInfoDetail.builder()
-				.newsId(entity.getGuid())
-				.title(entity.getTitle())
-				.originLink(entity.getLink())
-				.pubDate(entity.getPubDate())
-				.category(entity.getCategory())
-				.content(entity.getDescription())
-				.imageUrl(entity.getImageUrl())
-				.summary(entity.getSummary())
-				.viewCount(entity.getViewCount())
+			.newsId(entity.getGuid())
+			.title(entity.getTitle())
+			.originLink(entity.getLink())
+			.pubDate(entity.getPubDate())
+			.category(entity.getCategory())
+			.content(entity.getDescription())
+			.imageUrl(entity.getImageUrl())
+			.summary(entity.getSummary())
+			.viewCount(entity.getViewCount())
 			.scrapInfos(scrapInfos)
-				.build();
+			.build();
 	}
 	
 	public static NewsInfo toInfoFromEntity(ArticleEntity e) {

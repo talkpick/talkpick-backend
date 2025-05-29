@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 public class ScrapInfo {
 	private final Integer id;
 	private final String newsId;
+	private final int paragraphIndex;
 	private final String snippetText;
 	private final int startOffset;
 	private final int endOffset;

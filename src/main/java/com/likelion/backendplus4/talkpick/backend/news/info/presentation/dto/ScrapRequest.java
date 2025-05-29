@@ -11,7 +11,7 @@ import lombok.Value;
 @Value
 public class ScrapRequest {
 
-	@NotBlank(message = "paragraphIndex는 필수입니다.")
+	@PositiveOrZero(message = "paragraphIndex는 필수입니다.")
 	int paragraphIndex;
 
 	@NotBlank(message = "snippetText는 필수입니다.")

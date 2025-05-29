@@ -31,6 +31,9 @@ public class ScrapEntity {
 	@Column(name = "news_id", nullable = false, length = 100)
 	private String newsId;
 
+	@Column(name = "paragraph_index", nullable = false)
+	private int paragraphIndex;
+
 	@Column(name = "snippet_text", nullable = false, columnDefinition = "TEXT")
 	private String snippetText;
 
