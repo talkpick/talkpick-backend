@@ -100,6 +100,10 @@ auth:
       email-auth-code: emailAuthCode
       account: account
 
+cache:
+  maximum-size: 100
+  expire-after-write: 6h
+
 management:
   endpoints:
     web:
