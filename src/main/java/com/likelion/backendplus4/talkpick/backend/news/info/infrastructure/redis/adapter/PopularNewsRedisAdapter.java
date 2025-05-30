@@ -125,15 +125,15 @@ public class PopularNewsRedisAdapter implements PopularNewsPort {
         performRankingScoreUpdate(category, newsId, viewCount, publishDate);
     }
 
+    private NewsInfoDetail fetchNewsInfoDetail(String newsId) {
+        return newsDetailProviderPort
+                .getNewsInfoDetailsByArticleId(newsId)
+                .orElseThrow(() -> new NewsInfoException(NewsInfoErrorCode.NEWS_NOT_FOUND));
+    }
+
     public PopularNewsResponse getPopularNewsResponseById(String newsId) {
-        try {
-            NewsInfoDetail newsDetail =
-                newsDetailProviderPort.getNewsInfoDetailsByArticleId(newsId)
-                    .orElseThrow(() -> new NewsInfoException(NewsInfoErrorCode.NEWS_NOT_FOUND));
-            return PopularNewsResponseMapper.toResponse(newsDetail);
-        } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.NEWS_INFO_NOT_FOUND, e);
-        }
+        NewsInfoDetail newsDetail = fetchNewsInfoDetail(newsId);
+        return PopularNewsResponseMapper.toResponse(newsDetail);
     }
 
     /**

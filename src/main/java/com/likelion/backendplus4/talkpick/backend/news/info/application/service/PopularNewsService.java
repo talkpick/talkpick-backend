@@ -126,7 +126,7 @@ public class PopularNewsService implements PopularNewsUseCase {
      * @return 조회된 뉴스 데이터
      */
     private PopularNewsResponse fetchFromDatabaseAndCache(String category, String topNewsId) {
-        PopularNewsResponse freshNews = null;
+        PopularNewsResponse freshNews = popularNewsPort.getPopularNewsResponseById(topNewsId);
 
         if (null != freshNews) {
             popularNewsPort.saveTopNews(category, freshNews);
