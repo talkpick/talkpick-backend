@@ -29,6 +29,7 @@ public class RedisStreamAdapter implements ChatMessageStreamPort {
 
 	private final RedisTemplate<String, String> redisTemplate;
 	private final ObjectMapper objectMapper;
+	private static final Long MAX_STREAM_SIZE = 1000L;
 	private static final String STREAM_KEY_PREFIX = "chat:stream:";
 	private static final Duration STREAM_TTL = Duration.ofDays(3);
 
@@ -38,6 +39,8 @@ public class RedisStreamAdapter implements ChatMessageStreamPort {
 	 * @param message 저장할 채팅 메시지 도메인 객체
 	 * @author 박찬병
 	 * @since 2025-05-22
+	 * @modified 2025-05-30
+	 * 2025-05-30 최대 메시지 개수 제한 설정
 	 */
 	@Override
 	public void cacheToStream(ChatMessage message) {
@@ -48,6 +51,7 @@ public class RedisStreamAdapter implements ChatMessageStreamPort {
 		MapRecord<String, String, String> record = toRecord(key, payload);
 
 		redisTemplate.opsForStream().add(record);
+		redisTemplate.opsForStream().trim(key, MAX_STREAM_SIZE);
 		redisTemplate.expire(key, STREAM_TTL);
 	}
 
