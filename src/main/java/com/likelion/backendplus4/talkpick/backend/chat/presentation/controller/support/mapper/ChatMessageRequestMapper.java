@@ -31,6 +31,7 @@ public class ChatMessageRequestMapper {
             case "CHAT" -> MessageType.CHAT;
             case "JOIN" -> MessageType.JOIN;
             case "LEAVE" -> MessageType.LEAVE;
+            case "QUOTE" -> MessageType.QUOTE;
             default -> throw new ChatException(ChatErrorCode.INVALID_MESSAGE_TYPE);
         };
     }
