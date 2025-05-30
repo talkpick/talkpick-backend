@@ -58,11 +58,6 @@ dependencies {
     //Valid
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-    //Spring-batch
-    implementation 'org.springframework.boot:spring-boot-starter-batch'
-    testImplementation 'org.springframework.batch:spring-batch-test'
-    implementation 'org.springframework.boot:spring-boot-starter-quartz'
-
     //rabbitmq (amqp: (Advanced Message Queuing Protocol))
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
