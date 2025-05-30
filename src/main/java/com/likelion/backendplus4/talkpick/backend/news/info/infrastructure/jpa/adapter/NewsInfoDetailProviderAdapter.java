@@ -54,6 +54,7 @@ public class NewsInfoDetailProviderAdapter implements NewsDetailProviderPort {
 	}
 
 	@EntryExitLog
+	@Transactional(readOnly = true)
 	@Override
 	public List<NewsInfoDetail> getNewsInfoDetailsByUserId(Long userId) {
 		return newsInfoJpaRepository.findScrappedArticleByUserId(userId)
