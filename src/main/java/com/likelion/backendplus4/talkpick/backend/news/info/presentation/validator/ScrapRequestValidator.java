@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
-import com.likelion.backendplus4.talkpick.backend.news.info.presentation.dto.ScrapRequest;
+import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request.ScrapRequest;
 
 @Component
 public class ScrapRequestValidator implements Validator {
