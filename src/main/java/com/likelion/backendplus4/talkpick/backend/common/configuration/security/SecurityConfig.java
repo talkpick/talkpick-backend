@@ -120,7 +120,6 @@ public class SecurityConfig {
                 authorizationManagerRequestMatcherRegistry
                     .requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/public/**").permitAll()
-                    .requestMatchers("/public/news/**").authenticated()
                     .requestMatchers("/ws-chat/**").permitAll() // TODO: 웹소켓 인증관련 설정 시 수정
                     .requestMatchers("/user/**").hasRole(Role.USER.getRoleName())
                     .requestMatchers("/admin/**").hasRole(Role.ADMIN.getRoleName())

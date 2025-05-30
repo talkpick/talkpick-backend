@@ -31,7 +31,6 @@ import lombok.RequiredArgsConstructor;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/public/news")
 public class NewsInfoDetailProviderController {
 	private final NewsInfoDetailProviderUseCase newsInfoDetailProviderUseCase;
 	private final NewsViewCountIncreaseUseCase newsViewCountIncreaseUseCase;
@@ -53,7 +52,7 @@ public class NewsInfoDetailProviderController {
 	 * @modified 2025-05-25 양병학
 	 *  - 뉴스 ID validation 추가
 	 */
-	@GetMapping("/{id}")
+	@GetMapping("/public/news/{id}")
 	public ResponseEntity<ApiResponse<NewsInfoDetailResponse>> getNewsInfoDetailsByArticleId(
 		@PathVariable @NewsIdConstraint String id,
 		HttpServletRequest request) {
@@ -68,7 +67,7 @@ public class NewsInfoDetailProviderController {
 		return success(toResponse(newsInfoComplete));
 	}
 
-	@PostMapping("/{newsId}/scrap")
+	@PostMapping("/scrap/{newsId}")
 	public ResponseEntity<ApiResponse<Void>> saveScrap(
 		@NotBlank(message = "newsId는 필수입니다.") @PathVariable String newsId,
 		@LoginUser Long loginUser,
