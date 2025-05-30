@@ -40,6 +40,14 @@ public interface NewsInfoJpaRepository extends JpaRepository<ArticleEntity, Long
     """)
 	Optional<ArticleEntity> findByGuidWithScraps(@Param("guid") String guid);
 
+	@Query("""
+    select a
+    from ArticleEntity a
+    join fetch a.scrapEntities s
+    where s.userId = :userId
+""")
+	List<ArticleEntity> findScrappedArticleByUserId(@Param("userId") Long userId);
+
 	/**
 	 * 전체 뉴스 목록을 ID 내림차순으로 페이지네이션하여 조회합니다.
 	 *

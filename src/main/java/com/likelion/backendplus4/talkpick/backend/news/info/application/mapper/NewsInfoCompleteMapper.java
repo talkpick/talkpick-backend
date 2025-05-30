@@ -37,4 +37,21 @@ public class NewsInfoCompleteMapper {
 				.highlights(highlightSegments)
 				.build();
 	}
+
+	public static NewsInfoComplete toNewsInfoCompleteByUserId(NewsInfoDetail newsInfoDetail, List<HighlightSegment> highlightSegments) {
+
+		return NewsInfoComplete
+			.builder()
+			.newsId(newsInfoDetail.getNewsId())
+			.title(newsInfoDetail.getTitle())
+			.originLink(newsInfoDetail.getOriginLink())
+			.publishDate(newsInfoDetail.getPubDate())
+			.category(newsInfoDetail.getCategory())
+			.content(newsInfoDetail.getContent())
+			.imageUrl(newsInfoDetail.getImageUrl())
+			.summary(newsInfoDetail.getSummary())
+			.viewCount(newsInfoDetail.getViewCount())
+			.highlights(highlightSegments)
+			.build();
+	}
 }

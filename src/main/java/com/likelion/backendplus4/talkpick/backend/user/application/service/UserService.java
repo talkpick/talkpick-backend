@@ -1,8 +1,12 @@
 package com.likelion.backendplus4.talkpick.backend.user.application.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoDetailProviderUseCase;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
 import com.likelion.backendplus4.talkpick.backend.user.application.port.in.UserServiceUseCase;
 import com.likelion.backendplus4.talkpick.backend.user.application.port.out.UserManagementPort;
 import com.likelion.backendplus4.talkpick.backend.user.domain.model.User;
@@ -20,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class UserService implements UserServiceUseCase {
 
 	private final UserManagementPort userManagementPort;
+	private final NewsInfoDetailProviderUseCase newsInfoDetailProviderUseCase;
 
 	/**
 	 * 사용자 ID를 기반으로 프로필 정보를 조회합니다.
@@ -34,6 +39,12 @@ public class UserService implements UserServiceUseCase {
 	public UserInfoResDto getMyInfo(Long userId) {
 		User user = userManagementPort.getUser(userId);
 		return UserInfoDtoMapper.toDtoFromUser(user);
+	}
+
+	@Override
+	@EntryExitLog
+	public List<NewsInfoComplete> getMyScrapHistory(Long userId) {
+		return newsInfoDetailProviderUseCase.getNewsInfoDetailByUserId(userId);
 	}
 
 	/**

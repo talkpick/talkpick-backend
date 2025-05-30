@@ -15,12 +15,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.LogJson;
+import com.likelion.backendplus4.talkpick.backend.common.annotation.security.LoginUser;
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.NewsInfoDetailResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoDetailProviderUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsViewCountIncreaseUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
-import com.likelion.backendplus4.talkpick.backend.news.info.presentation.dto.ScrapRequest;
+import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request.ScrapRequest;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.validator.NewsIdConstraint;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,7 +33,6 @@ import lombok.RequiredArgsConstructor;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/public/news")
 public class NewsInfoDetailProviderController {
 	private final NewsInfoDetailProviderUseCase newsInfoDetailProviderUseCase;
 	private final NewsViewCountIncreaseUseCase newsViewCountIncreaseUseCase;
@@ -52,9 +54,11 @@ public class NewsInfoDetailProviderController {
 	 * @modified 2025-05-25 양병학
 	 *  - 뉴스 ID validation 추가
 	 */
-	@GetMapping("/{id}")
+	@LogJson
+	@EntryExitLog
+	@GetMapping("/public/news/{id}")
 	public ResponseEntity<ApiResponse<NewsInfoDetailResponse>> getNewsInfoDetailsByArticleId(
-		@PathVariable @NewsIdConstraint String id,  // @NewsIdConstraint 추가
+		@PathVariable @NewsIdConstraint String id,
 		HttpServletRequest request) {
 
 		String ipAddress = request.getRemoteAddr();
@@ -67,12 +71,15 @@ public class NewsInfoDetailProviderController {
 		return success(toResponse(newsInfoComplete));
 	}
 
-	@PostMapping("/{newsId}/scrap")
+	@LogJson
+	@EntryExitLog
+	@PostMapping("/scrap/{newsId}")
 	public ResponseEntity<ApiResponse<Void>> saveScrap(
 		@NotBlank(message = "newsId는 필수입니다.") @PathVariable String newsId,
+		@LoginUser Long loginUser,
 		@Valid @RequestBody ScrapRequest scrapRequest) {
 
-		newsInfoDetailProviderUseCase.saveScrap(toCommand(newsId, scrapRequest));
+		newsInfoDetailProviderUseCase.saveScrap(toCommand(newsId, loginUser, scrapRequest));
 
 		return success();
 	}
