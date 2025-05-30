@@ -1,7 +1,9 @@
 package com.likelion.backendplus4.talkpick.backend.chat.application.service;
 
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.in.ChatUseCase;
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatMessageBrokerPort;
@@ -30,6 +32,7 @@ public class ChatService implements ChatUseCase {
 
     private static final int DEFAULT_PAGE_NUMBER = 0;
     private static final int MAX_CACHE_SIZE = 100;
+    private static final Set<MessageType> SAVABLE_TYPES = EnumSet.of(MessageType.CHAT, MessageType.QUOTE);
 
     private final ChatMessageBrokerPort brokerPort;
     private final ChatMessageCachePort cachePort;
@@ -83,12 +86,13 @@ public class ChatService implements ChatUseCase {
      * @param message 채팅 메시지
      * @author 박찬병
      * @since 2025-05-20
-     * @modified 2025-05-29
+     * @modified 2025-05-30
      * 2025-05-29 내부 메서드 이름 변경
+     * 2025-05-30 메시지 타입 추가
      */
     @Override
     public void sendMessage(ChatMessage message) {
-        if (message.getMessageType() == MessageType.CHAT) {
+        if (SAVABLE_TYPES.contains(message.getMessageType())) {
             cachePort.cache(message, MAX_CACHE_SIZE);
             streamPort.cacheToStream(message);
         }
