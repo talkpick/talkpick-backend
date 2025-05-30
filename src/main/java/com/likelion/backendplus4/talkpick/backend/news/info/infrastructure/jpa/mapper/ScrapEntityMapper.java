@@ -13,6 +13,7 @@ public class ScrapEntityMapper {
 	public static ScrapEntity toEntity(ScrapCommand cmd) {
 		return ScrapEntity.builder()
 			.newsId(cmd.newsId())
+			.userId(cmd.loginUser())
 			.paragraphIndex(cmd.paragraphIndex())
 			.snippetText(cmd.snippetText())
 			.startOffset(cmd.startOffset())

@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.news.info.presentation.dto;
+package com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

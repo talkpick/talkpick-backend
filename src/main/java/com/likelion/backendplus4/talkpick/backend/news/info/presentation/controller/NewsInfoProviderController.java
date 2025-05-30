@@ -13,8 +13,8 @@ import com.likelion.backendplus4.talkpick.backend.common.response.SliceResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoProviderUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfo;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.adapter.dto.SliceResult;
-import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.NewsInfoRequest;
-import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.NewsInfoRequestByCategory;
+import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request.NewsInfoRequest;
+import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request.NewsInfoRequestByCategory;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.mapper.NewsInfoResponseMapper;
 
 import jakarta.validation.constraints.NotBlank;

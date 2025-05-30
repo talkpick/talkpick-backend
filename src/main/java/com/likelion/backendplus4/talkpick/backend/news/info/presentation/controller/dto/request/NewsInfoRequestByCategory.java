@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto;
+package com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request;
 /**
  * 카테고리별 뉴스 조회 요청 DTO
  *

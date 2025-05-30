@@ -1,5 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.user.presentation.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.security.LoginUser;
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
 import com.likelion.backendplus4.talkpick.backend.user.application.port.in.UserServiceUseCase;
 import com.likelion.backendplus4.talkpick.backend.user.domain.model.User;
 import com.likelion.backendplus4.talkpick.backend.user.infrastructure.support.mapper.UserMapper;
@@ -47,6 +50,14 @@ public class UserController {
 		UserInfoResDto myInfo = userServiceUseCase.getMyInfo(userId);
 		return ApiResponse.success(myInfo);
 	}
+
+	@EntryExitLog
+	@GetMapping("/profile/scrap")
+	public ResponseEntity<ApiResponse<List<NewsInfoComplete>>> getMyScrap(@LoginUser Long userId) {
+		List<NewsInfoComplete> newsInfoCompletes = userServiceUseCase.getMyScrapHistory(userId);
+		return ApiResponse.success(newsInfoCompletes);
+	}
+
 
 	/**
 	 * 사용자의 프로필 정보를 수정합니다.

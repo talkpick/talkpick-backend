@@ -1,5 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.application.port.out;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
@@ -22,5 +23,6 @@ import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.ScrapIn
 	 * @since 2025-05-14
 	 */
 	Optional<NewsInfoDetail> getNewsInfoDetailsByArticleId(String guid);
+	List<NewsInfoDetail> getNewsInfoDetailsByUserId(Long userId);
 	void saveScrap(ScrapCommand scrapCommand);
 }

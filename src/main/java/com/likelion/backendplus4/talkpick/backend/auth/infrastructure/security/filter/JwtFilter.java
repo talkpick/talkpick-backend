@@ -28,7 +28,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtFilter extends OncePerRequestFilter {
 
     private static final String[] EXCLUDE_URLS = { "/auth", "/public" };
-
     private final JwtAuthentication jwtAuthentication;
 
     /**

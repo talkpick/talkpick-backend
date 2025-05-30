@@ -1,5 +1,8 @@
 package com.likelion.backendplus4.talkpick.backend.user.application.port.in;
 
+import java.util.List;
+
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
 import com.likelion.backendplus4.talkpick.backend.user.domain.model.User;
 import com.likelion.backendplus4.talkpick.backend.user.presentation.controller.dto.res.UserInfoResDto;
 
@@ -18,6 +21,8 @@ public interface UserServiceUseCase {
 	 * @since 2025-05-16
 	 */
 	UserInfoResDto getMyInfo(Long userId);
+
+	List<NewsInfoComplete> getMyScrapHistory(Long userId);
 
 	/**
 	 * 내 프로필 정보를 수정한다.

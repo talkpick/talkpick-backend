@@ -2,11 +2,13 @@ package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.
 
 import static com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.mapper.ScrapEntityMapper.*;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
@@ -43,11 +45,22 @@ public class NewsInfoDetailProviderAdapter implements NewsDetailProviderPort {
 	 * @modified 2025-05-19
 	 * 25-05-19 - ScrapInfo를 함께 조회하여 반환하도록 수정
 	 */
+	@EntryExitLog
 	@Transactional(readOnly = true)
 	@Override
 	public Optional<NewsInfoDetail> getNewsInfoDetailsByArticleId(String guid) {
 		return newsInfoJpaRepository.findByGuidWithScraps(guid)
 			.map(ArticleEntityMapper::toInfoDetailFromData);
+	}
+
+	@EntryExitLog
+	@Transactional(readOnly = true)
+	@Override
+	public List<NewsInfoDetail> getNewsInfoDetailsByUserId(Long userId) {
+		return newsInfoJpaRepository.findScrappedArticleByUserId(userId)
+			.stream()
+			.map(ArticleEntityMapper::toInfoDetailFromData)
+			.toList();
 	}
 
 	/**
@@ -57,6 +70,7 @@ public class NewsInfoDetailProviderAdapter implements NewsDetailProviderPort {
 	 * @since 2025-05-19
 	 * @author 정안식
 	 */
+	@EntryExitLog
 	@Override
 	public void saveScrap(ScrapCommand scrapCommand) {
 		scrapInfoJpaRepository.save(toEntity(scrapCommand));
