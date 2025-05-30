@@ -1,9 +1,12 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.application.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
+import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.LogMethodValues;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
-import static com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoCompleteMapper.toNewsInfoComplete;
+import static com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoCompleteMapper.*;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoDetailProviderUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsViewCountIncreaseUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.support.HighlightCalculator;
@@ -38,6 +41,8 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
 	 * @since 2025-05-19 최초 작성
 	 * @author 양병학
 	 */
+	@EntryExitLog
+	@LogMethodValues
 	@Override
 	public NewsInfoComplete getNewsInfoDetailByNewsId(String newsId) {
 		NewsInfoDetail detail = fetchNewsInfoDetail(newsId);
@@ -47,6 +52,22 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
 		Long currentViewCount = fetchCurrentViewCount(newsId);
 
 		return combineNewsInfoAndViewCount(detail, highlightSegments, currentViewCount);
+	}
+
+	@EntryExitLog
+	@Override
+	public List<NewsInfoComplete> getNewsInfoDetailByUserId(Long userId) {
+
+		List<NewsInfoDetail> details = fetchNewsInfoDetailWithUserId(userId);
+
+		return details.stream()
+			.map(detail ->
+				combineNewsInfoByUserId(
+					detail,
+					highlightCalculator.computeSegments(detail.getScrapInfos())
+				)
+			)
+			.toList();
 	}
 
 	@Override
@@ -64,6 +85,11 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
 		return newsDetailProviderPort
 			.getNewsInfoDetailsByArticleId(newsId)
 			.orElseThrow(() -> new NewsInfoException(NewsInfoErrorCode.NEWS_NOT_FOUND));
+	}
+
+	private List<NewsInfoDetail> fetchNewsInfoDetailWithUserId(Long userId) {
+		return newsDetailProviderPort
+			.getNewsInfoDetailsByUserId(userId);
 	}
 
 	/**
@@ -86,5 +112,9 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
 
 	private NewsInfoComplete combineNewsInfoAndViewCount(NewsInfoDetail newsInfoDetail, List<HighlightSegment> highlightSegments, Long currentViewCount) {
 		return toNewsInfoComplete(newsInfoDetail, highlightSegments, currentViewCount);
+	}
+
+	private NewsInfoComplete combineNewsInfoByUserId(NewsInfoDetail newsInfoDetail, List<HighlightSegment> highlightSegments) {
+		return toNewsInfoCompleteByUserId(newsInfoDetail, highlightSegments);
 	}
 }

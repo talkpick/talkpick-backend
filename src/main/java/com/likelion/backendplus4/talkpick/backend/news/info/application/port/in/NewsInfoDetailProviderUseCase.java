@@ -1,5 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.application.port.in;
 
+import java.util.List;
+
 import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
 
@@ -19,6 +21,6 @@ public interface NewsInfoDetailProviderUseCase {
 	 * @since 2025-05-14
 	 */
 	NewsInfoComplete getNewsInfoDetailByNewsId(String newsId);
-
+	List<NewsInfoComplete> getNewsInfoDetailByUserId(Long userId);
 	void saveScrap(ScrapCommand scrapCommand);
 }
