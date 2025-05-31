@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 public class NewsViewCountRedisAdapter implements NewsViewCountPort {
 
     private static final int RECENT_NEWS_DAYS = 3;
-    private static final int VIEW_HISTORY_EXPIRE_DAYS = 1;
+    private static final int VIEW_HISTORY_EXPIRE_MINUTES = 10;
     private static final int VIEW_COUNT_EXPIRE_DAYS = 30;
 
     private final RedisTemplate<String, String> redisTemplate;
@@ -216,7 +216,7 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
         try {
             String key = keyGenerator.createViewHistoryKey(newsId, ipAddress);
             redisTemplate.opsForValue().set(key, "1");
-            redisTemplate.expire(key, VIEW_HISTORY_EXPIRE_DAYS, TimeUnit.DAYS);
+            redisTemplate.expire(key, VIEW_HISTORY_EXPIRE_MINUTES, TimeUnit.MINUTES);  // ← 변경
             return true;
         } catch (Exception e) {
             throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_HISTORY_SAVE_FAILED, e);
