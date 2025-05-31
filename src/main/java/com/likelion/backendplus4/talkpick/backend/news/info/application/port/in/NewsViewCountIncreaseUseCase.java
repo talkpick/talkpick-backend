@@ -8,5 +8,14 @@ public interface NewsViewCountIncreaseUseCase {
 	 *
 	 * @param newsId 뉴스 ID
 	 */
-	Long increaseViewCount(String newsId, String category, LocalDateTime publishDate);
+	void increaseViewCount(String newsId, String category, LocalDateTime publishDate);
+
+
+	/**
+	 * 뉴스의 현재 조회수를 조회합니다.
+	 *
+	 * @param newsId 뉴스 ID
+	 * @return 현재 조회수
+	 */
+	Long getCurrentViewCount(String newsId);
 }
