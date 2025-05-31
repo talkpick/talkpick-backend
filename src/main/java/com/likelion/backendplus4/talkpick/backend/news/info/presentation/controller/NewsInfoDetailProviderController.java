@@ -61,10 +61,10 @@ public class NewsInfoDetailProviderController {
 
 		NewsInfoComplete newsInfoComplete = newsInfoDetailProviderUseCase.getNewsInfoDetailByNewsId(id);
 
-		newsViewCountIncreaseUseCase.increaseViewCount(id, newsInfoComplete.getCategory(),
+		Long latestViewCount = newsViewCountIncreaseUseCase.increaseViewCount(id, newsInfoComplete.getCategory(),
 			newsInfoComplete.getPublishDate());
 
-		return success(toResponse(newsInfoComplete));
+		return success(toResponse(newsInfoComplete, latestViewCount));
 	}
 
 	@LogJson

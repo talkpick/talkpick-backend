@@ -235,7 +235,6 @@ public class PopularNewsRedisAdapter implements PopularNewsPort {
             double score = calculateScore(publishDate, viewCount);
 
             redisTemplate.opsForZSet().add(rankingKey, newsId, score);
-            redisTemplate.expire(rankingKey, 30, TimeUnit.DAYS);
         } catch (Exception e) {
             throw new NewsInfoException(NewsInfoErrorCode.RANKING_SCORE_UPDATE_FAILED, e);
         }
