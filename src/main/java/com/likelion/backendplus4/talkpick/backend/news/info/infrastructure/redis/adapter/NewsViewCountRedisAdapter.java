@@ -6,6 +6,8 @@ import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.News
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.repository.NewsInfoJpaRepository;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.redis.util.RedisKeyGenerator;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +24,7 @@ import java.util.concurrent.TimeUnit;
  * @author 양병학
  * @since 2025-05-27 최초 작성
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class NewsViewCountRedisAdapter implements NewsViewCountPort {
@@ -54,6 +57,15 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
      */
     @Override
     public Long increaseViewCount(String newsId, String ipAddress, String category, LocalDateTime publishDate) {
+        log.debug("조회수 증가 요청 처리 시작 - 뉴스ID: {}, IP: {}", newsId, ipAddress);
+
+        if (hasViewHistory(newsId, ipAddress)) {
+            log.debug("이미 조회한 사용자 - 조회수 증가 안 함 - 뉴스ID: {}, IP: {}", newsId, ipAddress);
+            return getCurrentViewCount(newsId);
+        }
+
+        log.debug("새로운 조회 - 조회수 증가 실행 - 뉴스ID: {}", newsId);
+
         Long newViewCount = processViewCountIncrease(newsId);
         saveUserViewHistory(newsId, ipAddress);
 
@@ -61,6 +73,7 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
             updateRankingIfNeeded(category, newsId, newViewCount, publishDate);
         }
 
+        log.debug("조회수 증가 완료 - 뉴스ID: {}, 새 조회수: {}", newsId, newViewCount);
         return newViewCount;
     }
 
@@ -216,7 +229,7 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
         try {
             String key = keyGenerator.createViewHistoryKey(newsId, ipAddress);
             redisTemplate.opsForValue().set(key, "1");
-            redisTemplate.expire(key, VIEW_HISTORY_EXPIRE_MINUTES, TimeUnit.MINUTES);  // ← 변경
+            redisTemplate.expire(key, VIEW_HISTORY_EXPIRE_MINUTES, TimeUnit.MINUTES);
             return true;
         } catch (Exception e) {
             throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_HISTORY_SAVE_FAILED, e);

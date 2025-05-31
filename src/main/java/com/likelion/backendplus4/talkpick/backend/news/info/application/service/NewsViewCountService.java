@@ -39,20 +39,12 @@ public class NewsViewCountService implements NewsViewCountIncreaseUseCase {
     public Long increaseViewCount(String newsId, String category, LocalDateTime publishDate) {
         String ipAddress = clientInfoPort.getClientIpAddress();
 
-        boolean hasHistory = newsViewCountPort.hasViewHistory(newsId, ipAddress);
-        log.info("조회 이력 확인 - 뉴스ID: {}, IP: {}, 이력 있음: {}", newsId, ipAddress, hasHistory);
+        log.debug("조회수 증가 요청 - 뉴스ID: {}, IP: {}", newsId, ipAddress);
 
-        if (!hasHistory) {
-            log.info("조회수 증가 실행 - 뉴스ID: {}", newsId);
-            return newsViewCountPort.increaseViewCount(newsId, ipAddress, category, publishDate);
-        } else {
-            log.info("이미 조회한 사용자 - 조회수 증가 안 함 - 뉴스ID: {}, IP: {}", newsId, ipAddress);
-            return newsViewCountPort.getCurrentViewCount(newsId);
-        }
-    }
+        Long newViewCount = newsViewCountPort.increaseViewCount(newsId, ipAddress, category, publishDate);
 
-    @Override
-    public Long getCurrentViewCount(String newsId) {
-        return newsViewCountPort.getCurrentViewCount(newsId);
+        log.debug("조회수 증가 처리 완료 - 뉴스ID: {}", newsId);
+
+        return newViewCount;
     }
 }
