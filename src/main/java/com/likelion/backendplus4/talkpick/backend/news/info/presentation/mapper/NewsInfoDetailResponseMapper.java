@@ -21,19 +21,4 @@ public class NewsInfoDetailResponseMapper {
 			.highlightSegments(complete.getHighlights())
 			.build();
 	}
-
-	public static NewsInfoDetailResponse toResponse(NewsInfoComplete complete, Long viewCount) {
-		return NewsInfoDetailResponse.builder()
-				.newsId(complete.getNewsId())
-				.title(complete.getTitle())
-				.originLink(complete.getOriginLink())
-				.publishDate(complete.getPublishDate())
-				.category(complete.getCategory())
-				.content(complete.getContent())
-				.imageUrl(complete.getImageUrl())
-				.summary(complete.getSummary())
-				.highlightSegments(complete.getHighlights())
-				.viewCount(viewCount)
-				.build();
-	}
 }
