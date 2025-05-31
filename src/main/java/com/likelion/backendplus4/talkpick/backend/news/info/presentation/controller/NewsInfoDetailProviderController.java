@@ -61,9 +61,6 @@ public class NewsInfoDetailProviderController {
 
 		NewsInfoComplete newsInfoComplete = newsInfoDetailProviderUseCase.getNewsInfoDetailByNewsId(id);
 
-//		Long latestViewCount = newsViewCountIncreaseUseCase.increaseViewCount(id, newsInfoComplete.getCategory(),
-//			newsInfoComplete.getPublishDate());
-
 		return success(toResponse(newsInfoComplete));
 	}
 

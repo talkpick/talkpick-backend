@@ -227,7 +227,7 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
         try {
             String key = keyGenerator.createViewHistoryKey(newsId, ipAddress);
             redisTemplate.opsForValue().set(key, "1");
-            redisTemplate.expire(key, VIEW_HISTORY_EXPIRE_MINUTES, TimeUnit.MINUTES);  // ← 변경
+            redisTemplate.expire(key, VIEW_HISTORY_EXPIRE_MINUTES, TimeUnit.MINUTES);
             return true;
         } catch (Exception e) {
             throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_HISTORY_SAVE_FAILED, e);

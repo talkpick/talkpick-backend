@@ -45,6 +45,14 @@ public class NewsViewCountService implements NewsViewCountIncreaseUseCase {
 
     /**
      * 중복 체크를 포함한 조회수 증가 처리를 수행합니다.
+     *
+     * @param newsId 뉴스 ID
+     * @param ipAddress 클라이언트 IP 주소
+     * @param category 뉴스 카테고리
+     * @param publishDate 뉴스 발행일
+     * @return 처리된 조회수
+     * @author 양병학
+     * @since 2025-06-01 최초 작성
      */
     private Long processViewCountWithDuplicateCheck(String newsId, String ipAddress, String category, LocalDateTime publishDate) {
         boolean hasHistory = checkViewHistory(newsId, ipAddress);
@@ -58,6 +66,12 @@ public class NewsViewCountService implements NewsViewCountIncreaseUseCase {
 
     /**
      * 조회 이력을 확인합니다.
+     *
+     * @param newsId 뉴스 ID
+     * @param ipAddress 클라이언트 IP 주소
+     * @return 조회 이력 존재 여부
+     * @author 양병학
+     * @since 2025-06-01 최초 작성
      */
     private boolean checkViewHistory(String newsId, String ipAddress) {
         boolean hasHistory = newsViewCountPort.hasViewHistory(newsId, ipAddress);
@@ -67,6 +81,14 @@ public class NewsViewCountService implements NewsViewCountIncreaseUseCase {
 
     /**
      * 실제 조회수 증가를 수행합니다.
+     *
+     * @param newsId 뉴스 ID
+     * @param ipAddress 클라이언트 IP 주소
+     * @param category 뉴스 카테고리
+     * @param publishDate 뉴스 발행일
+     * @return 증가된 조회수
+     * @author 양병학
+     * @since 2025-06-01 최초 작성
      */
     private Long increaseViewCountInternal(String newsId, String ipAddress, String category, LocalDateTime publishDate) {
         log.info("조회수 증가 실행 - 뉴스ID: {}", newsId);
@@ -77,6 +99,12 @@ public class NewsViewCountService implements NewsViewCountIncreaseUseCase {
 
     /**
      * 중복 조회일 때 현재 조회수를 반환합니다.
+     *
+     * @param newsId 뉴스 ID
+     * @param ipAddress 클라이언트 IP 주소
+     * @return 현재 조회수
+     * @author 양병학
+     * @since 2025-06-01 최초 작성
      */
     private Long getCurrentViewCountWhenDuplicate(String newsId, String ipAddress) {
         log.info("이미 조회한 사용자 - 조회수 증가 안 함 - 뉴스ID: {}, IP: {}", newsId, ipAddress);
