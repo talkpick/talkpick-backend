@@ -1,5 +1,6 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.application.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,6 +11,7 @@ import static com.likelion.backendplus4.talkpick.backend.news.info.application.m
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoDetailProviderUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsViewCountIncreaseUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.support.HighlightCalculator;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.enums.NewsCategory;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.HighlightSegment;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
@@ -49,7 +51,7 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
 
 		List<HighlightSegment> highlightSegments =  highlightCalculator.computeSegments(detail.getScrapInfos());
 
-		Long currentViewCount = fetchCurrentViewCount(newsId);
+		Long currentViewCount = fetchCurrentViewCount(newsId, detail.getCategory(), detail.getPubDate());
 
 		return combineNewsInfoAndViewCount(detail, highlightSegments, currentViewCount);
 	}
@@ -98,8 +100,8 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
 	 * @param newsId 조회할 뉴스의 ID
 	 * @return 현재 조회수
 	 */
-	private Long fetchCurrentViewCount(String newsId) {
-		return newsViewCountIncreaseUseCase.getCurrentViewCount(newsId);
+	private Long fetchCurrentViewCount(String newsId, String category, LocalDateTime publishDate) {
+		return newsViewCountIncreaseUseCase.increaseViewCount(newsId, category, publishDate);
 	}
 
 	/**

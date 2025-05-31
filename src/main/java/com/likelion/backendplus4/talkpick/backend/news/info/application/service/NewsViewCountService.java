@@ -25,7 +25,7 @@ public class NewsViewCountService implements NewsViewCountIncreaseUseCase {
 
     /**
      * 뉴스의 조회수를 증가시키는 메서드입니다.
-     * <p>
+     *
      * 1. IP 주소 기반으로 해당 뉴스에 대한 조회 이력 확인
      * 2. 조회 이력이 없는 경우에만 조회수 증가
      * 3. 조회 이력 저장
@@ -38,13 +38,48 @@ public class NewsViewCountService implements NewsViewCountIncreaseUseCase {
     @Transactional
     public Long increaseViewCount(String newsId, String category, LocalDateTime publishDate) {
         String ipAddress = clientInfoPort.getClientIpAddress();
+        log.info("조회수 증가 요청 - 뉴스ID: {}, IP: {}", newsId, ipAddress);
 
-        log.debug("조회수 증가 요청 - 뉴스ID: {}, IP: {}", newsId, ipAddress);
+        return processViewCountWithDuplicateCheck(newsId, ipAddress, category, publishDate);
+    }
 
+    /**
+     * 중복 체크를 포함한 조회수 증가 처리를 수행합니다.
+     */
+    private Long processViewCountWithDuplicateCheck(String newsId, String ipAddress, String category, LocalDateTime publishDate) {
+        boolean hasHistory = checkViewHistory(newsId, ipAddress);
+
+        if (!hasHistory) {
+            return increaseViewCountInternal(newsId, ipAddress, category, publishDate);
+        } else {
+            return getCurrentViewCountWhenDuplicate(newsId, ipAddress);
+        }
+    }
+
+    /**
+     * 조회 이력을 확인합니다.
+     */
+    private boolean checkViewHistory(String newsId, String ipAddress) {
+        boolean hasHistory = newsViewCountPort.hasViewHistory(newsId, ipAddress);
+        log.info("조회 이력 확인 - 뉴스ID: {}, IP: {}, 이력있음: {}", newsId, ipAddress, hasHistory);
+        return hasHistory;
+    }
+
+    /**
+     * 실제 조회수 증가를 수행합니다.
+     */
+    private Long increaseViewCountInternal(String newsId, String ipAddress, String category, LocalDateTime publishDate) {
+        log.info("조회수 증가 실행 - 뉴스ID: {}", newsId);
         Long newViewCount = newsViewCountPort.increaseViewCount(newsId, ipAddress, category, publishDate);
-
-        log.debug("조회수 증가 처리 완료 - 뉴스ID: {}", newsId);
-
+        log.info("조회수 증가 처리 완료 - 뉴스ID: {}, 새 조회수: {}", newsId, newViewCount);
         return newViewCount;
+    }
+
+    /**
+     * 중복 조회일 때 현재 조회수를 반환합니다.
+     */
+    private Long getCurrentViewCountWhenDuplicate(String newsId, String ipAddress) {
+        log.info("이미 조회한 사용자 - 조회수 증가 안 함 - 뉴스ID: {}, IP: {}", newsId, ipAddress);
+        return newsViewCountPort.getCurrentViewCount(newsId);
     }
 }
