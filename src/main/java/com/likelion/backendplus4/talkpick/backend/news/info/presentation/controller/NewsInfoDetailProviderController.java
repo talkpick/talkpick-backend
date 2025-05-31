@@ -46,7 +46,6 @@ public class NewsInfoDetailProviderController {
 	 * 4. 뉴스 상세 정보 조회 및 응답
 	 *
 	 * @param id 조회할 뉴스의 ID (형식: KM123, DA456, KH789)
-	 * @param request HTTP 요청 객체 (IP 주소 획득용)
 	 * @return 뉴스 상세 정보가 포함된 API 응답
 	 * @throws jakarta.validation.ConstraintViolationException 뉴스 ID 형식이 잘못된 경우
 	 * @since 2025-05-19 최초 작성
@@ -58,14 +57,11 @@ public class NewsInfoDetailProviderController {
 	@EntryExitLog
 	@GetMapping("/public/news/{id}")
 	public ResponseEntity<ApiResponse<NewsInfoDetailResponse>> getNewsInfoDetailsByArticleId(
-		@PathVariable @NewsIdConstraint String id,
-		HttpServletRequest request) {
-
-		String ipAddress = request.getRemoteAddr();
+		@PathVariable @NewsIdConstraint String id) {
 
 		NewsInfoComplete newsInfoComplete = newsInfoDetailProviderUseCase.getNewsInfoDetailByNewsId(id);
 
-		newsViewCountIncreaseUseCase.increaseViewCount(id, ipAddress, newsInfoComplete.getCategory(),
+		newsViewCountIncreaseUseCase.increaseViewCount(id, newsInfoComplete.getCategory(),
 			newsInfoComplete.getPublishDate());
 
 		return success(toResponse(newsInfoComplete));

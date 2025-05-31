@@ -105,14 +105,15 @@ management:
     web:
       exposure:
         include: health,prometheus,metrics
-  endpoint:
-    prometheus:
-      enabled: true
-  metrics:
-    export:
-      prometheus:
+  prometheus:
+    metrics:
+      export:
         enabled: true
         step: PT1M
+  endpoint:
+    prometheus:
+      access: unrestricted
+  metrics:
     distribution:
       percentiles:
         method.execution.time: 0.5,0.95,0.99
