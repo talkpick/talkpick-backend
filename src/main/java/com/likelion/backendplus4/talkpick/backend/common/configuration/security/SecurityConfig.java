@@ -30,7 +30,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
  * Security 설정을 담당하는 Configuration 클래스입니다.
  *
  * @since 2025-05-12
- * @modified 2025-05-19
+ * @modified 2025-05-31
  */
 @Configuration
 public class SecurityConfig {
@@ -39,25 +39,16 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final JwtFilter jwtFilter;
     private final String HOST_NAME;
-    private final String PUBLIC_CACHE_HEADER;
-    private final String CACHE_PREFIX;
-    private final String PRAGMA_HEADER;
 
     public SecurityConfig(
         CustomAccessDeniedHandler customAccessDeniedHandler,
         CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
         JwtFilter jwtFilter,
-        @Value("${host.name}") String HOST_NAME,
-        @Value("${cache.header}") String PUBLIC_CACHE_HEADER,
-        @Value("${cache.prefix}") String CACHE_PREFIX,
-        @Value("${cache.pragma}") String PRAGMA_HEADER) {
+        @Value("${host.name}") String HOST_NAME) {
         this.customAccessDeniedHandler = customAccessDeniedHandler;
         this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
         this.jwtFilter = jwtFilter;
         this.HOST_NAME = HOST_NAME;
-        this.PUBLIC_CACHE_HEADER = PUBLIC_CACHE_HEADER;
-        this.CACHE_PREFIX = CACHE_PREFIX;
-        this.PRAGMA_HEADER = PRAGMA_HEADER;
     }
 
     /**
@@ -104,9 +95,10 @@ public class SecurityConfig {
      * @throws Exception 설정 중 예외 발생 시
      * @author 박찬병
      * @since 2025-05-13
-     * @modified 2025-05-29
+     * @modified 2025-05-31
      * 2025-05-19 - url 설정 추가
      * 2025-05-29 - 캐싱 경로 설정 추가
+     * 2025-05-31 - 캐싱 경로 설정 Revert
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -130,8 +122,6 @@ public class SecurityConfig {
                 .accessDeniedHandler(customAccessDeniedHandler))
             .addFilterBefore(jwtFilter,
                 UsernamePasswordAuthenticationFilter.class)
-            .headers(headers -> headers
-                .addHeaderWriter(publicCacheWriter()))
             .build();
     }
 
@@ -161,25 +151,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
-    /**
-     * 요청 경로가 캐시 대상인 경우 Public Cache-Control 헤더를 설정하는 HeaderWriter를 생성합니다.
-     *
-     * @return 요청 경로가 캐시 대상인 경우 Public Cache-Control 헤더가 설정된 HeaderWriter 객체
-     * @author 박찬병
-     * @since 2025-05-29
-     */
-    private HeaderWriter publicCacheWriter() {
-        return (request, response) -> {
-            String path = request.getServletPath();
-            if (path.startsWith(CACHE_PREFIX)) {
-                response.setHeader(
-                    HttpHeaders.CACHE_CONTROL,
-                    PUBLIC_CACHE_HEADER
-                );
-                response.setHeader(HttpHeaders.PRAGMA, PRAGMA_HEADER);
-            }
-        };
-    }
-
 }
