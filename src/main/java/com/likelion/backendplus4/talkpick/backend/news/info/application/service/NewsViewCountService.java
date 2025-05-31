@@ -6,6 +6,7 @@ import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.ClientInfoPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsViewCountPort;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @since 2025-05-19 최초 작성
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NewsViewCountService implements NewsViewCountIncreaseUseCase {
@@ -34,17 +36,18 @@ public class NewsViewCountService implements NewsViewCountIncreaseUseCase {
      */
     @Override
     @Transactional
-    public void increaseViewCount(String newsId, String category, LocalDateTime publishDate) {  // ← ipAddress 파라미터 제거
-        String ipAddress = clientInfoPort.getClientIpAddress();  // ← IP 획득을 여기서
+    public Long increaseViewCount(String newsId, String category, LocalDateTime publishDate) {
+        String ipAddress = clientInfoPort.getClientIpAddress();
 
         boolean hasHistory = newsViewCountPort.hasViewHistory(newsId, ipAddress);
-        System.out.println("=== 조회 이력 확인 - 뉴스ID: " + newsId + ", IP: " + ipAddress + ", 이력 있음: " + hasHistory);
+        log.info("조회 이력 확인 - 뉴스ID: {}, IP: {}, 이력 있음: {}", newsId, ipAddress, hasHistory);
 
         if (!hasHistory) {
-            System.out.println("=== 조회수 증가 실행");
-            newsViewCountPort.increaseViewCount(newsId, ipAddress, category, publishDate);
+            log.info("조회수 증가 실행 - 뉴스ID: {}", newsId);
+            return newsViewCountPort.increaseViewCount(newsId, ipAddress, category, publishDate);
         } else {
-            System.out.println("=== 이미 조회한 사용자 - 조회수 증가 안 함");
+            log.info("이미 조회한 사용자 - 조회수 증가 안 함 - 뉴스ID: {}, IP: {}", newsId, ipAddress);
+            return newsViewCountPort.getCurrentViewCount(newsId);
         }
     }
 

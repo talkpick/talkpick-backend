@@ -8,7 +8,7 @@ public interface NewsViewCountIncreaseUseCase {
 	 *
 	 * @param newsId 뉴스 ID
 	 */
-	void increaseViewCount(String newsId, String category, LocalDateTime publishDate);
+	Long increaseViewCount(String newsId, String category, LocalDateTime publishDate);
 
 
 	/**
