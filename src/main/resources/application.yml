@@ -99,6 +99,9 @@ auth:
 cache:
   maximum-size: 100
   expire-after-write: 6h
+  header: ${CACHE_HEADER:public, max-age=3600, must-revalidate}
+  prefix: ${CACHE_PREFIX:/public/}
+  pragma: ""
 
 management:
   server:
