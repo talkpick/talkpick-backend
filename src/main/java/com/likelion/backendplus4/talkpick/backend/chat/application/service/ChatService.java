@@ -99,7 +99,14 @@ public class ChatService implements ChatUseCase {
         brokerPort.deliverChatToArticle(message.getArticleId(), message);
     }
 
-
+    /**
+     * 주어진 게시글 ID에 대한 초기 채팅 세션 수를 반환한다.
+     *
+     * @param articleId 게시글 식별자
+     * @return 초기 채팅 세션 수
+     * @author 이해창
+     * @since 2025-05-24
+     */
     @Override
     public int getInitialCount(String articleId) {
         return chatSessionPort.getSessionCount(articleId);

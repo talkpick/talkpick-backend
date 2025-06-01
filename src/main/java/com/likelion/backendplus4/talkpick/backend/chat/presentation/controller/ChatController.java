@@ -37,7 +37,7 @@ public class ChatController {
      * @param articleId 채팅 대상 뉴스 식별자
      * @author 이해창
      * @since 2025-05-26
-     * @modified 2025-06-01
+     * @modified 2025-06-01 이해창
      * - SubscribeMapping -> MessageMapping으로 변경 및 요청 엔드포인트 변경
      */
     @MessageMapping("/chat.initCount.{articleId}")
