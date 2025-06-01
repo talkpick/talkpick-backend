@@ -38,7 +38,6 @@ import lombok.ToString;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @ToString(exclude = "description")
 @EqualsAndHashCode(of = "id")
 public class ArticleEntity {
