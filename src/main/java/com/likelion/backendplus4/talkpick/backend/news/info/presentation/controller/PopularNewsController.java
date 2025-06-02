@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.PopularNewsResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.PopularNewsUseCase;
+import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.docs.PopularNewsControllerDocs;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.mapper.CategoryMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/public/news")
-public class PopularNewsController {
+public class PopularNewsController implements PopularNewsControllerDocs {
 
 	private final PopularNewsUseCase popularNewsUseCase;
 	private final CategoryMapper categoryMapper;
@@ -53,6 +54,7 @@ public class PopularNewsController {
 	 * @since 2025-05-27
 	 * @author 양병학
 	 */
+	@Override
 	@GetMapping("/top-viewed/{category}")
 	public ResponseEntity<ApiResponse<PopularNewsResponse>> getTopViewedNewsByCategory(@PathVariable String category) {
 		String koreanCategoryName = categoryMapper.toKoreanCategory(category);

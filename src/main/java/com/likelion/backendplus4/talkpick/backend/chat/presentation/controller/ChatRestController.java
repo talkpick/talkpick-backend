@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.in.ChatUseCase;
+import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.docs.ChatRestControllerDocs;
 import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.dto.response.ChatMessageResponse;
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 import com.likelion.backendplus4.talkpick.backend.common.response.SliceResponse;
@@ -21,10 +22,11 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/chat")
-public class ChatRestController {
+public class ChatRestController implements ChatRestControllerDocs {
 
 	private final ChatUseCase chatUseCase;
 
+	@Override
 	@GetMapping("/{articleId}/messages")
 	public ResponseEntity<ApiResponse<SliceResponse<ChatMessageResponse>>> getMessages(
 		@PathVariable String articleId
@@ -41,6 +43,7 @@ public class ChatRestController {
 	 * @param limit     최대 조회 개수 (기본 20)
 	 * @return ChatMessageResponse 리스트 + more flag
 	 */
+	@Override
 	@GetMapping("/{articleId}/messages/older")
 	public ResponseEntity<ApiResponse<SliceResponse<ChatMessageResponse>>> loadOlderMessages(
 		@PathVariable String articleId,
