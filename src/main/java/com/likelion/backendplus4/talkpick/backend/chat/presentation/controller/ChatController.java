@@ -31,18 +31,18 @@ public class ChatController {
     /**
      * 초기 채팅방 접속 인원 수를 반환한다.
      * <p>
-     * 클라이언트가 특정 채팅방의 인원 수를 구독할 때 호출되며, 현재 접속 중인 세션 수를 응답한다.
+     * 클라이언트가 특정 채팅방의 인원 수를 구독후 호출되며, 현재 접속 중인 세션 수를 구독자에 전송한다.
      * </p>
      *
      * @param articleId 채팅 대상 뉴스 식별자
-     * @return 해당 뉴스 채팅방의 현재 세션 수 정보
      * @author 이해창
      * @since 2025-05-26
+     * @modified 2025-06-01 이해창
+     * - SubscribeMapping -> MessageMapping으로 변경 및 요청 엔드포인트 변경
      */
-    @SubscribeMapping("/topic/chat.{articleId}.count")
-    public ChatCountResponse userCount(@DestinationVariable String articleId) {
-        int count = chatUseCase.getInitialCount(articleId);
-        return new ChatCountResponse(count);
+    @MessageMapping("/chat.initCount.{articleId}")
+    public void userCount(@DestinationVariable String articleId) {
+        chatUseCase.getInitialCount(articleId);
     }
 
 }

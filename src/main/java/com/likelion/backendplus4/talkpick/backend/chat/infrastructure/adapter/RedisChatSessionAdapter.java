@@ -96,11 +96,14 @@ public class RedisChatSessionAdapter implements ChatSessionPort {
      * @return 현재 채팅방에 연결된 세션 수
      * @author 이해창
      * @since 2025-05-24
+     * @modified 2025-06-01 이해창
+     * - 접속 세션 수를 즉시 발행 하여 구독자들이 세션수를 받을 수 있도록 수정
      */
     @Override
     public int getSessionCount(String articleId) {
         String roomKey = SESSION_KEY_PREFIX + articleId;
         Long count = redisTemplate.opsForSet().size(roomKey);
+        sendCountToClients(articleId, count != null ? count.intValue() : 0);
         return count != null ? count.intValue() : 0;
     }
 
