@@ -1,6 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.search.domain.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -12,11 +13,7 @@ import lombok.Getter;
  */
 @Getter
 @Builder
-public class NewsSearchResult {
-	private final String newsId;
-	private final String title;
-	private final String content;
-	private final String imageUrl;
-	private final String category;
-	private final LocalDateTime publishedAt;
+public class NewsSearchResultAggregate {
+	List<NewsSearchResult> newsSearchResultList;
+	Long totalHits;
 }

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearchResult;
+import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearchResultAggregate;
 import com.likelion.backendplus4.talkpick.backend.search.presentation.controller.dto.response.NewsSearchResponse;
 import com.likelion.backendplus4.talkpick.backend.search.presentation.controller.dto.response.NewsSearchResponseList;
 
@@ -48,7 +49,17 @@ public class NewsSearchResponseMapper {
 			.collect(Collectors.toList());
 		return NewsSearchResponseList.builder()
 			.newsSearchResponseList(items)
-			.total(items.size())
+			.total((long) domainList.size())
+			.build();
+	}
+
+	public static NewsSearchResponseList toListResponse(NewsSearchResultAggregate newsSearchResultAggregate) {
+		List<NewsSearchResponse> items = newsSearchResultAggregate.getNewsSearchResultList().stream()
+			.map(NewsSearchResponseMapper::toResponse)
+			.collect(Collectors.toList());
+		return NewsSearchResponseList.builder()
+			.newsSearchResponseList(items)
+			.total(newsSearchResultAggregate.getTotalHits())
 			.build();
 	}
 }

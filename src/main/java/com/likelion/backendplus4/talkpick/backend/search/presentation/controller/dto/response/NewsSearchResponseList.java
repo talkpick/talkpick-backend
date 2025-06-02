@@ -16,5 +16,5 @@ import lombok.RequiredArgsConstructor;
 @Builder
 public class NewsSearchResponseList {
 	private final List<NewsSearchResponse> newsSearchResponseList;
-	private final int total;
+	private final Long total;
 }
