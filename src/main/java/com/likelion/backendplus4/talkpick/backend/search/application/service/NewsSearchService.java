@@ -10,6 +10,7 @@ import com.likelion.backendplus4.talkpick.backend.search.application.port.in.New
 import com.likelion.backendplus4.talkpick.backend.search.application.port.out.NewsSearchRepositoryPort;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearch;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearchResult;
+import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearchResultAggregate;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSimilarSearch;
 
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class NewsSearchService implements NewsSearchUseCase {
 	@EntryExitLog
 	@LogMethodValues
 	@Override
-	public List<NewsSearchResult> searchByQuery(NewsSearch newsSearch) {
+	public NewsSearchResultAggregate searchByQuery(NewsSearch newsSearch) {
 		return repository.searchByMatch(newsSearch);
 	}
 

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import static co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders.functionScore;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +21,7 @@ import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.LogM
 import com.likelion.backendplus4.talkpick.backend.search.application.port.out.NewsSearchRepositoryPort;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearch;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearchResult;
+import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearchResultAggregate;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSimilarSearch;
 import com.likelion.backendplus4.talkpick.backend.search.exception.SearchException;
 import com.likelion.backendplus4.talkpick.backend.search.exception.error.SearchErrorCode;
@@ -63,10 +65,12 @@ public class ElasticsearchNewsSearchAdapter implements NewsSearchRepositoryPort 
 	@EntryExitLog
 	@LogMethodValues
 	@Override
-	public List<NewsSearchResult> searchByMatch(NewsSearch newsSearch) {
+	public NewsSearchResultAggregate searchByMatch(NewsSearch newsSearch) {
 		NativeQuery query = buildNativeQuery(newsSearch);
 		SearchHits<NewsSearchDocument> hits = executeSearch(query);
-		return mapToDomain(hits);
+		long totalHits = hits.getTotalHits();
+
+		return mapToDomain(hits, totalHits);
 	}
 
 	@EntryExitLog
@@ -78,6 +82,7 @@ public class ElasticsearchNewsSearchAdapter implements NewsSearchRepositoryPort 
 
 		NativeQuery cosineQuery = buildCosineQuery(queryVector, newsSimilarSearch);
 		SearchHits<NewsSearchDocument> hits = executeSearch(cosineQuery);
+
 
 		return mapToDomain(hits);
 	}
@@ -177,6 +182,17 @@ public class ElasticsearchNewsSearchAdapter implements NewsSearchRepositoryPort 
 	 * @author 정안식
 	 * @since 2025-05-15
 	 */
+	private NewsSearchResultAggregate mapToDomain(SearchHits<NewsSearchDocument> hits, long totalHits) {
+		List<NewsSearchResult> resultList = hits.get()
+			.map(hit -> mapper.toDomain(hit.getContent()))
+			.toList();
+
+		return NewsSearchResultAggregate.builder()
+			.newsSearchResultList(resultList)
+			.totalHits(totalHits)
+			.build();
+	}
+
 	private List<NewsSearchResult> mapToDomain(SearchHits<NewsSearchDocument> hits) {
 		return hits.get()
 			.map(hit -> mapper.toDomain(hit.getContent()))

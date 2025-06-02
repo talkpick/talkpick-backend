@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import org.springframework.stereotype.Component;
 
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearchResult;
+import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearchResultAggregate;
 import com.likelion.backendplus4.talkpick.backend.search.infrastructure.adapter.document.NewsSearchDocument;
 
 /**

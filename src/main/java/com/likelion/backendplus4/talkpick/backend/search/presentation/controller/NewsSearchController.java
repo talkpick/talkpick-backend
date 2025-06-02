@@ -18,6 +18,7 @@ import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 import com.likelion.backendplus4.talkpick.backend.search.application.port.in.NewsSearchUseCase;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearch;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearchResult;
+import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearchResultAggregate;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSimilarSearch;
 import com.likelion.backendplus4.talkpick.backend.search.presentation.controller.dto.request.NewsSearchRequest;
 import com.likelion.backendplus4.talkpick.backend.search.presentation.controller.dto.request.NewsSimilarSearchRequest;
@@ -51,9 +52,9 @@ public class NewsSearchController {
 	public ResponseEntity<ApiResponse<NewsSearchResponseList>> search(
 		@ModelAttribute NewsSearchRequest request) {
 		NewsSearch newsSearch = toDomain(request);
-		List<NewsSearchResult> newsSearchResultList = searchUseCase.searchByQuery(newsSearch);
+		NewsSearchResultAggregate newsSearchResultAggregate = searchUseCase.searchByQuery(newsSearch);
 
-		return success(toListResponse(newsSearchResultList));
+		return success(toListResponse(newsSearchResultAggregate));
 	}
 
 	@LogJson
