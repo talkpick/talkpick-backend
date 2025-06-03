@@ -4,8 +4,6 @@ import static com.likelion.backendplus4.talkpick.backend.common.response.ApiResp
 import static com.likelion.backendplus4.talkpick.backend.news.info.presentation.mapper.NewsInfoDetailResponseMapper.*;
 import static com.likelion.backendplus4.talkpick.backend.news.info.presentation.mapper.ScrapCommandMapper.*;
 
-import javax.validation.Valid;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +24,7 @@ import com.likelion.backendplus4.talkpick.backend.news.info.presentation.control
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.docs.NewsInfoDetailProviderControllerDocs;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.validator.NewsIdConstraint;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 
