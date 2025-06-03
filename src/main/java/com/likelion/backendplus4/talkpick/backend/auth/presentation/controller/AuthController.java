@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.likelion.backendplus4.talkpick.backend.auth.application.port.in.AuthServiceUseCase;
 import com.likelion.backendplus4.talkpick.backend.auth.domain.model.AuthUser;
 import com.likelion.backendplus4.talkpick.backend.auth.infrastructure.support.mapper.AuthUserMapper;
+import com.likelion.backendplus4.talkpick.backend.auth.presentation.controller.docs.AuthControllerDocs;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.check.CheckAccountDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.check.CheckEmailDto;
 import com.likelion.backendplus4.talkpick.backend.auth.presentation.dto.req.check.CheckNicknameDto;
@@ -38,7 +39,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
-public class AuthController {
+public class AuthController implements AuthControllerDocs {
 
 	private final AuthServiceUseCase authServiceUseCase;
 
@@ -51,6 +52,7 @@ public class AuthController {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@Override
 	@EntryExitLog
 	@PostMapping("/signUp")
 	public ResponseEntity<ApiResponse<Void>> signUp(@Valid @RequestBody SignUpDto signUpDto) {
@@ -68,6 +70,7 @@ public class AuthController {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@Override
 	@EntryExitLog
 	@PostMapping("/signIn")
 	public ResponseEntity<ApiResponse<TokenResDto>> signIn(@Valid @RequestBody SignInDto signInDto) {
@@ -83,6 +86,7 @@ public class AuthController {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@Override
 	@EntryExitLog
 	@PostMapping("/signOut")
 	public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
@@ -100,6 +104,7 @@ public class AuthController {
 	 * @since 2025-05-12
 	 * @modified 2025-05-12
 	 */
+	@Override
 	@EntryExitLog
 	@PostMapping("/refresh")
 	public ResponseEntity<ApiResponse<TokenResDto>> refreshAccessToken(
@@ -118,6 +123,7 @@ public class AuthController {
 	 * @since 2025-05-18
 	 * @modified 2025-05-18
 	 */
+	@Override
 	@EntryExitLog
 	@PostMapping("/checkDuplicate/account")
 	public ResponseEntity<ApiResponse<Void>> checkDuplicateAccount(@Valid @RequestBody CheckAccountDto checkAccountDto) {
@@ -135,6 +141,7 @@ public class AuthController {
 	 * @since 2025-05-18
 	 * @modified 2025-05-18
 	 */
+	@Override
 	@EntryExitLog
 	@PostMapping("/checkDuplicate/email")
 	public ResponseEntity<ApiResponse<Void>> verifyEmailDuplicationAndSendCode(@Valid @RequestBody CheckEmailDto checkEmailDto) {
@@ -152,6 +159,7 @@ public class AuthController {
 	 * @since 2025-05-18
 	 * @modified 2025-05-18
 	 */
+	@Override
 	@EntryExitLog
 	@PostMapping("/checkDuplicate/nickname")
 	public ResponseEntity<ApiResponse<Void>> checkDuplicateNickname(@Valid @RequestBody CheckNicknameDto checkNicknameDto) {
@@ -167,6 +175,7 @@ public class AuthController {
 	 * @author 박찬병
 	 * @since 2025-05-20
 	 */
+	@Override
 	@EntryExitLog
 	@PostMapping("/checkDuplicate/email/result")
 	public ResponseEntity<ApiResponse<Void>> verifyEmailCode(@Valid @RequestBody ConfirmCodeDto confirmDto) {
@@ -182,6 +191,7 @@ public class AuthController {
 	 * @author 박찬병
 	 * @since 2025-05-20
 	 */
+	@Override
 	@EntryExitLog
 	@PostMapping("/account/recovery/code")
 	public ResponseEntity<ApiResponse<Void>> sendAccountRecoveryCode(@Valid @RequestBody RecoveryUserInfoDto recoveryUserInfoDto) {
@@ -197,6 +207,7 @@ public class AuthController {
 	 * @author 박찬병
 	 * @since 2025-05-20
 	 */
+	@Override
 	@EntryExitLog
 	@PostMapping("/account/recovery/result")
 	public ResponseEntity<ApiResponse<String>> recoveryAccount(@Valid @RequestBody ConfirmCodeDto confirmCodeDto) {
@@ -215,6 +226,7 @@ public class AuthController {
 	 * @author 박찬병
 	 * @since 2025-05-20
 	 */
+	@Override
 	@EntryExitLog
 	@PostMapping("/password/recovery/code")
 	public ResponseEntity<ApiResponse<Void>> sendPasswordRecoveryCode(@Valid @RequestBody RecoveryUserInfoDto recoveryUserInfoDto) {
@@ -233,6 +245,7 @@ public class AuthController {
 	 * @author 박찬병
 	 * @since 2025-05-20
 	 */
+	@Override
 	@EntryExitLog
 	@PostMapping("/password/recovery/result")
 	public ResponseEntity<ApiResponse<String>> verifyPasswordRecoveryCode(@Valid @RequestBody ConfirmCodeDto confirmCodeDto) {
@@ -252,6 +265,7 @@ public class AuthController {
 	 * @author 박찬병
 	 * @since 2025-05-20
 	 */
+	@Override
 	@EntryExitLog
 	@PutMapping("/password/recovery/result")
 	public ResponseEntity<ApiResponse<Void>> recoveryPassword(@Valid @RequestBody RecoveryPasswordDto recoveryPasswordDto) {

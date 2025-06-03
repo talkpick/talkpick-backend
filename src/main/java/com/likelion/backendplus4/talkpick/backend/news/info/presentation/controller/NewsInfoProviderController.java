@@ -15,6 +15,7 @@ import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInf
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.adapter.dto.SliceResult;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request.NewsInfoRequest;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request.NewsInfoRequestByCategory;
+import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.docs.NewsInfoProviderControllerDocs;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.mapper.NewsInfoResponseMapper;
 
 import jakarta.validation.constraints.NotBlank;
@@ -29,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/public/news")
-public class NewsInfoProviderController {
+public class NewsInfoProviderController implements NewsInfoProviderControllerDocs {
 	private final NewsInfoProviderUseCase newsInfoProviderUsecase;
 
 	/**
@@ -40,6 +41,7 @@ public class NewsInfoProviderController {
 	 * @author 함예정
 	 * @since 2025-05-16
 	 */
+	@Override
 	@GetMapping("/latest")
 	public ResponseEntity<ApiResponse<SliceResponse>> getLatestNewsInfo(
 		NewsInfoRequest newsInfoRequest) {
@@ -57,6 +59,7 @@ public class NewsInfoProviderController {
 	 * @author 함예정
 	 * @since 2025-05-26
 	 */
+	@Override
 	@GetMapping("/latest/{category}")
 	public ResponseEntity<ApiResponse<SliceResponse>> getLatestNewsInfoByCategory(
 		@NotBlank @PathVariable String category,
