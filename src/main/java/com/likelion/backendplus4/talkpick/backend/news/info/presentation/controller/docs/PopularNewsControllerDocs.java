@@ -7,14 +7,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(
 	name = "Popular News",
 	description = "카테고리별 Top1 인기뉴스 조회 API"
 )
-@RequestMapping("/public/news")
 public interface PopularNewsControllerDocs {
 
 	@Operation(
@@ -29,6 +26,6 @@ public interface PopularNewsControllerDocs {
 			required = true,
 			example = "sports"
 		)
-		@PathVariable String category
+		String category
 	);
 }

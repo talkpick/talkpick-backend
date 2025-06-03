@@ -10,15 +10,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @Tag(
 	name = "News Info Provider",
 	description = "최신 뉴스 및 카테고리별 최신 뉴스 조회 API"
 )
-@RequestMapping("/public/news")
 public interface NewsInfoProviderControllerDocs {
 
 	@Operation(
@@ -31,7 +27,7 @@ public interface NewsInfoProviderControllerDocs {
 			description = "마지막 뉴스 ID 및 조회 개수를 포함한 요청 파라미터",
 			required = true
 		)
-		@ModelAttribute NewsInfoRequest newsInfoRequest
+		NewsInfoRequest newsInfoRequest
 	);
 
 	@Operation(
@@ -45,12 +41,12 @@ public interface NewsInfoProviderControllerDocs {
 			required = true,
 			example = "sports"
 		)
-		@PathVariable String category,
+		String category,
 		@Parameter(
 			in = ParameterIn.QUERY,
 			description = "마지막 뉴스 ID 및 조회 개수를 포함한 요청 파라미터",
 			required = true
 		)
-		@ModelAttribute NewsInfoRequestByCategory newsInfoRequestByCategory
+		NewsInfoRequestByCategory newsInfoRequestByCategory
 	);
 }

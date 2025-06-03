@@ -16,16 +16,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @Tag(
 	name = "Auth",
 	description = "회원 가입, 로그인, 로그아웃, 토큰 재발급 등 인증 관련 API"
 )
-@RequestMapping("/auth")
 public interface AuthControllerDocs {
 
 	@Operation(
@@ -38,7 +34,7 @@ public interface AuthControllerDocs {
 			description = "회원 가입 요청 정보",
 			required = true
 		)
-		@Valid @RequestBody SignUpDto signUpDto
+		SignUpDto signUpDto
 	);
 
 	@Operation(
@@ -51,7 +47,7 @@ public interface AuthControllerDocs {
 			description = "로그인 요청 정보",
 			required = true
 		)
-		@Valid @RequestBody SignInDto signInDto
+		SignInDto signInDto
 	);
 
 	@Operation(
@@ -77,7 +73,7 @@ public interface AuthControllerDocs {
 			description = "Refresh Token 요청 정보",
 			required = true
 		)
-		@Valid @RequestBody RefreshReqDto requestToken
+		RefreshReqDto requestToken
 	);
 
 	@Operation(
@@ -90,7 +86,7 @@ public interface AuthControllerDocs {
 			description = "검사할 계정 정보",
 			required = true
 		)
-		@Valid @RequestBody CheckAccountDto checkAccountDto
+		CheckAccountDto checkAccountDto
 	);
 
 	@Operation(
@@ -103,7 +99,7 @@ public interface AuthControllerDocs {
 			description = "검사할 이메일 정보",
 			required = true
 		)
-		@Valid @RequestBody CheckEmailDto checkEmailDto
+		CheckEmailDto checkEmailDto
 	);
 
 	@Operation(
@@ -116,7 +112,7 @@ public interface AuthControllerDocs {
 			description = "검사할 닉네임 정보",
 			required = true
 		)
-		@Valid @RequestBody CheckNicknameDto checkNicknameDto
+		CheckNicknameDto checkNicknameDto
 	);
 
 	@Operation(
@@ -129,7 +125,7 @@ public interface AuthControllerDocs {
 			description = "이메일 및 인증 코드 정보",
 			required = true
 		)
-		@Valid @RequestBody ConfirmCodeDto confirmDto
+		ConfirmCodeDto confirmDto
 	);
 
 	@Operation(
@@ -142,7 +138,7 @@ public interface AuthControllerDocs {
 			description = "계정 복구용 사용자 정보",
 			required = true
 		)
-		@Valid @RequestBody RecoveryUserInfoDto recoveryUserInfoDto
+		RecoveryUserInfoDto recoveryUserInfoDto
 	);
 
 	@Operation(
@@ -155,7 +151,7 @@ public interface AuthControllerDocs {
 			description = "이메일 및 인증 코드 정보",
 			required = true
 		)
-		@Valid @RequestBody ConfirmCodeDto confirmCodeDto
+		ConfirmCodeDto confirmCodeDto
 	);
 
 	@Operation(
@@ -168,7 +164,7 @@ public interface AuthControllerDocs {
 			description = "비밀번호 복구용 사용자 정보",
 			required = true
 		)
-		@Valid @RequestBody RecoveryUserInfoDto recoveryUserInfoDto
+		RecoveryUserInfoDto recoveryUserInfoDto
 	);
 
 	@Operation(
@@ -181,7 +177,7 @@ public interface AuthControllerDocs {
 			description = "이메일 및 인증 코드 정보",
 			required = true
 		)
-		@Valid @RequestBody ConfirmCodeDto confirmCodeDto
+		ConfirmCodeDto confirmCodeDto
 	);
 
 	@Operation(
@@ -194,6 +190,6 @@ public interface AuthControllerDocs {
 			description = "이메일, 임시 토큰 및 새 비밀번호 정보",
 			required = true
 		)
-		@Valid @RequestBody RecoveryPasswordDto recoveryPasswordDto
+		RecoveryPasswordDto recoveryPasswordDto
 	);
 }

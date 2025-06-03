@@ -8,10 +8,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 
@@ -33,7 +30,7 @@ public interface ChatRestControllerDocs {
 			required = true,
 			example = "article123"
 		)
-		@PathVariable String articleId
+		String articleId
 	);
 
 	@Operation(
@@ -48,7 +45,7 @@ public interface ChatRestControllerDocs {
 			required = true,
 			example = "article123"
 		)
-		@PathVariable String articleId,
+		String articleId,
 
 		@Parameter(
 			in = ParameterIn.QUERY,
@@ -56,14 +53,13 @@ public interface ChatRestControllerDocs {
 			required = true,
 			example = "2025-06-01T15:30:00"
 		)
-		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-		@RequestParam LocalDateTime before,
+		LocalDateTime before,
 
 		@Parameter(
 			in = ParameterIn.QUERY,
 			description = "최대 조회 개수 (기본값: 100)",
 			example = "50"
 		)
-		@RequestParam(defaultValue = "100") int limit
+		int limit
 	);
 }

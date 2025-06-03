@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 	name = "News Search",
 	description = "뉴스 검색 및 유사 뉴스 조회 API"
 )
-@RequestMapping("/public/news")
 public interface NewsSearchControllerDocs {
 
 	@Operation(
@@ -29,7 +28,7 @@ public interface NewsSearchControllerDocs {
 			description = "검색어 및 페이지 정보",
 			required = true
 		)
-		@ModelAttribute NewsSearchRequest request
+		NewsSearchRequest request
 	);
 
 	@Operation(
@@ -42,6 +41,6 @@ public interface NewsSearchControllerDocs {
 			description = "유사 뉴스 검색 요청 정보",
 			required = true
 		)
-		@ModelAttribute NewsSimilarSearchRequest request
+		NewsSimilarSearchRequest request
 	);
 }

@@ -3,17 +3,12 @@ package com.likelion.backendplus4.talkpick.backend.news.info.presentation.contro
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.NewsInfoDetailResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request.ScrapRequest;
-import com.likelion.backendplus4.talkpick.backend.news.info.presentation.validator.NewsIdConstraint;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Tag(
 	name = "News Info Detail",
@@ -32,7 +27,7 @@ public interface NewsInfoDetailProviderControllerDocs {
 			required = true,
 			example = "KM123"
 		)
-		@PathVariable @NewsIdConstraint String id
+		String id
 	);
 
 	@Operation(
@@ -47,7 +42,7 @@ public interface NewsInfoDetailProviderControllerDocs {
 			required = true,
 			example = "KM123"
 		)
-		@NotBlank(message = "newsId는 필수입니다.") @PathVariable String newsId,
+		String newsId,
 		@Parameter(
 			in = ParameterIn.HEADER,
 			description = "로그인된 사용자 ID (JWT로부터 추출됨)",
@@ -59,6 +54,6 @@ public interface NewsInfoDetailProviderControllerDocs {
 			description = "스크랩 요청 DTO",
 			required = true
 		)
-		@Valid @RequestBody ScrapRequest scrapRequest
+		ScrapRequest scrapRequest
 	);
 }
