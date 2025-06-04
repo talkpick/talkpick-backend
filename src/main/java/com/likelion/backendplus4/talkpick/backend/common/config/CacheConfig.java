@@ -1,4 +1,4 @@
-package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.cache;
+package com.likelion.backendplus4.talkpick.backend.common.config;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -41,7 +41,10 @@ public class CacheConfig {
                 .expireAfterWrite(expireAfterWrite)
                 .recordStats());
 
-        cacheManager.setCacheNames(List.of("popularNews"));
+        cacheManager.setCacheNames(List.of(
+                "popularNews",
+                "chatTopNews"
+        ));
 
         return cacheManager;
     }
