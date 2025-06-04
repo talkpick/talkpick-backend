@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,7 +46,7 @@ public interface NewsInfoProviderControllerDocs {
 			required = true,
 			example = "sports"
 		)
-		@PathVariable String category,
+		@NotBlank @PathVariable String category,
 		@Parameter(
 			in = ParameterIn.QUERY,
 			description = "마지막 뉴스 ID 및 조회 개수를 포함한 요청 파라미터",
