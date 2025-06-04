@@ -1,7 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.docs;
 
-import com.likelion.backendplus4.talkpick.backend.chat.domain.model.RoomRankDto;
 import com.likelion.backendplus4.talkpick.backend.chat.presentation.validation.CategoryConstraint;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.PopularNewsResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -25,7 +25,7 @@ public interface ChatPopularRestControllerDocs {
             @ApiResponse(responseCode = "400", description = "잘못된 카테고리 (유효한 값: politics, sports, entertainment, economy, society, lifestyle, world, it)"),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
-    RoomRankDto getTopNews(
+    PopularNewsResponse getTopNews(
             @Parameter(
                     in = ParameterIn.PATH,
                     description = "조회할 뉴스 카테고리 (politics, sports, entertainment, economy, society, lifestyle, world, it)",
@@ -43,5 +43,5 @@ public interface ChatPopularRestControllerDocs {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
-    RoomRankDto getTopNewsAll();
+    PopularNewsResponse getTopNewsAll();
 }

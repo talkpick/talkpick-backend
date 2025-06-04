@@ -1,10 +1,10 @@
 package com.likelion.backendplus4.talkpick.backend.chat.presentation.controller;
 
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.in.ChatRankingUseCase;
-import com.likelion.backendplus4.talkpick.backend.chat.domain.model.RoomRankDto;
 import com.likelion.backendplus4.talkpick.backend.chat.presentation.controller.docs.ChatPopularRestControllerDocs;
 import com.likelion.backendplus4.talkpick.backend.chat.presentation.validation.CategoryConstraint;
 
+import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.PopularNewsResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,7 +35,7 @@ public class ChatPopularRestController implements ChatPopularRestControllerDocs{
      */
     @Override
     @GetMapping("/public/chat/top-news/{category}")
-    public RoomRankDto getTopNews(@PathVariable @CategoryConstraint String category) {
+    public PopularNewsResponse getTopNews(@PathVariable @CategoryConstraint String category) {
         return chatRankingUseCase.getTopNewsByCategory(category);
     }
 
@@ -51,7 +51,7 @@ public class ChatPopularRestController implements ChatPopularRestControllerDocs{
      */
     @Override
     @GetMapping("/public/chat/top-news")
-    public RoomRankDto getTopNewsAll() {
+    public PopularNewsResponse getTopNewsAll() {
         return chatRankingUseCase.getTopNewsAll();
     }
 }

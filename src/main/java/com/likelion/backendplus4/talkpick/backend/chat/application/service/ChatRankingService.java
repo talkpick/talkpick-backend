@@ -3,6 +3,9 @@ package com.likelion.backendplus4.talkpick.backend.chat.application.service;
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.in.ChatRankingUseCase;
 import com.likelion.backendplus4.talkpick.backend.chat.application.port.out.ChatRankingPort;
 import com.likelion.backendplus4.talkpick.backend.chat.domain.model.RoomRankDto;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.PopularNewsResponse;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.PopularNewsUseCase;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
@@ -11,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class ChatRankingService implements ChatRankingUseCase {
 
     private final ChatRankingPort chatRankingPort;
+    private final PopularNewsUseCase popularNewsUseCase;
 
     /**
      * 특정 카테고리에서 가장 인기있는 뉴스 채팅방을 조회합니다.
@@ -25,8 +29,15 @@ public class ChatRankingService implements ChatRankingUseCase {
      * @since 2025-06-03 최초 작성
      */
     @Override
-    public RoomRankDto getTopNewsByCategory(String category) {
-        return chatRankingPort.getTopNewsByCategory(category);
+    @Cacheable(value = "chatTopNews", key = "#category")
+    public PopularNewsResponse getTopNewsByCategory(String category) {
+
+        RoomRankDto rankDto = chatRankingPort.getTopNewsByCategory(category);
+        PopularNewsResponse response = (null == rankDto)
+                ? null
+                : popularNewsUseCase.getTopNewsByCategory(rankDto.category());
+
+        return response;
     }
 
     /**
@@ -41,7 +52,14 @@ public class ChatRankingService implements ChatRankingUseCase {
      * @since 2025-06-03 최초 작성
      */
     @Override
-    public RoomRankDto getTopNewsAll() {
-        return chatRankingPort.getTopNewsAll();
+    @Cacheable(value = "chatTopNews", key = "'all'")
+    public PopularNewsResponse getTopNewsAll() {
+
+        RoomRankDto rankDto = chatRankingPort.getTopNewsAll();
+        PopularNewsResponse response = (null == rankDto)
+                ? null
+                : popularNewsUseCase.getTopNewsByCategory(rankDto.category());
+
+        return response;
     }
 }

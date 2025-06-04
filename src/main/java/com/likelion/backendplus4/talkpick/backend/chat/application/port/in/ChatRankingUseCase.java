@@ -1,9 +1,9 @@
 package com.likelion.backendplus4.talkpick.backend.chat.application.port.in;
 
-import com.likelion.backendplus4.talkpick.backend.chat.domain.model.RoomRankDto;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.PopularNewsResponse;
 
 public interface ChatRankingUseCase {
-    RoomRankDto getTopNewsByCategory(String category);
+    PopularNewsResponse getTopNewsByCategory(String category);
 
-    RoomRankDto getTopNewsAll();
+    PopularNewsResponse getTopNewsAll();
 }
