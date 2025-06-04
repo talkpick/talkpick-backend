@@ -31,15 +31,19 @@ public class ChatSessionEventListener {
      * @param event 세션 구독 이벤트
      * @author 이해창
      * @since 2025-05-26
+     * @modified 2025-06-03 이해창
+     *  - 채팅방 구독 시 카테고리 정보 추가
      */
     @EventListener
     public void handleSessionSubscribe(SessionSubscribeEvent event) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(event.getMessage());
         String destination = accessor.getDestination();
-        if (destination == null || !destination.endsWith(".count")) {
+        if (destination != null && !destination.endsWith(".count")) {
             String articleId = destination.substring(destination.lastIndexOf(".") + 1);
+            String category = accessor.getFirstNativeHeader("category");
             String sessionId = accessor.getSessionId();
-            chatSessionPort.addSession(articleId, sessionId);
+            System.out.println("Category: " + category + "ArticleId: "+ articleId);
+            chatSessionPort.addSession(articleId, category, sessionId);
         }
     }
 
