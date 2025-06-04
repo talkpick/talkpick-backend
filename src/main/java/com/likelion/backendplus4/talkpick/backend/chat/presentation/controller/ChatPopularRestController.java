@@ -9,11 +9,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
 @Validated
+@RequestMapping("/public/chat")
 public class ChatPopularRestController implements ChatPopularRestControllerDocs{
 
     private final ChatRankingUseCase chatRankingUseCase;
@@ -34,7 +36,7 @@ public class ChatPopularRestController implements ChatPopularRestControllerDocs{
      *  - @Valid에서 @CategoryConstraint로 변경
      */
     @Override
-    @GetMapping("/public/chat/top-news/{category}")
+    @GetMapping("/top-news/{category}")
     public PopularNewsResponse getTopNews(@PathVariable @CategoryConstraint String category) {
         return chatRankingUseCase.getTopNewsByCategory(category);
     }
@@ -50,7 +52,7 @@ public class ChatPopularRestController implements ChatPopularRestControllerDocs{
      * @author 양병학
      */
     @Override
-    @GetMapping("/public/chat/top-news")
+    @GetMapping("/top-news")
     public PopularNewsResponse getTopNewsAll() {
         return chatRankingUseCase.getTopNewsAll();
     }
