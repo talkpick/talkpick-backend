@@ -115,7 +115,7 @@ public class SecurityConfig {
                     .requestMatchers("/ws-chat/**").permitAll() // TODO: 웹소켓 인증관련 설정 시 수정
                     .requestMatchers("/user/**").hasRole(Role.USER.getRoleName())
                     .requestMatchers("/admin/**").hasRole(Role.ADMIN.getRoleName())
-                    .requestMatchers("/actuator/prometheus", "/actuator/health", "/actuator/metrics").permitAll()
+                    .requestMatchers("/actuator/**").permitAll()
                     .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                     .anyRequest().authenticated())
             .exceptionHandling(e -> e
