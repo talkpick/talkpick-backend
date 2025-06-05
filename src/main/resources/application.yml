@@ -101,6 +101,8 @@ cache:
   expire-after-write: 6h
 
 management:
+  server:
+    port: ${BACKEND_ACTUATOR_PORT:8078}
   endpoints:
     web:
       exposure:
