@@ -17,6 +17,7 @@ import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInf
 import com.likelion.backendplus4.talkpick.backend.user.application.port.in.UserServiceUseCase;
 import com.likelion.backendplus4.talkpick.backend.user.domain.model.User;
 import com.likelion.backendplus4.talkpick.backend.user.infrastructure.support.mapper.UserMapper;
+import com.likelion.backendplus4.talkpick.backend.user.presentation.controller.docs.UserControllerDocs;
 import com.likelion.backendplus4.talkpick.backend.user.presentation.controller.dto.req.UserUpdateReqDto;
 import com.likelion.backendplus4.talkpick.backend.user.presentation.controller.dto.res.UserInfoResDto;
 
@@ -31,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
-public class UserController {
+public class UserController implements UserControllerDocs {
 
 	private final UserServiceUseCase userServiceUseCase;
 
@@ -44,6 +45,7 @@ public class UserController {
 	 * @author 박찬병
 	 * @since 2025-05-16
 	 */
+	@Override
 	@EntryExitLog
 	@GetMapping("/profile")
 	public ResponseEntity<ApiResponse<UserInfoResDto>> getProfile(@LoginUser Long userId) {
@@ -51,6 +53,7 @@ public class UserController {
 		return ApiResponse.success(myInfo);
 	}
 
+	@Override
 	@EntryExitLog
 	@GetMapping("/profile/scrap")
 	public ResponseEntity<ApiResponse<List<NewsInfoComplete>>> getMyScrap(@LoginUser Long userId) {

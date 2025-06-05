@@ -27,7 +27,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
-    private static final String[] EXCLUDE_URLS = { "/auth", "/public" };
+    private static final String[] EXCLUDE_URLS = { "/auth", "/public", "/actuator" };
     private final JwtAuthentication jwtAuthentication;
 
     /**
@@ -72,6 +72,12 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
+        boolean shouldSkip = Arrays.stream(EXCLUDE_URLS).anyMatch(path::startsWith);
+
+        if (path.startsWith("/actuator")) {
+            System.out.println("Actuator request detected: " + path + ", shouldSkip: " + shouldSkip);
+        }
+
         return Arrays.stream(EXCLUDE_URLS).anyMatch(path::startsWith);
     }
 

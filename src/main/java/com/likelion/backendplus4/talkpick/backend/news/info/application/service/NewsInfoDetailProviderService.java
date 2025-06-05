@@ -73,6 +73,11 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
 	}
 
 	@Override
+	public NewsInfoDetail getNewsDetail(String newsId) {
+		return fetchNewsInfoDetail(newsId);
+	}
+
+	@Override
 	public void saveScrap(ScrapCommand scrapCommand) {
 		newsDetailProviderPort.saveScrap(scrapCommand);
 	}

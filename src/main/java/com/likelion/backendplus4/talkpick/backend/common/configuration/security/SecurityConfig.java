@@ -116,6 +116,7 @@ public class SecurityConfig {
                     .requestMatchers("/user/**").hasRole(Role.USER.getRoleName())
                     .requestMatchers("/admin/**").hasRole(Role.ADMIN.getRoleName())
                     .requestMatchers("/actuator/**").permitAll()
+                    .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                     .anyRequest().authenticated())
             .exceptionHandling(e -> e
                 .authenticationEntryPoint(customAuthenticationEntryPoint)

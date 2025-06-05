@@ -24,7 +24,7 @@ spring:
       ddl-auto: none
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
     open-in-view: false
   web:
     resources:
@@ -61,7 +61,7 @@ host:
 decorator:
   datasource:
     p6spy:
-      enable-logging: true
+      enable-logging: false
 
 log:
   rolling:
@@ -101,8 +101,6 @@ cache:
   expire-after-write: 6h
 
 management:
-  server:
-    port: ${BACKEND_ACTUATOR_PORT:8078}
   endpoints:
     web:
       exposure:
