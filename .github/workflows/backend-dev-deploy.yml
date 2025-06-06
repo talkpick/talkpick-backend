@@ -33,7 +33,8 @@ jobs:
       run: ./gradlew bootJar
     - name: Copy JAR to shared volume
       run: |
-        cp /deploy/${{ github.event.repository.name }}/build/libs/*.jar \
+        LATEST_JAR=$(ls -t /deploy/${{ github.event.repository.name }}/build/libs/*.jar | head -n 1)
+        cp "$LATEST_JAR" \
           /deploy/${{ github.event.repository.name }}/app.jar   
     
     - name: Restart Docker
