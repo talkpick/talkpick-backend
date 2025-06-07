@@ -1,6 +1,9 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.application.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.HighlightSegment;
 
 import lombok.Builder;
 
@@ -20,6 +23,7 @@ public record NewsInfoDetailResponse(
 	String content,
 	String imageUrl,
 	String summary,
-	Long viewCount
+	Long viewCount,
+	List<HighlightSegment> highlightSegments
 ) {
 }

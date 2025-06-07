@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearch;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearchResult;
+import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearchResultAggregate;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSimilarSearch;
 
 /**
@@ -21,7 +22,7 @@ public interface NewsSearchUseCase {
 	 * @author 정안식
 	 * @since 2025-05-15
 	 */
-	List<NewsSearchResult> searchByQuery(NewsSearch newsSearch);
+	NewsSearchResultAggregate searchByQuery(NewsSearch newsSearch);
 
 	List<NewsSearchResult> searchSimilarByNewsId(NewsSimilarSearch newsSimilarSearch);
 }

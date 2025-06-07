@@ -1,6 +1,11 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.application.port.out;
 
+import java.util.List;
+import java.util.Optional;
+
+import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.ScrapInfo;
 
 /**
  * 뉴스의 상세 정보를 인프라 계층에서 조회하기 위한 포트 인터페이스입니다.
@@ -17,5 +22,7 @@ import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInf
 	 * @author 함예정
 	 * @since 2025-05-14
 	 */
-	NewsInfoDetail getNewsInfoDetailsByArticleId(String guid);
+	Optional<NewsInfoDetail> getNewsInfoDetailsByArticleId(String guid);
+	List<NewsInfoDetail> getNewsInfoDetailsByUserId(Long userId);
+	void saveScrap(ScrapCommand scrapCommand);
 }

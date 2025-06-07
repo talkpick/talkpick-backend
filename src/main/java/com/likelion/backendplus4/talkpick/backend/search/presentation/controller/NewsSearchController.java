@@ -18,7 +18,9 @@ import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 import com.likelion.backendplus4.talkpick.backend.search.application.port.in.NewsSearchUseCase;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearch;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearchResult;
+import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSearchResultAggregate;
 import com.likelion.backendplus4.talkpick.backend.search.domain.model.NewsSimilarSearch;
+import com.likelion.backendplus4.talkpick.backend.search.presentation.controller.docs.NewsSearchControllerDocs;
 import com.likelion.backendplus4.talkpick.backend.search.presentation.controller.dto.request.NewsSearchRequest;
 import com.likelion.backendplus4.talkpick.backend.search.presentation.controller.dto.request.NewsSimilarSearchRequest;
 import com.likelion.backendplus4.talkpick.backend.search.presentation.controller.dto.response.NewsSearchResponseList;
@@ -33,7 +35,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/public/news")
 @RequiredArgsConstructor
-public class NewsSearchController {
+public class NewsSearchController implements NewsSearchControllerDocs {
 
 	private final NewsSearchUseCase searchUseCase;
 
@@ -47,17 +49,19 @@ public class NewsSearchController {
 	 */
 	@LogJson
 	@EntryExitLog
+	@Override
 	@GetMapping("/search")
 	public ResponseEntity<ApiResponse<NewsSearchResponseList>> search(
 		@ModelAttribute NewsSearchRequest request) {
 		NewsSearch newsSearch = toDomain(request);
-		List<NewsSearchResult> newsSearchResultList = searchUseCase.searchByQuery(newsSearch);
+		NewsSearchResultAggregate newsSearchResultAggregate = searchUseCase.searchByQuery(newsSearch);
 
-		return success(toListResponse(newsSearchResultList));
+		return success(toListResponse(newsSearchResultAggregate));
 	}
 
 	@LogJson
 	@EntryExitLog
+	@Override
 	@GetMapping("/similar")
 	public ResponseEntity<ApiResponse<NewsSearchResponseList>> searchSimilar(
 		@ModelAttribute NewsSimilarSearchRequest request) {

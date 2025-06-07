@@ -9,11 +9,10 @@ import com.likelion.backendplus4.talkpick.backend.user.infrastructure.adapter.pe
 
 import java.util.Arrays;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,6 +21,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -30,19 +30,26 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
  * Security 설정을 담당하는 Configuration 클래스입니다.
  *
  * @since 2025-05-12
- * @modified 2025-05-19
+ * @modified 2025-05-31
  */
 @Configuration
-@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final JwtFilter jwtFilter;
+    private final String HOST_NAME;
 
-    @Value("${host.name}")
-    private String HOST_NAME;
-
+    public SecurityConfig(
+        CustomAccessDeniedHandler customAccessDeniedHandler,
+        CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
+        JwtFilter jwtFilter,
+        @Value("${host.name}") String HOST_NAME) {
+        this.customAccessDeniedHandler = customAccessDeniedHandler;
+        this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
+        this.jwtFilter = jwtFilter;
+        this.HOST_NAME = HOST_NAME;
+    }
 
     /**
      * AuthenticationManager를 구성합니다.
@@ -88,8 +95,10 @@ public class SecurityConfig {
      * @throws Exception 설정 중 예외 발생 시
      * @author 박찬병
      * @since 2025-05-13
-     * @modified 2025-05-19
+     * @modified 2025-05-31
      * 2025-05-19 - url 설정 추가
+     * 2025-05-29 - 캐싱 경로 설정 추가
+     * 2025-05-31 - 캐싱 경로 설정 Revert
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -106,6 +115,8 @@ public class SecurityConfig {
                     .requestMatchers("/ws-chat/**").permitAll() // TODO: 웹소켓 인증관련 설정 시 수정
                     .requestMatchers("/user/**").hasRole(Role.USER.getRoleName())
                     .requestMatchers("/admin/**").hasRole(Role.ADMIN.getRoleName())
+                    .requestMatchers("/actuator/**").permitAll()
+                    .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                     .anyRequest().authenticated())
             .exceptionHandling(e -> e
                 .authenticationEntryPoint(customAuthenticationEntryPoint)

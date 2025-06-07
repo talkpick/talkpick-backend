@@ -24,7 +24,7 @@ spring:
       ddl-auto: none
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
     open-in-view: false
   web:
     resources:
@@ -34,10 +34,17 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password: ${REDIS_PASSWORD:}
-
-  quartz:
-    view-count-sync:
-      cron: "0 0 0 * * ?"
+  mail:
+    host: smtp.gmail.com
+    port: 465
+    username: talkpick.verify@gmail.com
+    password: ${MAIL_APP_KEY}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl.enable: true
+          starttls.enable: false
 
   rabbitmq:
     username: ${RABBIT_MQ_USERNAME:admin}
@@ -54,12 +61,12 @@ host:
 decorator:
   datasource:
     p6spy:
-      enable-logging: true
+      enable-logging: false
 
 log:
   rolling:
     directory: logs
-    file-name: talkpick-batch.log
+    file-name: talkpick-backend.log
     pattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [TraceId: %X{traceId:-no-trace}] - %msg%n"
     max-history: 30
     total-size-cap: 10MB
@@ -76,3 +83,37 @@ validator:
 news:
   index:
     name: news_index
+
+auth:
+  redis:
+    refresh-token-key: refreshToken
+    blacklist-indicator: blacklisted
+    authorities-key: authorities
+    email-prefix: "mail:"
+    verify-email-code-ttl: PT5M
+    refresh-token-expiration-days: 7
+    field:
+      email-auth-code: emailAuthCode
+      account: account
+
+cache:
+  maximum-size: 100
+  expire-after-write: 6h
+
+management:
+  server:
+    port: ${BACKEND_ACTUATOR_PORT:8078}
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    prometheus:
+      access: unrestricted
+  metrics:
+    tags:
+      application: talkpick-backend
+    distribution:
+      percentiles:
+        method.execution.time: 0.5,0.95,0.99
+        http.server.requests: 0.5,0.95,0.99
