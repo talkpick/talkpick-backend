@@ -35,65 +35,78 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 public class NewsInfoDetailProviderController implements NewsInfoDetailProviderControllerDocs {
-	private final NewsInfoDetailProviderUseCase newsInfoDetailProviderUseCase;
-	private final NewsViewCountIncreaseUseCase newsViewCountIncreaseUseCase;
+    private final NewsInfoDetailProviderUseCase newsInfoDetailProviderUseCase;
+    private final NewsViewCountIncreaseUseCase newsViewCountIncreaseUseCase;
 
-	/**
-	 * 뉴스 ID를 기반으로 뉴스 상세 정보를 조회하는 API 엔드포인트입니다.
-	 *
-	 * 1. 뉴스 ID 형식 검증 (KM, DA, KH 접두사 + 숫자)
-	 * 2. 클라이언트 IP 주소 획득
-	 * 3. 조회수 증가 (중복 조회 제외)
-	 * 4. 뉴스 상세 정보 조회 및 응답
-	 *
-	 * @param id 조회할 뉴스의 ID (형식: KM123, DA456, KH789)
-	 * @return 뉴스 상세 정보가 포함된 API 응답
-	 * @throws jakarta.validation.ConstraintViolationException 뉴스 ID 형식이 잘못된 경우
-	 * @since 2025-05-19 최초 작성
-	 * @author 양병학
-	 * @modified 2025-05-25 양병학
-	 *  - 뉴스 ID validation 추가
-	 */
-	@LogJson
-	@EntryExitLog
-	@Override
-	@GetMapping("/public/news/{id}")
-	public ResponseEntity<ApiResponse<NewsInfoDetailResponse>> getNewsInfoDetailsByArticleId(
-		@PathVariable @NewsIdConstraint String id) {
+    /**
+     * 뉴스 ID를 기반으로 뉴스 상세 정보를 조회하는 API 엔드포인트입니다.
+     * <p>
+     * 1. 뉴스 ID 형식 검증 (KM, DA, KH 접두사 + 숫자)
+     * 2. 클라이언트 IP 주소 획득
+     * 3. 조회수 증가 (중복 조회 제외)
+     * 4. 뉴스 상세 정보 조회 및 응답
+     *
+     * @param id 조회할 뉴스의 ID (형식: KM123, DA456, KH789)
+     * @return 뉴스 상세 정보가 포함된 API 응답
+     * @throws jakarta.validation.ConstraintViolationException 뉴스 ID 형식이 잘못된 경우
+     * @author 양병학
+     * @modified 2025-05-25 양병학
+     * - 뉴스 ID validation 추가
+     * @since 2025-05-19 최초 작성
+     */
+    @LogJson
+    @EntryExitLog
+    @Override
+    @GetMapping("/public/news/{id}")
+    public ResponseEntity<ApiResponse<NewsInfoDetailResponse>> getNewsInfoDetailsByArticleId(
+            @PathVariable @NewsIdConstraint String id) {
 
-		NewsInfoComplete newsInfoComplete = newsInfoDetailProviderUseCase.getNewsInfoDetailByNewsId(id);
+        NewsInfoComplete newsInfoComplete = newsInfoDetailProviderUseCase.getNewsInfoDetailByNewsId(id);
 
-		return success(toResponse(newsInfoComplete));
-	}
+        return success(toResponse(newsInfoComplete));
+    }
 
-	@LogJson
-	@EntryExitLog
-	@Override
-	@PostMapping("/public/news/dynamic/{id}")
-	public ResponseEntity<ApiResponse<NewsInfoDynamic>> getNewsInfoDynamic(
-			@PathVariable @NewsIdConstraint String id,
-			@Valid @RequestBody NewsInfoDynamicRequest request) {
+    /**
+     * 뉴스 ID와 request(카테고리정보, 발행일자) 를 바탕으로 조회수를 받아오는
+     * 동적데이터 조회 API입니다.
+     *
+     * 기존의 조회수 증가 로직 또한 이 API호출에 합쳐져있습니다.
+     *
+     * @param id 조회할 뉴스의 ID (형식: KM123, DA456, KH789)
+     * @param request 조회할 뉴스의 카테고리 정보 및 발행일자 ex: ("category": "economy", "publishDate": "2025-06-08T16:40:00")
+     * @return 뉴스 ID, 조회수
+     * @throws jakarta.validation.ConstraintViolationException 뉴스 ID 형식이 잘못된 경우
+     * @author 양병학
+     * @since 2025-06-08 최초 작성
+     */
+    @LogJson
+    @EntryExitLog
+    @Override
+    @PostMapping("/public/news/dynamic/{id}")
+    public ResponseEntity<ApiResponse<NewsInfoDynamic>> getNewsInfoDynamic(
+            @PathVariable @NewsIdConstraint String id,
+            @Valid @RequestBody NewsInfoDynamicRequest request) {
 
-		NewsInfoDynamic newsInfoDynamic = newsInfoDetailProviderUseCase.getNewsInfoDynamic(
-				id,
-				request.category(),
-				request.publishDate()
-		);
+        NewsInfoDynamic newsInfoDynamic = newsInfoDetailProviderUseCase.getNewsInfoDynamic(
+                id,
+                request.category(),
+                request.publishDate()
+        );
 
-		return success(newsInfoDynamic);
-	}
+        return success(newsInfoDynamic);
+    }
 
-	@LogJson
-	@EntryExitLog
-	@Override
-	@PostMapping("/scrap/{newsId}")
-	public ResponseEntity<ApiResponse<Void>> saveScrap(
-		@NotBlank(message = "newsId는 필수입니다.") @PathVariable String newsId,
-		@LoginUser Long loginUser,
-		@Valid @RequestBody ScrapRequest scrapRequest) {
+    @LogJson
+    @EntryExitLog
+    @Override
+    @PostMapping("/scrap/{newsId}")
+    public ResponseEntity<ApiResponse<Void>> saveScrap(
+            @NotBlank(message = "newsId는 필수입니다.") @PathVariable String newsId,
+            @LoginUser Long loginUser,
+            @Valid @RequestBody ScrapRequest scrapRequest) {
 
-		newsInfoDetailProviderUseCase.saveScrap(toCommand(newsId, loginUser, scrapRequest));
+        newsInfoDetailProviderUseCase.saveScrap(toCommand(newsId, loginUser, scrapRequest));
 
-		return success();
-	}
+        return success();
+    }
 }
