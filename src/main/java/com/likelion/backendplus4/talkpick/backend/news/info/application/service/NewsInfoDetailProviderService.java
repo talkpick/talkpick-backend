@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.LogMethodValues;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
+
 import static com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoCompleteMapper.*;
 import static com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoDynamicMapper.toNewsInfoDynamic;
 
@@ -29,88 +30,95 @@ import org.springframework.stereotype.Service;
  * NewsInfoProviderUseCase를 구현하는 서비스 클래스입니다.
  * 뉴스 상세 정보 조회 및 조회수를 함께 제공합니다.
  *
- * @since 2025-05-14
  * @modified 2025-05-19
+ * @since 2025-05-14
  */
 @Service
 @RequiredArgsConstructor
 public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseCase {
-	private final NewsDetailProviderPort newsDetailProviderPort;
-	private final NewsViewCountIncreaseUseCase newsViewCountIncreaseUseCase;
-	private final HighlightCalculator highlightCalculator;
-	/**
-	 * 뉴스 ID를 기반으로 뉴스 상세 정보와 현재 조회수를 함께 조회합니다.
-	 *
-	 * @param newsId 조회할 뉴스의 ID
-	 * @return 뉴스 상세 정보와 조회수가 포함된 응답 객체
-	 * @since 2025-05-19 최초 작성
-	 * @author 양병학
-	 */
-	@EntryExitLog
-	@LogMethodValues
-	@Override
-	public NewsInfoComplete getNewsInfoDetailByNewsId(String newsId) {
-		NewsInfoDetail detail = fetchNewsInfoDetail(newsId);
+    private final NewsDetailProviderPort newsDetailProviderPort;
+    private final NewsViewCountIncreaseUseCase newsViewCountIncreaseUseCase;
+    private final HighlightCalculator highlightCalculator;
 
-		List<HighlightSegment> highlightSegments =  highlightCalculator.computeSegments(detail.getScrapInfos());
+    /**
+     * 뉴스 ID를 기반으로 뉴스 상세 정보 조회
+     *
+     * @param newsId 조회할 뉴스의 ID
+     * @return 뉴스 상세 정보가 포함된 응답 객체
+     * @author 양병학
+     * @since 2025-05-19
+     */
+    @EntryExitLog
+    @LogMethodValues
+    @Override
+    public NewsInfoComplete getNewsInfoDetailByNewsId(String newsId) {
+        NewsInfoDetail detail = fetchNewsInfoDetail(newsId);
 
-		return toNewsInfoComplete(detail, highlightSegments);
-	}
+        List<HighlightSegment> highlightSegments = highlightCalculator.computeSegments(detail.getScrapInfos());
 
-	/**
-	 * 별도의 서비스 분리 하지않음
-	 * detail를 보겠다는 기능적관점으로볼떈 같은서비스
-	 * TODO: 이 메서드 주석추가
-	 */
-	public NewsInfoDynamic getNewsInfoDynamic(String newsId, String category, LocalDateTime publishDate) {
-		Long viewCount = newsViewCountIncreaseUseCase.increaseViewCount(newsId, category, publishDate);
-		return toNewsInfoDynamic(newsId, viewCount);
-	}
+        return toNewsInfoComplete(detail, highlightSegments);
+    }
 
-	@EntryExitLog
-	@Override
-	public List<NewsInfoComplete> getNewsInfoDetailByUserId(Long userId) {
+    /**
+     * 뉴스 ID를 기반으로 조회수를 증가시키는 로직 실행 (일반 조회수 redis + 인기 뉴스용 조회수 redis)
+     * 증가 이후 조회수 데이터를 매핑해 반환
+     *
+     * @param newsId      조회할 뉴스의 ID
+     * @param category    인기뉴스 조회수 redis 증가용 카테고리
+     * @param publishDate 인기뉴스 조회수 redis 최신 뉴스 분별용 발행일자
+     * @return 뉴스 조회수 응답객체
+     * @author 양병학
+     * @since 2025-06-08
+     */
+    public NewsInfoDynamic getNewsInfoDynamic(String newsId, String category, LocalDateTime publishDate) {
+        Long viewCount = newsViewCountIncreaseUseCase.increaseViewCount(newsId, category, publishDate);
+        return toNewsInfoDynamic(newsId, viewCount);
+    }
 
-		List<NewsInfoDetail> details = fetchNewsInfoDetailWithUserId(userId);
+    @EntryExitLog
+    @Override
+    public List<NewsInfoComplete> getNewsInfoDetailByUserId(Long userId) {
 
-		return details.stream()
-			.map(detail ->
-				combineNewsInfoByUserId(
-					detail,
-					highlightCalculator.computeSegments(detail.getScrapInfos())
-				)
-			)
-			.toList();
-	}
+        List<NewsInfoDetail> details = fetchNewsInfoDetailWithUserId(userId);
 
-	@Override
-	public NewsInfoDetail getNewsDetail(String newsId) {
-		return fetchNewsInfoDetail(newsId);
-	}
+        return details.stream()
+                .map(detail ->
+                        combineNewsInfoByUserId(
+                                detail,
+                                highlightCalculator.computeSegments(detail.getScrapInfos())
+                        )
+                )
+                .toList();
+    }
 
-	@Override
-	public void saveScrap(ScrapCommand scrapCommand) {
-		newsDetailProviderPort.saveScrap(scrapCommand);
-	}
+    @Override
+    public NewsInfoDetail getNewsDetail(String newsId) {
+        return fetchNewsInfoDetail(newsId);
+    }
 
-	/**
-	 * 뉴스 상세 정보를 조회합니다.
-	 *
-	 * @param newsId 조회할 뉴스의 ID
-	 * @return 뉴스 상세 도메인 객체
-	 */
-	private NewsInfoDetail fetchNewsInfoDetail(String newsId) {
-		return newsDetailProviderPort
-			.getNewsInfoDetailsByArticleId(newsId)
-			.orElseThrow(() -> new NewsInfoException(NewsInfoErrorCode.NEWS_NOT_FOUND));
-	}
+    @Override
+    public void saveScrap(ScrapCommand scrapCommand) {
+        newsDetailProviderPort.saveScrap(scrapCommand);
+    }
 
-	private List<NewsInfoDetail> fetchNewsInfoDetailWithUserId(Long userId) {
-		return newsDetailProviderPort
-			.getNewsInfoDetailsByUserId(userId);
-	}
+    /**
+     * 뉴스 상세 정보를 조회합니다.
+     *
+     * @param newsId 조회할 뉴스의 ID
+     * @return 뉴스 상세 도메인 객체
+     */
+    private NewsInfoDetail fetchNewsInfoDetail(String newsId) {
+        return newsDetailProviderPort
+                .getNewsInfoDetailsByArticleId(newsId)
+                .orElseThrow(() -> new NewsInfoException(NewsInfoErrorCode.NEWS_NOT_FOUND));
+    }
 
-	private NewsInfoComplete combineNewsInfoByUserId(NewsInfoDetail newsInfoDetail, List<HighlightSegment> highlightSegments) {
-		return toNewsInfoCompleteByUserId(newsInfoDetail, highlightSegments);
-	}
+    private List<NewsInfoDetail> fetchNewsInfoDetailWithUserId(Long userId) {
+        return newsDetailProviderPort
+                .getNewsInfoDetailsByUserId(userId);
+    }
+
+    private NewsInfoComplete combineNewsInfoByUserId(NewsInfoDetail newsInfoDetail, List<HighlightSegment> highlightSegments) {
+        return toNewsInfoCompleteByUserId(newsInfoDetail, highlightSegments);
+    }
 }
