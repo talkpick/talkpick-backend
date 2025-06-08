@@ -8,6 +8,8 @@ import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.Entr
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.LogMethodValues;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
 import static com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoCompleteMapper.*;
+import static com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoDynamicMapper.toNewsInfoDynamic;
+
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoDetailProviderUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsViewCountIncreaseUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.support.HighlightCalculator;
@@ -16,6 +18,7 @@ import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.Highlig
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDynamic;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoException;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
 
@@ -51,9 +54,17 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
 
 		List<HighlightSegment> highlightSegments =  highlightCalculator.computeSegments(detail.getScrapInfos());
 
-		Long currentViewCount = fetchCurrentViewCount(newsId, detail.getCategory(), detail.getPubDate());
+		return toNewsInfoComplete(detail, highlightSegments);
+	}
 
-		return combineNewsInfoAndViewCount(detail, highlightSegments, currentViewCount);
+	/**
+	 * 별도의 서비스 분리 하지않음
+	 * detail를 보겠다는 기능적관점으로볼떈 같은서비스
+	 * TODO: 이 메서드 주석추가
+	 */
+	public NewsInfoDynamic getNewsInfoDynamic(String newsId, String category, LocalDateTime publishDate) {
+		Long viewCount = newsViewCountIncreaseUseCase.increaseViewCount(newsId, category, publishDate);
+		return toNewsInfoDynamic(newsId, viewCount);
 	}
 
 	@EntryExitLog
@@ -97,28 +108,6 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
 	private List<NewsInfoDetail> fetchNewsInfoDetailWithUserId(Long userId) {
 		return newsDetailProviderPort
 			.getNewsInfoDetailsByUserId(userId);
-	}
-
-	/**
-	 * 뉴스의 현재 조회수를 조회합니다.
-	 *
-	 * @param newsId 조회할 뉴스의 ID
-	 * @return 현재 조회수
-	 */
-	private Long fetchCurrentViewCount(String newsId, String category, LocalDateTime publishDate) {
-		return newsViewCountIncreaseUseCase.increaseViewCount(newsId, category, publishDate);
-	}
-
-	/**
-	 * 뉴스 상세 정보와 현재 조회수를 통합한 응답 객체를 생성합니다.
-	 *
-	 * @param newsInfoDetail 뉴스 상세 도메인 객체
-	 * @param currentViewCount 현재 조회수
-	 * @return 통합된 응답 객체
-	 */
-
-	private NewsInfoComplete combineNewsInfoAndViewCount(NewsInfoDetail newsInfoDetail, List<HighlightSegment> highlightSegments, Long currentViewCount) {
-		return toNewsInfoComplete(newsInfoDetail, highlightSegments, currentViewCount);
 	}
 
 	private NewsInfoComplete combineNewsInfoByUserId(NewsInfoDetail newsInfoDetail, List<HighlightSegment> highlightSegments) {

@@ -1,10 +1,12 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.application.port.in;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDynamic;
 
 /**
  *  뉴스 상세 정보를 조회하는 UseCase입니다
@@ -25,4 +27,5 @@ public interface NewsInfoDetailProviderUseCase {
 	List<NewsInfoComplete> getNewsInfoDetailByUserId(Long userId);
 	NewsInfoDetail getNewsDetail(String newsId);
 	void saveScrap(ScrapCommand scrapCommand);
+	NewsInfoDynamic getNewsInfoDynamic(String newsId, String category, LocalDateTime publishDate);
 }

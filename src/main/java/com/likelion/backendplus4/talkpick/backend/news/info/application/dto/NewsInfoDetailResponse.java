@@ -23,7 +23,6 @@ public record NewsInfoDetailResponse(
 	String content,
 	String imageUrl,
 	String summary,
-	Long viewCount,
 	List<HighlightSegment> highlightSegments
 ) {
 }
