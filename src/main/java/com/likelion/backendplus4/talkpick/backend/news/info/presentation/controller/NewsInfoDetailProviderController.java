@@ -21,7 +21,6 @@ import com.likelion.backendplus4.talkpick.backend.common.annotation.security.Log
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.NewsInfoDetailResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoDetailProviderUseCase;
-import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsViewCountIncreaseUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request.ScrapRequest;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.docs.NewsInfoDetailProviderControllerDocs;
@@ -36,14 +35,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NewsInfoDetailProviderController implements NewsInfoDetailProviderControllerDocs {
     private final NewsInfoDetailProviderUseCase newsInfoDetailProviderUseCase;
-    private final NewsViewCountIncreaseUseCase newsViewCountIncreaseUseCase;
 
     /**
      * 뉴스 ID를 기반으로 뉴스 상세 정보를 조회하는 API 엔드포인트입니다.
-     * <p>
+     * CDN캐싱을 위해 동적데이터는 모두 제거됨
+     *
      * 1. 뉴스 ID 형식 검증 (KM, DA, KH 접두사 + 숫자)
-     * 2. 클라이언트 IP 주소 획득
-     * 3. 조회수 증가 (중복 조회 제외)
      * 4. 뉴스 상세 정보 조회 및 응답
      *
      * @param id 조회할 뉴스의 ID (형식: KM123, DA456, KH789)
@@ -51,7 +48,9 @@ public class NewsInfoDetailProviderController implements NewsInfoDetailProviderC
      * @throws jakarta.validation.ConstraintViolationException 뉴스 ID 형식이 잘못된 경우
      * @author 양병학
      * @modified 2025-05-25 양병학
-     * - 뉴스 ID validation 추가
+     *           - 뉴스 ID validation 추가
+     *           2025-06-08 양병학
+     *           - 조회수 관련 로직 분리
      * @since 2025-05-19 최초 작성
      */
     @LogJson
