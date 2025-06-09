@@ -73,7 +73,7 @@ public class NewsInfoDetailProviderController implements NewsInfoDetailProviderC
      * 기존의 조회수 증가 로직 또한 이 API호출에 합쳐져있습니다.
      *
      * @param request 조회할 뉴스의 카테고리 정보 및 발행일자
-     * ex: (newsId: "KM132324232", "category": "economy", "publishDate": "2025-06-08T16:40:00")
+     * ex: (newsId: "KH202506081640001", "category": "economy 또는 경제", "publishDate": "2025-06-08T16:40:00")
      *
      * @return 뉴스 ID, 조회수
      * @throws jakarta.validation.ConstraintViolationException 뉴스 ID 형식이 잘못된 경우
@@ -84,7 +84,7 @@ public class NewsInfoDetailProviderController implements NewsInfoDetailProviderC
     @LogJson
     @EntryExitLog
     @Override
-    @PostMapping("/public/news/viewcount/{id}")
+    @PostMapping("/public/news/viewcount")
     public ResponseEntity<ApiResponse<NewsInfoViewCount>> getNewsInfoViewCount(
             @Valid @RequestBody NewsInfoViewCountRequest request) {
 
