@@ -13,7 +13,7 @@ import com.likelion.backendplus4.talkpick.backend.news.info.presentation.validat
  *
  * @since 2025-06-08
  */
-public record NewsInfoDynamicRequest(
+public record NewsInfoViewCountRequest(
 		@NewsIdConstraint String newsId,
         @NotBlank String category,
         @NotNull

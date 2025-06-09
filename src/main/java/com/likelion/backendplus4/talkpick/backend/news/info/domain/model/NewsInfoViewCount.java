@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class NewsInfoDynamic {
+public class NewsInfoViewCount {
     private final String newsId;
     private final Long viewCount;
 }

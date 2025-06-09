@@ -2,8 +2,8 @@ package com.likelion.backendplus4.talkpick.backend.news.info.presentation.contro
 
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.NewsInfoDetailResponse;
-import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDynamic;
-import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request.NewsInfoDynamicRequest;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoViewCount;
+import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request.NewsInfoViewCountRequest;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request.ScrapRequest;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.validator.NewsIdConstraint;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,14 +41,14 @@ public interface NewsInfoDetailProviderControllerDocs {
 			summary = "뉴스 동적 정보 조회",
 			description = "뉴스 ID에 해당하는 동적 정보(조회수 등)를 반환하고 조회수를 증가시킵니다."
 	)
-	ResponseEntity<ApiResponse<NewsInfoDynamic>> getNewsInfoDynamic(
+	ResponseEntity<ApiResponse<NewsInfoViewCount>> getNewsInfoViewCount(
 
 			@Parameter(
 					in = ParameterIn.DEFAULT,
 					description = "동적 정보 조회를 위한 메타데이터",
 					required = true
 			)
-			@Valid @RequestBody NewsInfoDynamicRequest request
+			@Valid @RequestBody NewsInfoViewCountRequest request
 	);
 
 	@Operation(

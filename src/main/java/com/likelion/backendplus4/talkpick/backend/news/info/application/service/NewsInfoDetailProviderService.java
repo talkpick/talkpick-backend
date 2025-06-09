@@ -2,24 +2,22 @@ package com.likelion.backendplus4.talkpick.backend.news.info.application.service
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.LogMethodValues;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
 
 import static com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoCompleteMapper.*;
-import static com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoDynamicMapper.toNewsInfoDynamic;
+import static com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoViewCountMapper.*;
 
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoDetailProviderUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsViewCountIncreaseUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.support.HighlightCalculator;
-import com.likelion.backendplus4.talkpick.backend.news.info.domain.enums.NewsCategory;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.HighlightSegment;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
-import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDynamic;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoViewCount;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoException;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
 
@@ -70,9 +68,9 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
      * @author 양병학
      * @since 2025-06-08
      */
-    public NewsInfoDynamic getNewsInfoDynamic(String newsId, String category, LocalDateTime publishDate) {
+    public NewsInfoViewCount getNewsInfoViewCount(String newsId, String category, LocalDateTime publishDate) {
         Long viewCount = newsViewCountIncreaseUseCase.increaseViewCount(newsId, category, publishDate);
-        return toNewsInfoDynamic(newsId, viewCount);
+        return toNewsInfoViewCount(newsId, viewCount);
     }
 
     @EntryExitLog

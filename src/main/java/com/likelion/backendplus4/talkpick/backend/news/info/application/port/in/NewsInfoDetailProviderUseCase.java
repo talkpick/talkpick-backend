@@ -6,7 +6,11 @@ import java.util.List;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
-import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDynamic;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoViewCount;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 
 /**
  *  뉴스 상세 정보를 조회하는 UseCase입니다
@@ -27,5 +31,5 @@ public interface NewsInfoDetailProviderUseCase {
 	List<NewsInfoComplete> getNewsInfoDetailByUserId(Long userId);
 	NewsInfoDetail getNewsDetail(String newsId);
 	void saveScrap(ScrapCommand scrapCommand);
-	NewsInfoDynamic getNewsInfoDynamic(String newsId, String category, LocalDateTime publishDate);
+	NewsInfoViewCount getNewsInfoViewCount(String newsId, String category, LocalDateTime publishDate);
 }

@@ -5,8 +5,8 @@ import static com.likelion.backendplus4.talkpick.backend.news.info.presentation.
 import static com.likelion.backendplus4.talkpick.backend.news.info.presentation.mapper.ScrapCommandMapper.*;
 
 
-import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDynamic;
-import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request.NewsInfoDynamicRequest;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoViewCount;
+import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request.NewsInfoViewCountRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -84,17 +84,17 @@ public class NewsInfoDetailProviderController implements NewsInfoDetailProviderC
     @LogJson
     @EntryExitLog
     @Override
-    @PostMapping("/public/news/dynamic/{id}")
-    public ResponseEntity<ApiResponse<NewsInfoDynamic>> getNewsInfoDynamic(
-            @Valid @RequestBody NewsInfoDynamicRequest request) {
+    @PostMapping("/public/news/viewcount/{id}")
+    public ResponseEntity<ApiResponse<NewsInfoViewCount>> getNewsInfoViewCount(
+            @Valid @RequestBody NewsInfoViewCountRequest request) {
 
-        NewsInfoDynamic newsInfoDynamic = newsInfoDetailProviderUseCase.getNewsInfoDynamic(
+        NewsInfoViewCount newsInfoViewCount = newsInfoDetailProviderUseCase.getNewsInfoViewCount(
                 request.newsId(),
                 request.category(),
                 request.publishDate()
         );
 
-        return success(newsInfoDynamic);
+        return success(newsInfoViewCount);
     }
 
     @LogJson
