@@ -1,28 +1,28 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.application.service;
 
+import static com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoCompleteMapper.*;
+import static com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoViewCountMapper.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
+
+import org.springframework.stereotype.Service;
 
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.LogMethodValues;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
-
-import static com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoCompleteMapper.*;
-import static com.likelion.backendplus4.talkpick.backend.news.info.application.mapper.NewsInfoViewCountMapper.*;
-
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoDetailProviderUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsViewCountIncreaseUseCase;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.support.HighlightCalculator;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.HighlightSegment;
-import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
-import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoViewCount;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoException;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 /**
  * NewsInfoProviderUseCase를 구현하는 서비스 클래스입니다.
@@ -73,6 +73,15 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
         return toNewsInfoViewCount(newsId, viewCount);
     }
 
+    /**
+     * 사용자 ID를 기반으로 뉴스 상세 정보 목록을 조회합니다.
+     * 각 뉴스의 스크랩 정보를 포함하여 하이라이트 세그먼트를 계산합니다.
+     *
+     * @param userId 조회할 사용자의 ID
+     * @return 사용자와 관련된 뉴스 상세 정보 목록
+     * @author 정안식
+     * @since 2025-05-30
+     */
     @EntryExitLog
     @Override
     public List<NewsInfoComplete> getNewsInfoDetailByUserId(Long userId) {
@@ -89,6 +98,14 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
                 .toList();
     }
 
+    /**
+     * 뉴스 ID를 기반으로 뉴스 상세 정보를 조회합니다.
+     *
+     * @param newsId 조회할 뉴스의 ID
+     * @return 뉴스 상세 도메인 객체
+     * @author 이해창
+     * @since 2025-06-04
+     */
     @Override
     public NewsInfoDetail getNewsDetail(String newsId) {
         return fetchNewsInfoDetail(newsId);
@@ -104,6 +121,8 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
      *
      * @param newsId 조회할 뉴스의 ID
      * @return 뉴스 상세 도메인 객체
+     * @author 정안식
+     * @since 2025-05-30
      */
     private NewsInfoDetail fetchNewsInfoDetail(String newsId) {
         return newsDetailProviderPort
@@ -111,11 +130,28 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
                 .orElseThrow(() -> new NewsInfoException(NewsInfoErrorCode.NEWS_NOT_FOUND));
     }
 
+    /**
+     * 사용자 ID를 기반으로 뉴스 상세 정보 목록을 조회합니다.
+     *
+     * @param userId 조회할 사용자의 ID
+     * @return 뉴스 상세 정보 목록
+     * @author 정안식
+     * @since 2025-05-30
+     */
     private List<NewsInfoDetail> fetchNewsInfoDetailWithUserId(Long userId) {
         return newsDetailProviderPort
                 .getNewsInfoDetailsByUserId(userId);
     }
 
+    /**
+     * 뉴스 상세 정보와 하이라이트 세그먼트를 결합하여 완전한 뉴스 정보를 생성합니다.
+     *
+     * @param newsInfoDetail 뉴스 상세 정보
+     * @param highlightSegments 하이라이트 세그먼트 목록
+     * @return 사용자별 완전한 뉴스 정보 객체
+     * @author 정안식
+     * @since 2025-05-30
+     */
     private NewsInfoComplete combineNewsInfoByUserId(NewsInfoDetail newsInfoDetail, List<HighlightSegment> highlightSegments) {
         return toNewsInfoCompleteByUserId(newsInfoDetail, highlightSegments);
     }
