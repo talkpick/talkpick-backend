@@ -72,23 +72,24 @@ public class NewsInfoDetailProviderController implements NewsInfoDetailProviderC
      *
      * 기존의 조회수 증가 로직 또한 이 API호출에 합쳐져있습니다.
      *
-     * @param id 조회할 뉴스의 ID (형식: KM123, DA456, KH789)
-     * @param request 조회할 뉴스의 카테고리 정보 및 발행일자 ex: ("category": "economy", "publishDate": "2025-06-08T16:40:00")
+     * @param request 조회할 뉴스의 카테고리 정보 및 발행일자
+     * ex: (newsId: "KM132324232", "category": "economy", "publishDate": "2025-06-08T16:40:00")
+     *
      * @return 뉴스 ID, 조회수
      * @throws jakarta.validation.ConstraintViolationException 뉴스 ID 형식이 잘못된 경우
      * @author 양병학
-     * @since 2025-06-08 최초 작성
+     * @since 2025-06-08
+     * @modified 2025-06-09 newsId값 request안에 포함
      */
     @LogJson
     @EntryExitLog
     @Override
     @PostMapping("/public/news/dynamic/{id}")
     public ResponseEntity<ApiResponse<NewsInfoDynamic>> getNewsInfoDynamic(
-            @PathVariable @NewsIdConstraint String id,
             @Valid @RequestBody NewsInfoDynamicRequest request) {
 
         NewsInfoDynamic newsInfoDynamic = newsInfoDetailProviderUseCase.getNewsInfoDynamic(
-                id,
+                request.newsId(),
                 request.category(),
                 request.publishDate()
         );
