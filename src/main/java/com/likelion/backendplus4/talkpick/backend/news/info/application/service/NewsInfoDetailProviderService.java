@@ -79,7 +79,8 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
         if (domain.isEligibleForRanking()) {
             domain.addViewCount();
 
-            newsViewCountIncreaseUseCase.increaseViewCount(newsId, domain.getViewCount(), newsDetail.getCategory(), newsDetail.getPubDate());
+            Long updateViewCount = newsViewCountIncreaseUseCase.increaseViewCount(newsId, domain.getViewCount(), newsDetail.getCategory(), newsDetail.getPubDate());
+            domain = buildDomain(newsId, updateViewCount, newsDetail.getCategory(), newsDetail.getPubDate());
         }
 
         return domain;
