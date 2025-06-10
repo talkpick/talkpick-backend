@@ -12,6 +12,7 @@ import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.Entr
 import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoMetadata;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.mapper.ArticleEntityMapper;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.repository.NewsInfoJpaRepository;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.repository.ScrapInfoJpaRepository;
@@ -61,6 +62,23 @@ public class NewsInfoDetailProviderAdapter implements NewsDetailProviderPort {
 			.stream()
 			.map(ArticleEntityMapper::toInfoDetailFromData)
 			.toList();
+	}
+
+	/**
+	 * 주어진 guid(뉴스 ID)를 기준으로 뉴스 메타데이터 정보를 조회합니다.
+	 * 조회된 뉴스가 정확히 하나인 경우에만 도메인 객체로 변환하여 반환합니다.
+	 *
+	 * @param guid 뉴스의 고유 식별자
+	 * @return 뉴스 메타데이터 도메인 객체
+	 * @author 양병학
+	 * @since 2025-06-10
+	 */
+	@EntryExitLog
+	@Transactional(readOnly = true)
+	@Override
+	public Optional<NewsInfoMetadata> getNewsInfoMetadataByArticleId(String guid) {
+		return newsInfoJpaRepository.findMetadataByGuid(guid)
+			.map(ArticleEntityMapper::toMetadataFromEntity);
 	}
 
 	/**

@@ -20,6 +20,7 @@ import com.likelion.backendplus4.talkpick.backend.news.info.application.support.
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.HighlightSegment;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoMetadata;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoViewCount;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoException;
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
@@ -71,16 +72,16 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
      */
     public NewsInfoViewCount getNewsInfoViewCount(String newsId) {
 
-        NewsInfoDetail newsDetail = fetchNewsInfoDetailWithCache(newsId);
+        NewsInfoMetadata metadata = fetchNewsInfoDetailWithCache(newsId);
         Long currentViewCount = newsViewCountPort.getCurrentViewCount(newsId);
 
-        NewsInfoViewCount domain = buildDomain(newsId, currentViewCount, newsDetail.getCategory(), newsDetail.getPubDate());
+        NewsInfoViewCount domain = buildDomain(newsId, currentViewCount, metadata.getCategory(), metadata.getPubDate());
 
         if (domain.isEligibleForRanking()) {
             domain.addViewCount();
 
-            Long updateViewCount = newsViewCountIncreaseUseCase.increaseViewCount(newsId, domain.getViewCount(), newsDetail.getCategory(), newsDetail.getPubDate());
-            domain = buildDomain(newsId, updateViewCount, newsDetail.getCategory(), newsDetail.getPubDate());
+            Long updateViewCount = newsViewCountIncreaseUseCase.increaseViewCount(newsId, domain.getViewCount(), metadata.getCategory(), metadata.getPubDate());
+            domain = buildDomain(newsId, updateViewCount, metadata.getCategory(), metadata.getPubDate());
         }
 
         return domain;
@@ -99,8 +100,9 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
 
 
     @Cacheable(value = "newsMetadata", key = "#newsId")
-    private NewsInfoDetail fetchNewsInfoDetailWithCache(String newsId) {
-        return fetchNewsInfoDetail(newsId);
+    private NewsInfoMetadata fetchNewsInfoDetailWithCache(String newsId) {
+        return newsDetailProviderPort.getNewsInfoMetadataByArticleId(newsId)
+            .orElseThrow(() -> new NewsInfoException(NewsInfoErrorCode.NEWS_NOT_FOUND));
     }
 
     /**
