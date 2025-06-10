@@ -1,5 +1,7 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.application.mapper;
 
+import java.time.LocalDateTime;
+
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoViewCount;
 
 /**
@@ -18,10 +20,13 @@ public class NewsInfoViewCountMapper {
      * @author 양병학
      * @since 2025-06-08
      */
-    public static NewsInfoViewCount toNewsInfoViewCount(String newsId, Long viewCount) {
+    public static NewsInfoViewCount toNewsInfoViewCount(String newsId, Long viewCount,
+        LocalDateTime publishDate, String category) {
         return NewsInfoViewCount.builder()
                 .newsId(newsId)
                 .viewCount(viewCount)
+                .publishDate(publishDate)
+                .category(category)
                 .build();
     }
 }

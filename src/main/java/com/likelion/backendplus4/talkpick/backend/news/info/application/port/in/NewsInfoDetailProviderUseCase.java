@@ -31,5 +31,5 @@ public interface NewsInfoDetailProviderUseCase {
 	List<NewsInfoComplete> getNewsInfoDetailByUserId(Long userId);
 	NewsInfoDetail getNewsDetail(String newsId);
 	void saveScrap(ScrapCommand scrapCommand);
-	NewsInfoViewCount getNewsInfoViewCount(String newsId, String category, LocalDateTime publishDate);
+	NewsInfoViewCount getNewsInfoViewCount(String newsId);
 }

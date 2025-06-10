@@ -36,11 +36,11 @@ public class NewsViewCountService implements NewsViewCountIncreaseUseCase {
      */
     @Override
     @Transactional
-    public Long increaseViewCount(String newsId, String category, LocalDateTime publishDate) {
+    public Long increaseViewCount(String newsId, Long currentViewCount, String category, LocalDateTime publishDate) {
         String ipAddress = clientInfoPort.getClientIpAddress();
-        log.info("조회수 증가 요청 - 뉴스ID: {}, IP: {}", newsId, ipAddress);
+        log.debug("조회수 증가 요청 - 뉴스ID: {}, IP: {}", newsId, ipAddress);
 
-        return processViewCountWithDuplicateCheck(newsId, ipAddress, category, publishDate);
+        return processViewCountWithDuplicateCheck(newsId, ipAddress, category, publishDate, currentViewCount);
     }
 
     /**
@@ -54,11 +54,11 @@ public class NewsViewCountService implements NewsViewCountIncreaseUseCase {
      * @author 양병학
      * @since 2025-06-01 최초 작성
      */
-    private Long processViewCountWithDuplicateCheck(String newsId, String ipAddress, String category, LocalDateTime publishDate) {
+    private Long processViewCountWithDuplicateCheck(String newsId, String ipAddress, String category, LocalDateTime publishDate, Long currentViewCount) {
         boolean hasHistory = checkViewHistory(newsId, ipAddress);
 
         if (!hasHistory) {
-            return increaseViewCountInternal(newsId, ipAddress, category, publishDate);
+            return saveViewCountInternal(newsId, ipAddress, category, publishDate, currentViewCount);
         } else {
             return getCurrentViewCountWhenDuplicate(newsId, ipAddress);
         }
@@ -75,7 +75,7 @@ public class NewsViewCountService implements NewsViewCountIncreaseUseCase {
      */
     private boolean checkViewHistory(String newsId, String ipAddress) {
         boolean hasHistory = newsViewCountPort.hasViewHistory(newsId, ipAddress);
-        log.info("조회 이력 확인 - 뉴스ID: {}, IP: {}, 이력있음: {}", newsId, ipAddress, hasHistory);
+        log.debug("조회 이력 확인 - 뉴스ID: {}, IP: {}, 이력있음: {}", newsId, ipAddress, hasHistory);
         return hasHistory;
     }
 
@@ -90,11 +90,13 @@ public class NewsViewCountService implements NewsViewCountIncreaseUseCase {
      * @author 양병학
      * @since 2025-06-01 최초 작성
      */
-    private Long increaseViewCountInternal(String newsId, String ipAddress, String category, LocalDateTime publishDate) {
-        log.info("조회수 증가 실행 - 뉴스ID: {}", newsId);
-        Long newViewCount = newsViewCountPort.increaseViewCount(newsId, ipAddress, category, publishDate);
-        log.info("조회수 증가 처리 완료 - 뉴스ID: {}, 새 조회수: {}", newsId, newViewCount);
-        return newViewCount;
+    private Long saveViewCountInternal(String newsId, String ipAddress, String category, LocalDateTime publishDate, Long currentViewCount) {
+        log.debug("조회수 저장 실행 - 뉴스ID: {}, 저장값: {}", newsId, currentViewCount);
+
+        Long savedViewCount = newsViewCountPort.saveIncreasedViewCount(newsId, ipAddress, category, publishDate, currentViewCount);
+
+        log.debug("조회수 저장 완료 - 뉴스ID: {}, 저장된 조회수: {}", newsId, savedViewCount);
+        return savedViewCount;
     }
 
     /**
@@ -107,7 +109,7 @@ public class NewsViewCountService implements NewsViewCountIncreaseUseCase {
      * @since 2025-06-01 최초 작성
      */
     private Long getCurrentViewCountWhenDuplicate(String newsId, String ipAddress) {
-        log.info("이미 조회한 사용자 - 조회수 증가 안 함 - 뉴스ID: {}, IP: {}", newsId, ipAddress);
+        log.debug("이미 조회한 사용자 - 조회수 증가 안 함 - 뉴스ID: {}, IP: {}", newsId, ipAddress);
         return newsViewCountPort.getCurrentViewCount(newsId);
     }
 }

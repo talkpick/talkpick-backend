@@ -42,13 +42,13 @@ public interface NewsInfoDetailProviderControllerDocs {
 			description = "뉴스 ID에 해당하는 동적 정보(조회수 등)를 반환하고 조회수를 증가시킵니다."
 	)
 	ResponseEntity<ApiResponse<NewsInfoViewCount>> getNewsInfoViewCount(
-
-			@Parameter(
-					in = ParameterIn.DEFAULT,
-					description = "동적 정보 조회를 위한 메타데이터",
-					required = true
-			)
-			@Valid @RequestBody NewsInfoViewCountRequest request
+		@Parameter(
+			in = ParameterIn.PATH,
+			description = "조회할 뉴스 ID (형식: KM123, DA456, KH789)",
+			required = true,
+			example = "KM123"
+		)
+		@PathVariable @NewsIdConstraint String id
 	);
 
 	@Operation(

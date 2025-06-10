@@ -55,20 +55,20 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
      * @since 2025-05-27 최초 작성
      */
     @Override
-    public Long increaseViewCount(String newsId, String ipAddress, String category, LocalDateTime publishDate) {
-        return performViewCountIncrease(newsId, ipAddress, category, publishDate);
+    public Long saveIncreasedViewCount(String newsId, String ipAddress, String category, LocalDateTime publishDate, Long increasedViewCount) {
+        return performViewCountIncrease(newsId, ipAddress, category, publishDate, increasedViewCount);
     }
 
-    private Long performViewCountIncrease(String newsId, String ipAddress, String category, LocalDateTime publishDate) {
+    private Long performViewCountIncrease(String newsId, String ipAddress, String category, LocalDateTime publishDate, Long increasedViewCount) {
         try {
-            Long newViewCount = processViewCountIncrease(newsId);
+            String key = keyGenerator.createViewCountKey(newsId);
+            saveViewCountToRedis(key, increasedViewCount);
+
             saveUserViewHistory(newsId, ipAddress);
 
-            if (isRecentNews(publishDate)) {
-                updateRankingIfNeeded(category, newsId, newViewCount, publishDate);
-            }
+            updateRanking(category, newsId, increasedViewCount, publishDate);
 
-            return newViewCount;
+            return increasedViewCount;
         } catch (Exception e) {
             log.warn("조회수 증가 실패: newsId={}", newsId, e);
             return 0L;
@@ -117,67 +117,6 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
     @Override
     public Long getCurrentViewCount(String newsId) {
         return retrieveCurrentViewCount(newsId);
-    }
-
-    /**
-     * 조회수 증가 처리를 수행합니다.
-     *
-     * @param newsId 뉴스 ID
-     * @return 증가된 조회수
-     * @throws NewsInfoException 조회수 증가 처리 중 오류가 발생한 경우
-     */
-    private Long processViewCountIncrease(String newsId) {
-        String key = keyGenerator.createViewCountKey(newsId);
-
-        if (isViewCountCached(key)) {
-            return incrementCachedViewCount(key);
-        } else {
-            return initializeAndIncrementViewCount(key, newsId);
-        }
-    }
-
-    /**
-     * Redis에 조회수가 캐시되어 있는지 확인합니다.
-     *
-     * @param key Redis 키
-     * @return 캐시 존재 여부
-     */
-    private boolean isViewCountCached(String key) {
-        try {
-            return Boolean.TRUE.equals(redisTemplate.hasKey(key));
-        } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_REDIS_RETRIEVE_FAILED, e);
-        }
-    }
-
-    /**
-     * 캐시된 조회수를 증가시킵니다.
-     *
-     * @param key Redis 키
-     * @return 증가된 조회수
-     * @throws NewsInfoException Redis 증가 작업 실패 시
-     */
-    private Long incrementCachedViewCount(String key) {
-        try {
-            return redisTemplate.opsForValue().increment(key);
-        } catch (Exception e) {
-            throw new NewsInfoException(NewsInfoErrorCode.VIEW_COUNT_REDIS_SAVE_FAILED, e);
-        }
-    }
-
-    /**
-     * 조회수를 초기화하고 증가시킵니다.
-     *
-     * @param key    Redis 키
-     * @param newsId 뉴스 ID
-     * @return 증가된 조회수
-     * @throws NewsInfoException 초기화 또는 증가 처리 중 오류가 발생한 경우
-     */
-    private Long initializeAndIncrementViewCount(String key, String newsId) {
-        Long dbViewCount = getViewCountFromDatabase(newsId);
-        Long newViewCount = dbViewCount + 1;
-        saveViewCountToRedis(key, newViewCount);
-        return newViewCount;
     }
 
     /**
@@ -296,25 +235,14 @@ public class NewsViewCountRedisAdapter implements NewsViewCountPort {
     }
 
     /**
-     * 최근 뉴스인지 확인합니다.
-     *
-     * @param publishDate 발행일
-     * @return 최근 뉴스 여부
-     */
-    private boolean isRecentNews(LocalDateTime publishDate) {
-        LocalDateTime threeDaysAgo = LocalDateTime.now().minusDays(RECENT_NEWS_DAYS);
-        return publishDate.isAfter(threeDaysAgo);
-    }
-
-    /**
-     * 필요시 랭킹을 업데이트합니다.
+     * 랭킹을 업데이트합니다.
      *
      * @param category  카테고리
      * @param newsId    뉴스 ID
      * @param viewCount 조회수
      * @throws NewsInfoException 랭킹 업데이트 실패 시
      */
-    private void updateRankingIfNeeded(String category, String newsId, Long viewCount, LocalDateTime publishDate) {
+    private void updateRanking(String category, String newsId, Long viewCount, LocalDateTime publishDate) {
         try {
             popularNewsAdapter.updateRankingScore(category, newsId, viewCount, publishDate);
             popularNewsAdapter.updateRankingScore("전체", newsId, viewCount, publishDate);

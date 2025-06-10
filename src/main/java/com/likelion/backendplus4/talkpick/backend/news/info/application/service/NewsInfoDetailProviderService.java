@@ -6,6 +6,7 @@ import static com.likelion.backendplus4.talkpick.backend.news.info.application.m
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.EntryExitLog;
@@ -14,6 +15,7 @@ import com.likelion.backendplus4.talkpick.backend.news.info.application.command.
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoDetailProviderUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsViewCountIncreaseUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsViewCountPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.support.HighlightCalculator;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.HighlightSegment;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
@@ -35,6 +37,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseCase {
     private final NewsDetailProviderPort newsDetailProviderPort;
+    private final NewsViewCountPort newsViewCountPort;
     private final NewsViewCountIncreaseUseCase newsViewCountIncreaseUseCase;
     private final HighlightCalculator highlightCalculator;
 
@@ -62,15 +65,41 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
      * 증가 이후 조회수 데이터를 매핑해 반환
      *
      * @param newsId      조회할 뉴스의 ID
-     * @param category    인기뉴스 조회수 redis 증가용 카테고리
-     * @param publishDate 인기뉴스 조회수 redis 최신 뉴스 분별용 발행일자
      * @return 뉴스 조회수 응답객체
      * @author 양병학
      * @since 2025-06-08
      */
-    public NewsInfoViewCount getNewsInfoViewCount(String newsId, String category, LocalDateTime publishDate) {
-        Long viewCount = newsViewCountIncreaseUseCase.increaseViewCount(newsId, category, publishDate);
-        return toNewsInfoViewCount(newsId, viewCount);
+    public NewsInfoViewCount getNewsInfoViewCount(String newsId) {
+
+        NewsInfoDetail newsDetail = fetchNewsInfoDetailWithCache(newsId);
+        Long currentViewCount = newsViewCountPort.getCurrentViewCount(newsId);
+
+        NewsInfoViewCount domain = buildDomain(newsId, currentViewCount, newsDetail.getCategory(), newsDetail.getPubDate());
+
+        if (domain.isEligibleForRanking()) {
+            domain.addViewCount();
+
+            newsViewCountIncreaseUseCase.increaseViewCount(newsId, domain.getViewCount(), newsDetail.getCategory(), newsDetail.getPubDate());
+        }
+
+        return domain;
+    }
+
+    private NewsInfoViewCount buildDomain(String newsId, Long viewCount ,String category, LocalDateTime publishDate){
+        NewsInfoViewCount domain = toNewsInfoViewCount(
+            newsId,
+            viewCount,
+            publishDate,
+            category
+        );
+
+        return domain;
+    }
+
+
+    @Cacheable(value = "newsMetadata", key = "#newsId")
+    private NewsInfoDetail fetchNewsInfoDetailWithCache(String newsId) {
+        return fetchNewsInfoDetail(newsId);
     }
 
     /**

@@ -43,7 +43,8 @@ public class CacheConfig {
 
         cacheManager.setCacheNames(List.of(
                 "popularNews",
-                "chatTopNews"
+                "chatTopNews",
+                "newsMetadata"
         ));
 
         return cacheManager;

@@ -66,32 +66,28 @@ public class NewsInfoDetailProviderController implements NewsInfoDetailProviderC
     }
 
     /**
-     * 뉴스 ID와 request(카테고리정보, 발행일자) 를 바탕으로 조회수를 받아오는
+     * 뉴스 ID와 newsID를 바탕으로 조회수를 받아오는
      * 동적데이터 조회 API입니다.
      *
      * 기존의 조회수 증가 로직 또한 이 API호출에 합쳐져있습니다.
      *
-     * @param request 조회할 뉴스의 카테고리 정보 및 발행일자
-     * ex: (newsId: "KH202506081640001", "category": "economy 또는 경제", "publishDate": "2025-06-08T16:40:00")
+     * @param newsId 조회할 뉴스의 ID (ex: "KH202506081640001")
      *
      * @return 뉴스 ID, 조회수
      * @throws jakarta.validation.ConstraintViolationException 뉴스 ID 형식이 잘못된 경우
      * @author 양병학
      * @since 2025-06-08
      * @modified 2025-06-09 newsId값 request안에 포함
+     * @modified 2025-06-10 newsId만 받는 Getmapping 변환
      */
     @LogJson
     @EntryExitLog
     @Override
-    @PostMapping("/public/news/viewcount")
+    @GetMapping("/public/news/viewcount/{newsId}")
     public ResponseEntity<ApiResponse<NewsInfoViewCount>> getNewsInfoViewCount(
-            @Valid @RequestBody NewsInfoViewCountRequest request) {
+        @PathVariable @NewsIdConstraint String newsId) {
 
-        NewsInfoViewCount newsInfoViewCount = newsInfoDetailProviderUseCase.getNewsInfoViewCount(
-                request.newsId(),
-                request.category(),
-                request.publishDate()
-        );
+        NewsInfoViewCount newsInfoViewCount = newsInfoDetailProviderUseCase.getNewsInfoViewCount(newsId);
 
         return success(newsInfoViewCount);
     }
