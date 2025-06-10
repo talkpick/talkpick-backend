@@ -36,6 +36,7 @@ public class CacheConfig {
     @Bean
     public CacheManager cacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
+
         cacheManager.setCaffeine(Caffeine.newBuilder()
                 .maximumSize(maximumSize)
                 .expireAfterWrite(expireAfterWrite)
@@ -46,6 +47,14 @@ public class CacheConfig {
                 "chatTopNews",
                 "newsMetadata"
         ));
+
+        cacheManager.registerCustomCache("chatTopNews",
+                Caffeine.newBuilder()
+                        .maximumSize(maximumSize)
+                        .expireAfterWrite(Duration.ofSeconds(30))
+                        .recordStats()
+                        .build());
+
 
         return cacheManager;
     }
