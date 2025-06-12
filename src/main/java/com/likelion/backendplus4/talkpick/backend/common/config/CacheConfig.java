@@ -43,7 +43,9 @@ public class CacheConfig {
                 .recordStats());
 
         cacheManager.setCacheNames(List.of(
-                "popularNews"
+                "popularNews",
+                "chatTopNews",
+                "newsMetadata"
         ));
 
         cacheManager.registerCustomCache("chatTopNews",

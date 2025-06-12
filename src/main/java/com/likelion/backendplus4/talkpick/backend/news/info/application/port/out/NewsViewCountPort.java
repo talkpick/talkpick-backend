@@ -4,13 +4,13 @@ import java.time.LocalDateTime;
 
 public interface NewsViewCountPort {
     /**
-     * 뉴스 조회수를 증가시킵니다.
+     * 뉴스의 증가된 조회수를 저장합니다.
      *
      * @param newsId    뉴스 ID
      * @param ipAddress 사용자 IP 주소
      * @return 증가 후 조회수
      */
-    Long increaseViewCount(String newsId, String ipAddress, String category, LocalDateTime publishDate);
+    Long saveIncreasedViewCount(String newsId, String ipAddress, String category, LocalDateTime publishDate, Long viewCount);
 
     /**
      * 특정 IP의 뉴스 조회 기록을 저장합니다.

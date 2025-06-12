@@ -1,9 +1,11 @@
 package com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.mapper;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfo;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoDetail;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoMetadata;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.ScrapInfo;
 import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.entity.ArticleEntity;
 
@@ -13,6 +15,7 @@ import com.likelion.backendplus4.talkpick.backend.news.info.infrastructure.jpa.e
  * @since 2025-05-14
  * @modified 2025-05-27
  * 25-05-27 - 도메인 객체가 ScrapInfo를 포함하도록 수정
+ * 25-06-10 - NewsInfoMetadata 매핑 메서드 추가
  */
 public class ArticleEntityMapper {
 	public static NewsInfoDetail toInfoDetailFromData(ArticleEntity entity) {
@@ -42,6 +45,16 @@ public class ArticleEntityMapper {
 			.publishedAt(e.getPubDate())
 			.imageUrl(e.getImageUrl())
 			.content(e.getDescription())
+			.build();
+	}
+
+	public static NewsInfoMetadata toMetadataFromEntity(Object[] result) {
+		Object[] actualData = (Object[]) result[0];
+
+		return NewsInfoMetadata.builder()
+			.newsId((String) actualData[0])
+			.category((String) actualData[1])
+			.pubDate((LocalDateTime) actualData[2])
 			.build();
 	}
 }
