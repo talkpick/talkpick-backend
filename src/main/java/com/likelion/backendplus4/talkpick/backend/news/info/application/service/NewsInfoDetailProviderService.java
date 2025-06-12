@@ -14,6 +14,7 @@ import com.likelion.backendplus4.talkpick.backend.common.annotation.logging.LogM
 import com.likelion.backendplus4.talkpick.backend.news.info.application.command.ScrapCommand;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoDetailProviderUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsViewCountIncreaseUseCase;
+import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.ClientInfoPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsDetailProviderPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.out.NewsViewCountPort;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.support.HighlightCalculator;
@@ -26,6 +27,7 @@ import com.likelion.backendplus4.talkpick.backend.news.info.exception.NewsInfoEx
 import com.likelion.backendplus4.talkpick.backend.news.info.exception.error.NewsInfoErrorCode;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * NewsInfoProviderUseCase를 구현하는 서비스 클래스입니다.
@@ -34,6 +36,7 @@ import lombok.RequiredArgsConstructor;
  * @modified 2025-05-19
  * @since 2025-05-14
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseCase {
@@ -41,6 +44,7 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
     private final NewsViewCountPort newsViewCountPort;
     private final NewsViewCountIncreaseUseCase newsViewCountIncreaseUseCase;
     private final HighlightCalculator highlightCalculator;
+    private final ClientInfoPort clientInfoPort;
 
     /**
      * 뉴스 ID를 기반으로 뉴스 상세 정보 조회
@@ -63,42 +67,74 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
 
     /**
      * 뉴스 ID를 기반으로 조회수를 증가시키는 로직 실행 (일반 조회수 redis + 인기 뉴스용 조회수 redis)
-     * 증가 이후 조회수 데이터를 매핑해 반환
+     * IP 중복 체크 및 비즈니스 정책을 관리합니다.
      *
      * @param newsId      조회할 뉴스의 ID
      * @return 뉴스 조회수 응답객체
      * @author 양병학
      * @since 2025-06-08
+     * @modified 2025-06-10 IP 중복 체크 로직을 현재위치로 이동
      */
     public NewsInfoViewCount getNewsInfoViewCount(String newsId) {
 
         NewsInfoMetadata metadata = fetchNewsInfoDetailWithCache(newsId);
-        Long currentViewCount = newsViewCountPort.getCurrentViewCount(newsId);
+        String clientIp = clientInfoPort.getClientIpAddress();
 
+        Long currentViewCount = newsViewCountPort.getCurrentViewCount(newsId);
         NewsInfoViewCount domain = buildDomain(newsId, currentViewCount, metadata.getCategory(), metadata.getPubDate());
 
-        if (domain.isEligibleForRanking()) {
+        if (shouldIncreaseViewCount(domain, newsId, clientIp)) {
             domain.addViewCount();
 
-            Long updateViewCount = newsViewCountIncreaseUseCase.increaseViewCount(newsId, domain.getViewCount(), metadata.getCategory(), metadata.getPubDate());
-            domain = buildDomain(newsId, updateViewCount, metadata.getCategory(), metadata.getPubDate());
+            newsViewCountIncreaseUseCase.increaseViewCount(
+                newsId,
+                domain.getViewCount(),
+                metadata.getCategory(),
+                metadata.getPubDate()
+            );
         }
 
         return domain;
     }
 
-    private NewsInfoViewCount buildDomain(String newsId, Long viewCount ,String category, LocalDateTime publishDate){
-        NewsInfoViewCount domain = toNewsInfoViewCount(
-            newsId,
-            viewCount,
-            publishDate,
-            category
-        );
+    /**
+     * 조회수 증가 가능 여부를 판단합니다.
+     * 도메인의 랭킹 적용 가능 여부와 IP 중복 체크를 조율합니다.
+     *
+     * @param domain 뉴스 조회수 도메인 객체
+     * @param newsId 뉴스 ID
+     * @param clientIp 클라이언트 IP
+     * @return 조회수 증가 가능 여부
+     * @author 양병학
+     * @since 2025-06-10
+     */
+    private boolean shouldIncreaseViewCount(NewsInfoViewCount domain, String newsId, String clientIp) {
+        if (!domain.isEligibleForRanking()) {
+            log.debug("랭킹 대상이 아님 - 뉴스ID: {}", newsId);
+            return false;
+        }
 
-        return domain;
+        if (newsViewCountPort.hasViewHistory(newsId, clientIp)) {
+            log.debug("IP 중복 조회 - 뉴스ID: {}, IP: {}", newsId, clientIp);
+            return false;
+        }
+
+        log.debug("조회수 증가 가능 - 뉴스ID: {}, IP: {}", newsId, clientIp);
+        return true;
     }
 
+    private NewsInfoViewCount buildDomain(String newsId, Long viewCount, String category, LocalDateTime publishDate) {
+        return toNewsInfoViewCount(newsId, viewCount, publishDate, category);
+    }
 
+    /**
+     * 뉴스 메타데이터를 캐시와 함께 조회합니다.
+     *
+     * @param newsId 뉴스 ID
+     * @return 뉴스 메타데이터
+     * @author 양병학
+     * @since 2025-06-10
+     */
     @Cacheable(value = "newsMetadata", key = "#newsId")
     private NewsInfoMetadata fetchNewsInfoDetailWithCache(String newsId) {
         return newsDetailProviderPort.getNewsInfoMetadataByArticleId(newsId)
