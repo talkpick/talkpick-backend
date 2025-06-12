@@ -69,32 +69,79 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
      * 뉴스 ID를 기반으로 조회수를 증가시키는 로직 실행 (일반 조회수 redis + 인기 뉴스용 조회수 redis)
      * IP 중복 체크 및 비즈니스 정책을 관리합니다.
      *
-     * @param newsId      조회할 뉴스의 ID
+     * @param newsId 조회할 뉴스의 ID
      * @return 뉴스 조회수 응답객체
      * @author 양병학
      * @since 2025-06-08
      * @modified 2025-06-10 IP 중복 체크 로직을 현재위치로 이동
      */
     public NewsInfoViewCount getNewsInfoViewCount(String newsId) {
-
         NewsInfoMetadata metadata = fetchNewsInfoDetailWithCache(newsId);
-        String clientIp = clientInfoPort.getClientIpAddress();
-
-        Long currentViewCount = newsViewCountPort.getCurrentViewCount(newsId);
-        NewsInfoViewCount domain = buildDomain(newsId, currentViewCount, metadata.getCategory(), metadata.getPubDate());
+        String clientIp = getClientIpAddress();
+        NewsInfoViewCount domain = createInitialDomain(newsId, metadata);
 
         if (shouldIncreaseViewCount(domain, newsId, clientIp)) {
-            domain.addViewCount();
-
-            newsViewCountIncreaseUseCase.increaseViewCount(
-                newsId,
-                domain.getViewCount(),
-                metadata.getCategory(),
-                metadata.getPubDate()
-            );
+            return processViewCountIncrease(domain, newsId, metadata);
         }
 
         return domain;
+    }
+
+    /**
+     * 클라이언트 IP 주소를 조회합니다.
+     *
+     * @author 양병학
+     * @return 클라이언트 IP 주소
+     */
+    private String getClientIpAddress() {
+        return clientInfoPort.getClientIpAddress();
+    }
+
+    /**
+     * 초기 도메인 객체를 생성합니다.
+     *
+     * @param newsId 뉴스 ID
+     * @param metadata 뉴스 메타데이터
+     * @author 양병학
+     * @return 초기 도메인 객체
+     */
+    private NewsInfoViewCount createInitialDomain(String newsId, NewsInfoMetadata metadata) {
+        Long currentViewCount = newsViewCountPort.getCurrentViewCount(newsId);
+        return buildDomain(newsId, currentViewCount, metadata.getCategory(), metadata.getPubDate());
+    }
+
+    /**
+     * 조회수 증가 처리를 수행합니다.
+     *
+     * @param domain 도메인 객체
+     * @param newsId 뉴스 ID
+     * @param metadata 뉴스 메타데이터
+     * @author 양병학
+     * @return 조회수가 증가된 도메인 객체
+     */
+    private NewsInfoViewCount processViewCountIncrease(NewsInfoViewCount domain, String newsId, NewsInfoMetadata metadata) {
+        domain.addViewCount();
+
+        saveIncreasedViewCount(newsId, domain.getViewCount(), metadata);
+
+        return domain;
+    }
+
+    /**
+     * 증가된 조회수를 저장합니다.
+     *
+     * @param newsId 뉴스 ID
+     * @param viewCount 증가된 조회수
+     * @param metadata 뉴스 메타데이터
+     * @author 양병학
+     */
+    private void saveIncreasedViewCount(String newsId, Long viewCount, NewsInfoMetadata metadata) {
+        newsViewCountIncreaseUseCase.increaseViewCount(
+            newsId,
+            viewCount,
+            metadata.getCategory(),
+            metadata.getPubDate()
+        );
     }
 
     /**
