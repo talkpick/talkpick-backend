@@ -5,6 +5,9 @@ import static com.likelion.backendplus4.talkpick.backend.news.info.application.m
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -46,6 +49,9 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
     private final HighlightCalculator highlightCalculator;
     private final ClientInfoPort clientInfoPort;
 
+    private final Semaphore semaphore = new Semaphore(5);
+    private final ConcurrentHashMap<String, ReentrantLock> newsLocks = new ConcurrentHashMap<>();
+
     /**
      * 뉴스 ID를 기반으로 뉴스 상세 정보 조회
      *
@@ -76,15 +82,31 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
      * @modified 2025-06-10 IP 중복 체크 로직을 현재위치로 이동
      */
     public NewsInfoViewCount getNewsInfoViewCount(String newsId) {
-        NewsInfoMetadata metadata = fetchNewsInfoDetailWithCache(newsId);
-        String clientIp = getClientIpAddress();
-        NewsInfoViewCount domain = createInitialDomain(newsId, metadata);
+        try {
+            semaphore.acquire();
 
-        if (shouldIncreaseViewCount(domain, newsId, clientIp)) {
-            return processViewCountIncrease(domain, newsId, metadata);
+            NewsInfoMetadata metadata = fetchNewsInfoDetailWithCache(newsId);
+            String clientIp = getClientIpAddress();
+            ReentrantLock lock = newsLocks.computeIfAbsent(newsId, k -> new ReentrantLock());
+
+            lock.lock();
+            try {
+                NewsInfoViewCount domain = createInitialDomain(newsId, metadata);
+                if (shouldIncreaseViewCount(domain, newsId, clientIp)) {
+                    domain.addViewCount();
+                    saveIncreasedViewCount(newsId, domain.getViewCount(), metadata);
+                    return domain;
+                }
+                return domain;
+            } finally {
+                lock.unlock();
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("처리 중단됨");
+        } finally {
+            semaphore.release();
         }
-
-        return domain;
     }
 
     /**
@@ -161,10 +183,10 @@ public class NewsInfoDetailProviderService implements NewsInfoDetailProviderUseC
             return false;
         }
 
-        if (newsViewCountPort.hasViewHistory(newsId, clientIp)) {
-            log.debug("IP 중복 조회 - 뉴스ID: {}, IP: {}", newsId, clientIp);
-            return false;
-        }
+        // if (newsViewCountPort.hasViewHistory(newsId, clientIp)) {
+        //     log.debug("IP 중복 조회 - 뉴스ID: {}, IP: {}", newsId, clientIp);
+        //     return false;
+        // }
 
         log.debug("조회수 증가 가능 - 뉴스ID: {}, IP: {}", newsId, clientIp);
         return true;
