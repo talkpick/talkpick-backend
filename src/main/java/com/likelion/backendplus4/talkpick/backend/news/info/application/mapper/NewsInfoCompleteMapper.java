@@ -21,7 +21,7 @@ public class NewsInfoCompleteMapper {
 	 * @author 정안식
 	 * @since 2025-05-28
 	 */
-	public static NewsInfoComplete toNewsInfoComplete(NewsInfoDetail newsInfoDetail, List<HighlightSegment> highlightSegments,Long currentViewCount) {
+	public static NewsInfoComplete toNewsInfoComplete(NewsInfoDetail newsInfoDetail, List<HighlightSegment> highlightSegments) {
 
 		return NewsInfoComplete
 				.builder()
@@ -33,7 +33,6 @@ public class NewsInfoCompleteMapper {
 				.content(newsInfoDetail.getContent())
 				.imageUrl(newsInfoDetail.getImageUrl())
 				.summary(newsInfoDetail.getSummary())
-				.viewCount(currentViewCount)
 				.highlights(highlightSegments)
 				.build();
 	}
@@ -50,7 +49,6 @@ public class NewsInfoCompleteMapper {
 			.content(newsInfoDetail.getContent())
 			.imageUrl(newsInfoDetail.getImageUrl())
 			.summary(newsInfoDetail.getSummary())
-			.viewCount(newsInfoDetail.getViewCount())
 			.highlights(highlightSegments)
 			.build();
 	}

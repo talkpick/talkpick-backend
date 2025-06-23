@@ -17,6 +17,5 @@ public class NewsInfoComplete {
 	private final String content;
 	private final String imageUrl;
 	private final String summary;
-	private final Long viewCount;
 	private final List<HighlightSegment> highlights;
 }

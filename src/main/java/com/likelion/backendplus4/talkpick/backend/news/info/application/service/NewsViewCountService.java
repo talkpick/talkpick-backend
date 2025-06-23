@@ -11,9 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 뉴스 조회수 관련 서비스를 제공하는 클래스입니다.
+ * 뉴스 조회수 저장을 담당하는 서비스 클래스입니다.
+ * IP 중복 체크 및 비즈니스 정책은 Application Service에서 처리하고,
+ * 이 클래스는 순수한 저장 로직만 담당합니다.
  *
  * @since 2025-05-19 최초 작성
+ * @modified 2025-06-10 비즈니스 로직 제거, 순수 저장 UseCase로 단순화
  */
 @Slf4j
 @Service
@@ -24,90 +27,37 @@ public class NewsViewCountService implements NewsViewCountIncreaseUseCase {
     private final ClientInfoPort clientInfoPort;
 
     /**
-     * 뉴스의 조회수를 증가시키는 메서드입니다.
+     * 뉴스의 조회수를 저장합니다.
      *
-     * 1. IP 주소 기반으로 해당 뉴스에 대한 조회 이력 확인
-     * 2. 조회 이력이 없는 경우에만 조회수 증가
-     * 3. 조회 이력 저장
+     * Application Service에서 이미 IP 중복 체크 및 비즈니스 정책을 적용했으므로,
+     * 이 메서드는 순수한 저장 로직만 수행합니다.
      *
-     * @param newsId    조회수를 증가시킬 뉴스의 ID
+     * @param newsId 뉴스 ID
+     * @param viewCount 저장할 조회수
+     * @param category 뉴스 카테고리
+     * @param publishDate 뉴스 발행일
+     * @return 저장된 조회수
      * @author 양병학
      * @since 2025-05-19 최초 작성
+     * @modified 2025-06-10 IP 중복 체크 로직 제거, 순수 저장 로직으로 단순화
      */
     @Override
     @Transactional
-    public Long increaseViewCount(String newsId, String category, LocalDateTime publishDate) {
+    public Long increaseViewCount(String newsId, Long viewCount, String category, LocalDateTime publishDate) {
         String ipAddress = clientInfoPort.getClientIpAddress();
-        log.info("조회수 증가 요청 - 뉴스ID: {}, IP: {}", newsId, ipAddress);
 
-        return processViewCountWithDuplicateCheck(newsId, ipAddress, category, publishDate);
-    }
+        log.debug("조회수 저장 요청 - 뉴스ID: {}, IP: {}, 저장값: {}", newsId, ipAddress, viewCount);
 
-    /**
-     * 중복 체크를 포함한 조회수 증가 처리를 수행합니다.
-     *
-     * @param newsId 뉴스 ID
-     * @param ipAddress 클라이언트 IP 주소
-     * @param category 뉴스 카테고리
-     * @param publishDate 뉴스 발행일
-     * @return 처리된 조회수
-     * @author 양병학
-     * @since 2025-06-01 최초 작성
-     */
-    private Long processViewCountWithDuplicateCheck(String newsId, String ipAddress, String category, LocalDateTime publishDate) {
-        boolean hasHistory = checkViewHistory(newsId, ipAddress);
+        Long savedViewCount = newsViewCountPort.saveIncreasedViewCount(
+            newsId,
+            ipAddress,
+            category,
+            publishDate,
+            viewCount
+        );
 
-        if (!hasHistory) {
-            return increaseViewCountInternal(newsId, ipAddress, category, publishDate);
-        } else {
-            return getCurrentViewCountWhenDuplicate(newsId, ipAddress);
-        }
-    }
+        log.debug("조회수 저장 완료 - 뉴스ID: {}, 저장된 조회수: {}", newsId, savedViewCount);
 
-    /**
-     * 조회 이력을 확인합니다.
-     *
-     * @param newsId 뉴스 ID
-     * @param ipAddress 클라이언트 IP 주소
-     * @return 조회 이력 존재 여부
-     * @author 양병학
-     * @since 2025-06-01 최초 작성
-     */
-    private boolean checkViewHistory(String newsId, String ipAddress) {
-        boolean hasHistory = newsViewCountPort.hasViewHistory(newsId, ipAddress);
-        log.info("조회 이력 확인 - 뉴스ID: {}, IP: {}, 이력있음: {}", newsId, ipAddress, hasHistory);
-        return hasHistory;
-    }
-
-    /**
-     * 실제 조회수 증가를 수행합니다.
-     *
-     * @param newsId 뉴스 ID
-     * @param ipAddress 클라이언트 IP 주소
-     * @param category 뉴스 카테고리
-     * @param publishDate 뉴스 발행일
-     * @return 증가된 조회수
-     * @author 양병학
-     * @since 2025-06-01 최초 작성
-     */
-    private Long increaseViewCountInternal(String newsId, String ipAddress, String category, LocalDateTime publishDate) {
-        log.info("조회수 증가 실행 - 뉴스ID: {}", newsId);
-        Long newViewCount = newsViewCountPort.increaseViewCount(newsId, ipAddress, category, publishDate);
-        log.info("조회수 증가 처리 완료 - 뉴스ID: {}, 새 조회수: {}", newsId, newViewCount);
-        return newViewCount;
-    }
-
-    /**
-     * 중복 조회일 때 현재 조회수를 반환합니다.
-     *
-     * @param newsId 뉴스 ID
-     * @param ipAddress 클라이언트 IP 주소
-     * @return 현재 조회수
-     * @author 양병학
-     * @since 2025-06-01 최초 작성
-     */
-    private Long getCurrentViewCountWhenDuplicate(String newsId, String ipAddress) {
-        log.info("이미 조회한 사용자 - 조회수 증가 안 함 - 뉴스ID: {}, IP: {}", newsId, ipAddress);
-        return newsViewCountPort.getCurrentViewCount(newsId);
+        return savedViewCount;
     }
 }
