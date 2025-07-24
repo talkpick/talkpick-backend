@@ -18,7 +18,7 @@ public class NewsInfoViewCount {
     }
 
     public boolean isEligibleForRanking() {
-        return isRecentNews() && isValidViewCount();
+        return isValidViewCount();
     }
 
     private boolean isRecentNews() {
