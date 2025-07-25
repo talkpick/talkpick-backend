@@ -2,6 +2,8 @@ package com.likelion.backendplus4.talkpick.backend.news.info.presentation.contro
 
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.NewsInfoDetailResponse;
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoViewCount;
+import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request.NewsInfoViewCountRequest;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request.ScrapRequest;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.validator.NewsIdConstraint;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,6 +28,20 @@ public interface NewsInfoDetailProviderControllerDocs {
 		description = "뉴스 ID(@NewsIdConstraint)에 해당하는 상세 정보를 반환합니다."
 	)
 	ResponseEntity<ApiResponse<NewsInfoDetailResponse>> getNewsInfoDetailsByArticleId(
+		@Parameter(
+			in = ParameterIn.PATH,
+			description = "조회할 뉴스 ID (형식: KM123, DA456, KH789)",
+			required = true,
+			example = "KM123"
+		)
+		@PathVariable @NewsIdConstraint String id
+	);
+
+	@Operation(
+			summary = "뉴스 동적 정보 조회",
+			description = "뉴스 ID에 해당하는 동적 정보(조회수 등)를 반환하고 조회수를 증가시킵니다."
+	)
+	ResponseEntity<ApiResponse<NewsInfoViewCount>> getNewsInfoViewCount(
 		@Parameter(
 			in = ParameterIn.PATH,
 			description = "조회할 뉴스 ID (형식: KM123, DA456, KH789)",

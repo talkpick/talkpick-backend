@@ -17,7 +17,6 @@ public class NewsInfoDetailResponseMapper {
 			.content(complete.getContent())
 			.imageUrl(complete.getImageUrl())
 			.summary(complete.getSummary())
-			.viewCount(complete.getViewCount())
 			.highlightSegments(complete.getHighlights())
 			.build();
 	}

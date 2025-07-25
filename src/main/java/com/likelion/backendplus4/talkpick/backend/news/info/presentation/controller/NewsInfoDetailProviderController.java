@@ -5,6 +5,8 @@ import static com.likelion.backendplus4.talkpick.backend.news.info.presentation.
 import static com.likelion.backendplus4.talkpick.backend.news.info.presentation.mapper.ScrapCommandMapper.*;
 
 
+import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoViewCount;
+import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request.NewsInfoViewCountRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +21,6 @@ import com.likelion.backendplus4.talkpick.backend.common.annotation.security.Log
 import com.likelion.backendplus4.talkpick.backend.common.response.ApiResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.dto.NewsInfoDetailResponse;
 import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsInfoDetailProviderUseCase;
-import com.likelion.backendplus4.talkpick.backend.news.info.application.port.in.NewsViewCountIncreaseUseCase;
 import com.likelion.backendplus4.talkpick.backend.news.info.domain.model.NewsInfoComplete;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.dto.request.ScrapRequest;
 import com.likelion.backendplus4.talkpick.backend.news.info.presentation.controller.docs.NewsInfoDetailProviderControllerDocs;
@@ -33,48 +34,75 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 public class NewsInfoDetailProviderController implements NewsInfoDetailProviderControllerDocs {
-	private final NewsInfoDetailProviderUseCase newsInfoDetailProviderUseCase;
-	private final NewsViewCountIncreaseUseCase newsViewCountIncreaseUseCase;
+    private final NewsInfoDetailProviderUseCase newsInfoDetailProviderUseCase;
 
-	/**
-	 * 뉴스 ID를 기반으로 뉴스 상세 정보를 조회하는 API 엔드포인트입니다.
-	 *
-	 * 1. 뉴스 ID 형식 검증 (KM, DA, KH 접두사 + 숫자)
-	 * 2. 클라이언트 IP 주소 획득
-	 * 3. 조회수 증가 (중복 조회 제외)
-	 * 4. 뉴스 상세 정보 조회 및 응답
-	 *
-	 * @param id 조회할 뉴스의 ID (형식: KM123, DA456, KH789)
-	 * @return 뉴스 상세 정보가 포함된 API 응답
-	 * @throws jakarta.validation.ConstraintViolationException 뉴스 ID 형식이 잘못된 경우
-	 * @since 2025-05-19 최초 작성
-	 * @author 양병학
-	 * @modified 2025-05-25 양병학
-	 *  - 뉴스 ID validation 추가
-	 */
-	@LogJson
-	@EntryExitLog
-	@Override
-	@GetMapping("/public/news/{id}")
-	public ResponseEntity<ApiResponse<NewsInfoDetailResponse>> getNewsInfoDetailsByArticleId(
-		@PathVariable @NewsIdConstraint String id) {
+    /**
+     * 뉴스 ID를 기반으로 뉴스 상세 정보를 조회하는 API 엔드포인트입니다.
+     * CDN캐싱을 위해 동적데이터는 모두 제거됨
+     *
+     * 1. 뉴스 ID 형식 검증 (KM, DA, KH 접두사 + 숫자)
+     * 4. 뉴스 상세 정보 조회 및 응답
+     *
+     * @param id 조회할 뉴스의 ID (형식: KM123, DA456, KH789)
+     * @return 뉴스 상세 정보가 포함된 API 응답
+     * @throws jakarta.validation.ConstraintViolationException 뉴스 ID 형식이 잘못된 경우
+     * @author 양병학
+     * @modified 2025-05-25 양병학
+     *           - 뉴스 ID validation 추가
+     *           2025-06-08 양병학
+     *           - 조회수 관련 로직 분리
+     * @since 2025-05-19 최초 작성
+     */
+    @LogJson
+    @EntryExitLog
+    @Override
+    @GetMapping("/public/news/{id}")
+    public ResponseEntity<ApiResponse<NewsInfoDetailResponse>> getNewsInfoDetailsByArticleId(
+            @PathVariable @NewsIdConstraint String id) {
 
-		NewsInfoComplete newsInfoComplete = newsInfoDetailProviderUseCase.getNewsInfoDetailByNewsId(id);
+        NewsInfoComplete newsInfoComplete = newsInfoDetailProviderUseCase.getNewsInfoDetailByNewsId(id);
 
-		return success(toResponse(newsInfoComplete));
-	}
+        return success(toResponse(newsInfoComplete));
+    }
 
-	@LogJson
-	@EntryExitLog
-	@Override
-	@PostMapping("/scrap/{newsId}")
-	public ResponseEntity<ApiResponse<Void>> saveScrap(
-		@NotBlank(message = "newsId는 필수입니다.") @PathVariable String newsId,
-		@LoginUser Long loginUser,
-		@Valid @RequestBody ScrapRequest scrapRequest) {
+    /**
+     * 뉴스 ID와 newsID를 바탕으로 조회수를 받아오는
+     * 동적데이터 조회 API입니다.
+     *
+     * 기존의 조회수 증가 로직 또한 이 API호출에 합쳐져있습니다.
+     *
+     * @param newsId 조회할 뉴스의 ID (ex: "KH202506081640001")
+     *
+     * @return 뉴스 ID, 조회수
+     * @throws jakarta.validation.ConstraintViolationException 뉴스 ID 형식이 잘못된 경우
+     * @author 양병학
+     * @since 2025-06-08
+     * @modified 2025-06-09 newsId값 request안에 포함
+     * @modified 2025-06-10 newsId만 받는 Getmapping 변환
+     */
+    @LogJson
+    @EntryExitLog
+    @Override
+    @GetMapping("/public/news/viewcount/{newsId}")
+    public ResponseEntity<ApiResponse<NewsInfoViewCount>> getNewsInfoViewCount(
+        @PathVariable @NewsIdConstraint String newsId) {
 
-		newsInfoDetailProviderUseCase.saveScrap(toCommand(newsId, loginUser, scrapRequest));
+        NewsInfoViewCount newsInfoViewCount = newsInfoDetailProviderUseCase.getNewsInfoViewCount(newsId);
 
-		return success();
-	}
+        return success(newsInfoViewCount);
+    }
+
+    @LogJson
+    @EntryExitLog
+    @Override
+    @PostMapping("/scrap/{newsId}")
+    public ResponseEntity<ApiResponse<Void>> saveScrap(
+            @NotBlank(message = "newsId는 필수입니다.") @PathVariable String newsId,
+            @LoginUser Long loginUser,
+            @Valid @RequestBody ScrapRequest scrapRequest) {
+
+        newsInfoDetailProviderUseCase.saveScrap(toCommand(newsId, loginUser, scrapRequest));
+
+        return success();
+    }
 }

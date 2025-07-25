@@ -33,6 +33,13 @@ public interface NewsInfoJpaRepository extends JpaRepository<ArticleEntity, Long
 	List<ArticleEntity> findByGuid(String guid);
 
 	@Query("""
+    SELECT a.guid, a.category, a.pubDate
+    FROM ArticleEntity a
+    WHERE a.guid = :guid
+""")
+	Optional<Object[]> findMetadataByGuid(@Param("guid") String guid);
+
+	@Query("""
       select distinct a
       from ArticleEntity a
       left join fetch a.scrapEntities
